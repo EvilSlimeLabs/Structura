@@ -582,6 +582,70 @@
       "up": "chain1"
     }
   },
+  "copper_chain": {
+    "sound": "chain",
+    "textures": {
+      "down": "copper_chain1",
+      "side": "copper_chain2",
+      "up": "copper_chain1"
+    }
+  },
+  "exposed_copper_chain": {
+    "sound": "chain",
+    "textures": {
+      "down": "exposed_copper_chain1",
+      "side": "exposed_copper_chain2",
+      "up": "exposed_copper_chain1"
+    }
+  },
+  "weathered_copper_chain": {
+    "sound": "chain",
+    "textures": {
+      "down": "weathered_copper_chain1",
+      "side": "weathered_copper_chain2",
+      "up": "weathered_copper_chain1"
+    }
+  },
+  "oxidized_copper_chain": {
+    "sound": "chain",
+    "textures": {
+      "down": "oxidized_copper_chain1",
+      "side": "oxidized_copper_chain2",
+      "up": "oxidized_copper_chain1"
+    }
+  },
+  "waxed_copper_chain": {
+    "sound": "chain",
+    "textures": {
+      "down": "copper_chain1",
+      "side": "copper_chain2",
+      "up": "copper_chain1"
+    }
+  },
+  "waxed_exposed_copper_chain": {
+    "sound": "chain",
+    "textures": {
+      "down": "exposed_copper_chain1",
+      "side": "exposed_copper_chain2",
+      "up": "exposed_copper_chain1"
+    }
+  },
+  "waxed_weathered_copper_chain": {
+    "sound": "chain",
+    "textures": {
+      "down": "weathered_copper_chain1",
+      "side": "weathered_copper_chain2",
+      "up": "weathered_copper_chain1"
+    }
+  },
+  "waxed_oxidized_copper_chain": {
+    "sound": "chain",
+    "textures": {
+      "down": "oxidized_copper_chain1",
+      "side": "oxidized_copper_chain2",
+      "up": "oxidized_copper_chain1"
+    }
+  },
   "chain_command_block": {
     "sound": "metal",
     "textures": {
@@ -2236,7 +2300,7 @@
       "east": "cauldron_side",
       "north": "cauldron_side",
       "south": "cauldron_side",
-      "up": "cauldron_top_lava",
+      "up": "cauldron_top",
       "west": "cauldron_side"
     }
   },

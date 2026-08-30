@@ -1,0 +1,6 @@
+[submodule "CommunityVanillaResourcePack"]
+	path = CommunityVanillaResourcePack
+	url = https://github.com/ZtechNetwork/MCBVanillaResourcePack.git
+[submodule "be_tech_pack"]
+	path = be_tech_pack
+	url = git@github.com:EvilSlimeLabs/Bedrock-Technical-Resource-Pack.git

@@ -468,9 +468,6 @@
     "cauldron_top": {
       "textures": "textures/blocks/cauldron_top"
     },
-    "cauldron_top_lava": {
-      "textures": "textures/blocks/cauldron_top_lava"
-    },
     "cauldron_water": {
       "textures": "textures/blocks/cauldron_water"
     },
@@ -491,6 +488,30 @@
     },
     "chain2": {
       "textures": "textures/blocks/chain2"
+    },
+    "copper_chain1": {
+      "textures": "textures/blocks/copper_chain1"
+    },
+    "copper_chain2": {
+      "textures": "textures/blocks/copper_chain2"
+    },
+    "exposed_copper_chain1": {
+      "textures": "textures/blocks/exposed_copper_chain1"
+    },
+    "exposed_copper_chain2": {
+      "textures": "textures/blocks/exposed_copper_chain2"
+    },
+    "weathered_copper_chain1": {
+      "textures": "textures/blocks/weathered_copper_chain1"
+    },
+    "weathered_copper_chain2": {
+      "textures": "textures/blocks/weathered_copper_chain2"
+    },
+    "oxidized_copper_chain1": {
+      "textures": "textures/blocks/oxidized_copper_chain1"
+    },
+    "oxidized_copper_chain2": {
+      "textures": "textures/blocks/oxidized_copper_chain2"
     },
     "chest_inventory": {
       "textures": [
@@ -4229,8 +4250,8 @@
         "textures/blocks/stripped_acacia_log",
         "textures/blocks/log_big_oak",
         "textures/blocks/stripped_dark_oak_log",
-        "textures/blocks/stripped_pale_oak_log",
-        "textures/blocks/stripped_cherry_log"
+        "textures/blocks/stripped_pale_oak_log_side",
+        "textures/blocks/stripped_cherry_log_side"
       ]
     },
     "wood_acacia": {

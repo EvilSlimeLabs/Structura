@@ -31,6 +31,12 @@ from structura_core import structura
 
 structura_update_version = "Structura1-7"
 
+## the slider is transparency, so 0 is a solid ghost block and 100 would be
+## invisible. It stops at 99 so a ghost block always has some alpha left.
+DEFAULT_OPACITY = 85
+DEFAULT_TRANSPARENCY = 100 - DEFAULT_OPACITY
+MAX_TRANSPARENCY = 99
+
 if not(os.path.exists("lookups")):
     print("getting files")
     updater.update("https://update.structuralab.com/structuraUpdate",structura_update_version,"")
@@ -48,13 +54,18 @@ lang = langs[settings["lang"]]
 parser = argparse.ArgumentParser(description="Structura app that generates Resource packs from .mcstructure files.")
 parser.add_argument("--structure", type=str, help=".mcstructure file")
 parser.add_argument("--pack_name", type=str, help="Name of pack")
-parser.add_argument("--opacity", type=int, help="Opacity of blocks")
+parser.add_argument("--opacity", type=int, help="Opacity of blocks, 1-100")
 parser.add_argument("--icon", type=str, help="Icon for pack")
 parser.add_argument("--offset", type=str, help="X, Y, X")
 parser.add_argument("--overwrite", type=bool, help="Overwrite the output file.")
 parser.add_argument("--debug", "-db", action='store_true', help='Enable debug mode')
 parser.add_argument("--update", action='store_true', help='Run updater')
 args = parser.parse_args()
+
+def transparency_to_alpha(transparency):
+    #the slider reads as transparency: 0 is fully opaque, 100 is invisible.
+    #set_opacity wants the alpha fraction, so invert and scale here.
+    return (100 - transparency) / 100
 
 def browseStruct():
     #browse for a structure file.
@@ -109,9 +120,10 @@ def box_checked():
         y_entry.grid_forget()
         z_entry.grid_forget()
         big_build_check.grid_forget()
-        transparency_lb.grid_forget()
-        transparency_entry.grid_forget()
         get_cords_button.grid_forget()
+        transparency_lb.grid(row=r, column=0)
+        transparency_entry.grid(row=r, column=1, columnspan=2)
+        r += 1
         advanced_check.grid(row=r, column=0)
         export_check.grid(row=r, column=1)
         saveButton.grid(row=r, column=2)
@@ -179,7 +191,7 @@ def add_model():
 
     if valid:
         name_tag=model_name_var.get()
-        opacity=(100-sliderVar.get())/100
+        opacity=transparency_to_alpha(sliderVar.get())
         models[name_tag] = {}
         models[name_tag]["offsets"] = [xvar.get(),yvar.get(),zvar.get()]
         models[name_tag]["opacity"] = opacity
@@ -229,7 +241,7 @@ def runFromGui():
 
     if not stop:
         structura_base=structura(packName.get())
-        structura_base.set_opacity(sliderVar.get())
+        structura_base.set_opacity(transparency_to_alpha(sliderVar.get()))
         if len(icon_var.get())>0:
             structura_base.set_icon(icon_var.get())
 
@@ -262,7 +274,7 @@ def runFromGui():
 # Command Line interface
 if args.structure and args.pack_name:
 
-    opacity = args.opacity or 20
+    opacity = DEFAULT_OPACITY if args.opacity is None else args.opacity
     offset = [0, 0, 0]
     if args.offset:
         offset = [int(val) for val in args.offset.split(",")]
@@ -272,7 +284,7 @@ if args.structure and args.pack_name:
         os.remove(pack_file)
 
     structura_base = structura(args.pack_name)
-    structura_base.set_opacity(opacity)
+    structura_base.set_opacity(min(max(opacity, 1), 100) / 100)
 
     if icon := args.icon:
         structura_base.set_icon(icon)
@@ -306,7 +318,7 @@ check_var = IntVar()
 export_list = IntVar()
 big_build = IntVar()
 big_build.set(0)
-sliderVar.set(20)
+sliderVar.set(DEFAULT_TRANSPARENCY)
 listbox=Listbox(root)
 title_text = Label(root, text=lang["title"])
 file_entry = Entry(root, textvariable=FileGUI)
@@ -334,7 +346,7 @@ saveButton = Button(root, text=lang["makepack"], command=runFromGui)
 modelButton = Button(root, text=lang["addmodel"], command=add_model)
 get_cords_button = Button(root, text=lang["getcords"], command=get_global_cords)
 transparency_lb = Label(root, text=lang["transparency"])
-transparency_entry = Scale(root,variable=sliderVar, length=200, from_=0, to=100,tickinterval=10,orient=HORIZONTAL)
+transparency_entry = Scale(root,variable=sliderVar, length=200, from_=0, to=MAX_TRANSPARENCY,tickinterval=10,orient=HORIZONTAL)
 
 box_checked()
 

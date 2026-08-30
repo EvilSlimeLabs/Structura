@@ -53,7 +53,7 @@ class structura:
         visual_name=pack_name
         self.animation = animation_class.animations()
         self.exclude_list=["minecraft:structure_block","minecraft:air"]
-        self.opacity=0.8
+        self.opacity=0.85
         self.longestY=0
         self.unsupported_blocks=[]
         self.all_blocks={}
