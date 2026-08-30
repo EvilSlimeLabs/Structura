@@ -11,15 +11,6 @@ separate list — see `BLOCK_COVERAGE_GAPS.md`.
 
 ## Crashes
 
-**`lang["Error"]` raises `KeyError` on every validation path.**
-`lookups/langs.csv` calls the string `error`, lower case. `structura.py` asks
-for `"Error"` at lines 187, 189, 228, 233, 236 and 240 — which is every message
-box the GUI shows when the user gets something wrong. Browsing without picking a
-structure, reusing a name tag, an empty pack name, a pack that already exists:
-all of them raise instead of explaining. Either rename the CSV key or fix the
-six lookups; fixing the lookups is smaller and keeps the other translations
-valid.
-
 **A model added without an offset crashes the generator.**
 `structura.generate_with_nametags` computes a default offset when
 `structure_files[name]["offsets"]` is `None`, assigns it to a local named
@@ -126,49 +117,6 @@ next caller.
 
 ---
 
-## Build and release
-
-**The build workflow never fires on this branch.** `.github/workflows/build.yml`
-triggers on pushes to `main`; this repository's default branch is `master`.
-Every build so far has come from `workflow_dispatch`.
-
-**Nothing runs the tests.** The workflow bundles and uploads; it does not
-install and run `tests/`. And `tests/` has no `__init__.py`, so
-`python -m unittest discover -s tests -t .` fails with "Start directory is not
-importable" — the tests only run when named explicitly
-(`python -m unittest tests.test_slab_states`). Adding the package marker and a
-test step is a small change that would have caught the slab regression.
-
-**`structura.spec` is not used.** The workflow calls
-`pyinstaller --clean --onefile structura.py`, which regenerates a spec from
-scratch and ignores the checked-in one. The two will drift.
-
-**`VERSION` is not read by anything.** `CLAUDE.md` says the VERSION file is the
-source of truth and that the build copies it where it is needed, but no code,
-workflow or spec references it. `structura.py` hardcodes
-`structura_update_version = "Structura1-7"`, and `manifest.py` hardcodes the
-generated pack's version at `[0, 0, 1]`. Pick one source and have the others
-read it.
-
-**`requirements.txt` mixes two applications and pins stale versions.**
-`PyNaCl`, `cffi` and `pycparser` are only needed by `lambda_function.py`;
-`boto3`, `botocore` and `PyJWT`, which that file also imports, are absent, so
-the list does not actually install the Lambda either. `pooch`, `platformdirs`
-and `packaging` are imported by nothing in the repository. `certifi==2022.12.7`,
-`urllib3==1.26.14` and `requests==2.28.2` are exact pins three years old with
-published advisories. Splitting desktop and Lambda requirements and loosening
-the pins on the transitive ones would fix both problems.
-
-**Generated packs get fresh UUIDs on every build.** `manifest.py` calls
-`uuid.uuid4()` for the header and module every time. Regenerating a pack after
-tweaking a structure therefore produces a pack Minecraft treats as unrelated to
-the one already applied to the world, rather than an update of it. Deriving the
-UUIDs deterministically from the pack name would let a rebuild replace the old
-pack in place. Worth confirming in game before changing — it is a behaviour
-users may have built habits around.
-
----
-
 ## Structure and maintenance
 
 **`CLAUDE.md` describes a different project.** It says the source lives in
@@ -191,9 +139,16 @@ round had to be reasoned about separately for it. Either it imports
 `build all .py` (a filename with spaces), `creating AWS layers.txt`,
 `merge_terrain_texture.py` and `Vanilla_Resource_Pack/merge_blocks.py` are all
 loose at the top level alongside the program. Moving the program into a package
-and the one-off scripts into `tools/` would make the PyInstaller entry point
-obvious and stop `structura.py` from being a module that opens a window as a
-side effect of import.
+and the one-off scripts into `tools/` would make the entry points obvious and
+stop `structura.py` from being a module that opens a window as a side effect of
+import.
+
+**`build all .py` now overlaps `build.py`.** Both freeze the executable, and
+`build.py` does it with the spec and the tests. What only lives in
+`build all .py` is the lookup update package for the update server — which this
+fork does not publish to — and the AWS Lambda deployment zip. Those two should
+either move into `build.py` behind flags or become their own script; keeping a
+second, worse copy of the freeze step is the part that will bite.
 
 **`structura.py` builds the GUI at import time.** Everything from `root = Tk()`
 down runs on import, which is why the CLI branch has to `sys.exit(0)` before
@@ -236,11 +191,9 @@ itself — it deserves a comment; if not, it is dead weight in every download.
 
 ## Suggested order
 
-1. The three crashes. They are small and two of them are one-liners.
-2. `tests/__init__.py`, a test step in CI, and the workflow branch. Everything
-   after this is safer with those in place.
-3. The `block_uv` variant lookup and the missing variants. This is the largest
+1. The two crashes. Both are small.
+2. The `block_uv` variant lookup and the missing variants. This is the largest
    visible-quality win and it is confined to two lookup tables and one function.
-4. The vanilla-pack merge script.
-5. `BLOCK_COVERAGE_GAPS.md` priority 1, then 2, using that script.
-6. `CLAUDE.md`, `requirements.txt` and the repository layout.
+3. The vanilla-pack merge script.
+4. `BLOCK_COVERAGE_GAPS.md` priority 1, then 2, using that script.
+5. `CLAUDE.md`, `build all .py` and the repository layout.

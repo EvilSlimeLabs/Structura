@@ -65,6 +65,26 @@ To run from command line
 python structura.py --structure path\to\build.mcstructure --pack_name 'CLI Pack' --overwrite True
 ```
 
+## Building a release
+
+Releases are built locally. The version comes from the `VERSION` file at the
+repository root — bump that first, then:
+
+```bash
+python -m pip install -r requirements-build.txt
+python build.py
+```
+
+`build.py` runs the unit tests, freezes `structura.py` with PyInstaller using
+`structura.spec`, and writes `dist/Structura-<version>.zip` containing the
+executable alongside `lookups/`, `Vanilla_Resource_Pack/`, `VERSION`, the
+license and this README. It prints the archive's size and SHA-256 when it is
+done. The tests are not optional in the normal path; `--skip-tests` and
+`--skip-freeze` exist for iterating on the packaging step.
+
+The data directories ship beside the executable rather than inside it, because
+the program opens them by relative path at runtime.
+
 ## Updating blocks
 As of structura 1.3 you can update the blocks manually and contribute back to the project.
 [Here is a write up on how this works](docs/Editing%20Blocks.md)

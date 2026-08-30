@@ -4,6 +4,7 @@ import sys
 import updater
 import json
 import lang_parse
+import version
 
 from numpy import array, int32, minimum
 import nbtlib
@@ -30,6 +31,11 @@ from tkinter import (
 from structura_core import structura
 
 structura_update_version = "Structura1-7"
+
+## This fork does not publish to the upstream update server, so the button is
+## hidden. The updater, the update() handler and the --update flag all still
+## work; set this to True once the fork has an update source of its own.
+SHOW_UPDATE_BUTTON = False
 
 ## the slider is transparency, so 0 is a solid ghost block and 100 would be
 ## invisible. It stops at 99 so a ghost block always has some alpha left.
@@ -91,8 +97,12 @@ if args.update:
 
 def box_checked():
     r = 0
-    title_text.grid(row=r, column=0, columnspan=2)
-    updateButton.grid(row=r, column=2)
+    if SHOW_UPDATE_BUTTON:
+        title_text.grid(row=r, column=0, columnspan=2)
+        updateButton.grid(row=r, column=2)
+    else:
+        title_text.grid(row=r, column=0, columnspan=3)
+        updateButton.grid_forget()
     if check_var.get()==0:
         modle_name_entry.grid_forget()
         modle_name_lb.grid_forget()
@@ -184,9 +194,12 @@ def add_model():
 
     if len(FileGUI.get()) == 0:
         valid=False
-        messagebox.showinfo(lang["Error"], lang["browse file"])
+        messagebox.showinfo(lang["error"], lang["browse file"])
+    if big_build.get()==0 and len(model_name_var.get().strip()) == 0:
+        messagebox.showinfo(lang["error"], lang["no name tag"])
+        valid=False
     if model_name_var.get() in list(models.keys()):
-        messagebox.showinfo(lang["Error"], lang["unique tag"])
+        messagebox.showinfo(lang["error"], lang["unique tag"])
         valid=False
 
     if valid:
@@ -225,19 +238,19 @@ def runFromGui():
     stop = False
     if os.path.isfile("{}.mcpack".format(packName.get())):
         stop = True
-        messagebox.showinfo(lang["Error"], lang["pack name error"])
+        messagebox.showinfo(lang["error"], lang["pack name error"])
         ## could be fixed if temp files were used.
     if check_var.get()==0:
         if len(FileGUI.get()) == 0:
             stop = True
-            messagebox.showinfo(lang["Error"], lang["unique tag"])
+            messagebox.showinfo(lang["error"], lang["unique tag"])
     if len(packName.get()) == 0:
         stop = True
-        messagebox.showinfo(lang["Error"], lang["no pack name"])
+        messagebox.showinfo(lang["error"], lang["no pack name"])
     else:
         if len(list(models.keys()))==0 and check_var.get():
             stop = True
-            messagebox.showinfo(lang["Error"], lang["no structure files"])
+            messagebox.showinfo(lang["error"], lang["no structure files"])
 
     if not stop:
         structura_base=structura(packName.get())
@@ -301,7 +314,7 @@ if args.structure and args.pack_name:
 offsetLbLoc=4
 offsets={}
 root = Tk()
-root.title(structura_update_version)
+root.title("Structura {}".format(version.read()))
 models={}
 FileGUI = StringVar()
 packName = StringVar()

@@ -1,0 +1,5 @@
+# What build.py needs on top of the runtime dependencies.
+
+-r requirements.txt
+
+pyinstaller>=6.0.0

@@ -1,4 +1,8 @@
 # -*- mode: python ; coding: utf-8 -*-
+# Driven by build.py, which runs the tests, freezes with this spec and then
+# packages the executable together with lookups/ and Vanilla_Resource_Pack/.
+# Those directories are read by relative path at runtime, so they ship beside
+# the executable and are deliberately not listed in `datas`.
 
 
 a = Analysis(
@@ -23,6 +27,7 @@ exe = EXE(
     a.datas,
     [],
     name='Structura',
+    icon='pack_icon.ico',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

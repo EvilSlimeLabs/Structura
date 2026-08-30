@@ -1,0 +1,13 @@
+# Runtime dependencies for lambda_function.py, the AWS Lambda entry point.
+# It imports structura_core, so it needs the desktop runtime as well, minus
+# tkinter which it never touches.
+
+nbtlib>=2.0.4,<3
+numpy>=1.24.2
+Pillow>=9.4.0
+requests>=2.32.0
+ujson>=5.10.0
+
+boto3>=1.34.0
+PyJWT>=2.8.0
+PyNaCl>=1.5.0
