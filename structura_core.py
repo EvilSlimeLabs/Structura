@@ -1,6 +1,7 @@
 import json
 import os
 import shutil
+import tempfile
 import time
 from shutil import copyfile
 
@@ -44,25 +45,44 @@ with open("lookups/nbt_defs.json") as f:
     nbt_def = json.load(f)
 class structura:
     def __init__(self,pack_name):
-        os.makedirs(pack_name)
+        ## pack_name names the outputs the user gets; the pack tree itself is
+        ## assembled somewhere disposable. Building it in a folder of the
+        ## user's choosing meant a run that failed part way left that folder
+        ## behind, and the next run with the same name died on makedirs.
         self.timers={"start":time.time(),"previous":time.time()}
         self.pack_name=pack_name
+        self.display_name=os.path.basename(pack_name.rstrip("/\\")) or pack_name
+        ## a pack name may carry a directory ("tmp/my_pack"); the outputs go
+        ## there, so it has to exist even though the tree no longer does
+        parent=os.path.dirname(pack_name)
+        if parent:
+            os.makedirs(parent, exist_ok=True)
+        self.work_dir=tempfile.mkdtemp(prefix="structura-")
         self.structure_files={}
         self.rc=rcc.render_controller()
         self.armorstand_entity = armor_stand_class.armorstand()
         visual_name=pack_name
         self.animation = animation_class.animations()
-        self.exclude_list=["minecraft:structure_block","minecraft:air"]
-        self.opacity=0.85
+        self.exclude_list=["minecraft:{}".format(name) for name in asgc.EXCLUDED_BLOCKS]
+        self.opacity=asgc.DEFAULT_ALPHA
         self.longestY=0
         self.unsupported_blocks=[]
         self.all_blocks={}
         self.icon="lookups/pack_icon.png"
         self.dead_blocks={}
+    def cleanup(self):
+        """Drop the working tree. Safe to call twice; callers may use it in
+        a finally so a failed build leaves nothing behind."""
+        if self.work_dir and os.path.isdir(self.work_dir):
+            shutil.rmtree(self.work_dir, ignore_errors=True)
+        self.work_dir=None
     def set_icon(self,icon):
         self.icon=icon
     def set_opacity(self,opacity):
-        self.opacity=opacity
+        ## an alpha fraction, not a slider position. Out of range values used
+        ## to reach the uint8 alpha multiply and wrap around, which looked
+        ## like a working control with a sawtooth response.
+        self.opacity=min(max(float(opacity),0.0),1.0)
     def add_model(self,name,file_name):
         self.structure_files[name]={}
         self.structure_files[name]["file"]=file_name
@@ -95,25 +115,21 @@ class structura:
         self.armorstand_entity.add_scale()#scale animation was removed from normal build this needs to be added back for big builds
         self.big_offset=offset
         self.all_blocks=self._add_blocks_to_geo(struct2make,"",export_big=True)
-        self.armorstand_entity.export(self.pack_name)
+        self.armorstand_entity.export(self.work_dir)
     def generate_with_nametags(self):
         update_animation=True
         for model_name in self.structure_files.keys():
             if self.structure_files[model_name]["offsets"] is None:
-                offset=[0,0,0]
-            else:
-                offset=self.structure_files[model_name]["offsets"]
+                self.structure_files[model_name]["offsets"]=[0,0,0]
             self.rc.add_model(model_name)
             self.armorstand_entity.add_model(model_name)
-            ## temp folder would be a good idea
-            copyfile(self.structure_files[model_name]["file"], "{}/{}.mcstructure".format(self.pack_name,model_name))
             if debug:
                 print(self.structure_files[model_name]['offsets'])
             struct2make = structure_reader.process_structure(self.structure_files[model_name]["file"])
             blocks=self._add_blocks_to_geo(struct2make,model_name)
             self.structure_files[model_name]["block_list"]=blocks
             ##consider temp folder
-            self.armorstand_entity.export(self.pack_name)## this may be in the wrong spot, but transferred from 1.5
+            self.armorstand_entity.export(self.work_dir)## this may be in the wrong spot, but transferred from 1.5
         
     def make_nametag_block_lists(self):
         ## consider temp file
@@ -148,9 +164,11 @@ class structura:
             self.structure_files[model_name]['offsets'][2]-=zlen.item()+7
         armorstand = asgc.armorstandgeo(model_name,alpha = self.opacity, size=[xlen, ylen, zlen], offsets=self.structure_files[model_name]['offsets'])
 
+        ## the animation only needs the layers of the tallest model; a
+        ## shorter one that follows needs a subset of what is already there
         if ylen > self.longestY:
             update_animation=True
-            longestY = ylen
+            self.longestY = ylen
         else:
             update_animation=False
         for y in range(ylen):
@@ -191,30 +209,30 @@ class structura:
                         self.dead_blocks[block["name"]][variant]+=1
             ## consider temp file
         if export_big:
-            armorstand.export_big(self.pack_name)
-            self.animation.export_big(self.pack_name,self.big_offset)
+            armorstand.export_big(self.work_dir)
+            self.animation.export_big(self.work_dir,self.big_offset)
         else:
-            armorstand.export(self.pack_name)
-            self.animation.export(self.pack_name)
+            armorstand.export(self.work_dir)
+            self.animation.export(self.work_dir)
         return struct2make.get_block_list()
     def compile_pack(self, overwrite=False):
         ## consider temp file
         nametags=list(self.structure_files.keys())
         if len(nametags)>1:
-            manifest.export(self.pack_name,nameTags=nametags)
+            manifest.export(self.work_dir,self.display_name,nameTags=nametags)
         else:
-            manifest.export(self.pack_name)
-        copyfile(self.icon, f"{self.pack_name}/pack_icon.png")
+            manifest.export(self.work_dir,self.display_name)
+        copyfile(self.icon, f"{self.work_dir}/pack_icon.png")
         larger_render = "lookups/armor_stand.larger_render.geo.json"
-        larger_render_path = f"{self.pack_name}/models/entity/armor_stand.larger_render.geo.json"
+        larger_render_path = f"{self.work_dir}/models/entity/armor_stand.larger_render.geo.json"
+        os.makedirs(os.path.dirname(larger_render_path), exist_ok=True)
         copyfile(larger_render, larger_render_path)
-        self.rc.export(self.pack_name)
-        file_paths = []
-        shutil.make_archive("{}".format(self.pack_name), 'zip', self.pack_name)
-        if overwrite:
+        self.rc.export(self.work_dir)
+        shutil.make_archive("{}".format(self.pack_name), 'zip', self.work_dir)
+        if overwrite and os.path.isfile(f'{self.pack_name}.mcpack'):
             os.remove(f'{self.pack_name}.mcpack')
         os.rename(f'{self.pack_name}.zip',f'{self.pack_name}.mcpack')
-        shutil.rmtree(self.pack_name)
+        self.cleanup()
         self.timers["finished"]=time.time()-self.timers["previous"]
         self.timers["total"]=time.time()-self.timers["start"]
 
@@ -232,7 +250,7 @@ class structura:
             if nbt_def[key] == "rot" and key in block["states"].keys():
                 try:
                     rot = int(block["states"][key])
-                except:
+                except (TypeError, ValueError):
                     rot = str(block["states"][key])
                 
             if nbt_def[key]== "top" and key in block["states"].keys():
@@ -258,9 +276,31 @@ class structura:
                     keys+="_stripped"
                 variant = ["wood",keys]
         return [rot, top, variant, open_bit, data]
-    def get_skipped(self):
-        ## temp folder would be a good idea
-        if len(self.unsupported_blocks)>1:
+    def get_nametags(self):
+        """The name tags in this pack, in the order they were added."""
+        return list(self.structure_files.keys())
+    def get_block_lists(self):
+        """{name tag: {block: count}} for every model, as data rather than as
+        the text files make_nametag_block_lists writes. Populated by
+        generate_with_nametags."""
+        return {name: dict(info["block_list"])
+                for name, info in self.structure_files.items()
+                if "block_list" in info}
+    def get_material_list(self):
+        """Every block the finished pack needs and how many, summed over all
+        models. A big build reports the combined total it already holds."""
+        if self.all_blocks:
+            return dict(self.all_blocks)
+        totals={}
+        for blocks in self.get_block_lists().values():
+            for block, count in blocks.items():
+                totals[block]=totals.get(block,0)+count
+        return totals
+    def get_skipped(self, write_file=True):
+        """{block: {variant: count}} for everything that could not be built.
+        write_file also drops a "<pack> skipped.txt" beside the pack; a caller
+        that only wants the data should pass False."""
+        if write_file and len(self.unsupported_blocks)>0:
             fileName="{} skipped.txt".format(self.pack_name)
             with open(fileName,"w+") as text_file:
                 text_file.write("These are the skipped blocks\n")
@@ -281,9 +321,9 @@ class structura:
         Get the version from lookup_version.json.
         :return:
         """
-        look_up_path = r"lookups\lookup_version.json"
+        look_up_path = os.path.join("lookups", "lookup_version.json")
         if os.path.isfile(look_up_path):
-            with open(r"lookups\lookup_version.json") as file:
+            with open(look_up_path) as file:
                 version_data = json.load(file)
                 return version_data["version"]
         return "No version found"

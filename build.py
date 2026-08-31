@@ -4,20 +4,27 @@ Runs the tests, freezes structura.py with PyInstaller using structura.spec,
 and assembles the release zip: the executable plus the data directories the
 program reads at runtime.
 
-    python build.py                 full build
-    python build.py --skip-tests    freeze and package without running tests
-    python build.py --skip-freeze   repackage the executable already in dist/
+    python build.py                    full build
+    python build.py --skip-tests       freeze and package without running tests
+    python build.py --skip-freeze      repackage the executable already in dist/
+    python build.py --update-package   also build the lookup update package
+
+The update package is opt-in because this fork does not publish to the update
+server; the output is kept so repointing it later does not mean rewriting the
+packaging.
 
 The version comes from the VERSION file, which is also copied into the zip so
 the frozen program can read it back.
 """
 import argparse
 import hashlib
+import json
 import os
 import shutil
 import subprocess
 import sys
 import zipfile
+from datetime import date
 
 import version
 
@@ -77,18 +84,9 @@ def should_ship(path):
     return not name.endswith(EXCLUDE_SUFFIXES)
 
 
-def package(exe, release_version):
-    zip_path = os.path.join(DIST, "Structura-%s.zip" % release_version)
-    if os.path.isfile(zip_path):
-        os.remove(zip_path)
-
-    entries = [(exe, EXE_NAME)]
-    for name in LOOSE_FILES:
-        path = os.path.join(ROOT, name)
-        if os.path.isfile(path):
-            entries.append((path, name))
-        else:
-            print("   warning: %s is missing and will not ship" % name)
+def data_entries():
+    """(source path, archive name) for everything under the data directories."""
+    entries = []
     skipped = 0
     for data_dir in DATA_DIRS:
         root_dir = os.path.join(ROOT, data_dir)
@@ -102,20 +100,61 @@ def package(exe, release_version):
                     skipped += 1
                     continue
                 entries.append((path, os.path.relpath(path, ROOT).replace("\\", "/")))
+    return entries, skipped
 
-    print("\n>> packaging %d files (%d source-art files skipped)" % (len(entries), skipped))
-    ## sorted entries and a fixed timestamp, so the archive layout is stable
-    ## between builds and a diff of two releases is about content, not ordering.
-    ## The frozen executable itself is not byte-reproducible.
-    entries.sort(key=lambda e: e[1])
+
+def write_zip(zip_path, entries):
+    """Sorted entries and a fixed timestamp, so the archive layout is stable
+    between builds and a diff of two releases is about content, not ordering.
+    The frozen executable itself is not byte-reproducible."""
+    if os.path.isfile(zip_path):
+        os.remove(zip_path)
+    os.makedirs(os.path.dirname(zip_path), exist_ok=True)
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as archive:
-        for source, arcname in entries:
+        for source, arcname in sorted(entries, key=lambda e: e[1]):
             info = zipfile.ZipInfo(arcname, date_time=(1980, 1, 1, 0, 0, 0))
             info.compress_type = zipfile.ZIP_DEFLATED
             info.external_attr = 0o644 << 16
             with open(source, "rb") as f:
                 archive.writestr(info, f.read())
     return zip_path
+
+
+def stamp_lookup_version():
+    """The update server identifies a lookup drop by this string."""
+    today = date.today()
+    name = "update_package_%d-%d-%d" % (today.day, today.month, today.year)
+    path = os.path.join(ROOT, "lookups", "lookup_version.json")
+    with open(path, encoding="utf-8-sig") as f:
+        data = json.load(f)
+    data["version"] = name
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        json.dump(data, f, indent=2)
+    return name
+
+
+def update_package():
+    """The lookup tables and the vanilla pack, for the update server."""
+    name = stamp_lookup_version()
+    entries, _ = data_entries()
+    path = write_zip(os.path.join(DIST, name + ".zip"), entries)
+    print("\n>> update package: %s (%d files)" % (os.path.basename(path), len(entries)))
+    return path
+
+
+def package(exe, release_version):
+    entries = [(exe, EXE_NAME)]
+    for name in LOOSE_FILES:
+        path = os.path.join(ROOT, name)
+        if os.path.isfile(path):
+            entries.append((path, name))
+        else:
+            print("   warning: %s is missing and will not ship" % name)
+    data, skipped = data_entries()
+    entries.extend(data)
+
+    print("\n>> packaging %d files (%d source-art files skipped)" % (len(entries), skipped))
+    return write_zip(os.path.join(DIST, "Structura-%s.zip" % release_version), entries)
 
 
 def main():
@@ -125,6 +164,8 @@ def main():
                         help="do not run the unit tests first")
     parser.add_argument("--skip-freeze", action="store_true",
                         help="reuse the executable already in dist/")
+    parser.add_argument("--update-package", action="store_true",
+                        help="also build the lookup update package for the update server")
     args = parser.parse_args()
 
     release_version = version.read()
@@ -147,6 +188,9 @@ def main():
     print("\nBuilt %s" % os.path.relpath(zip_path, ROOT))
     print("  %.1f MB" % (os.path.getsize(zip_path) / 1024 / 1024))
     print("  sha256 %s" % digest)
+
+    if args.update_package:
+        update_package()
 
 
 if __name__ == "__main__":

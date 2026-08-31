@@ -7,8 +7,8 @@ catches and records as an unsupported block — so the block is silently dropped
 from the ghost model and the user only sees it in the skipped list.
 
 Generated against `CommunityVanillaResourcePack` at `b6bdfc8` (min engine
-1.26.40) versus `block_definition.json` at 1223 entries. **158 blocks are
-uncovered.** Nothing in this file has been acted on.
+1.26.40) versus `block_definition.json`. **158 blocks are uncovered.** Nothing
+in this file has been acted on.
 
 ## How to read the tables
 
@@ -99,9 +99,8 @@ worth a second look. `piglin_head` is a skull, and `skull` is currently mapped
 to `ignore` — decide whether heads should render at all before adding it.
 
 **Light block levels (16)** — `light_block_0` through `light_block_15`. These
-are invisible in game. They should almost certainly map to `ignore`, and the
-existing `light_block` entry (currently `cube`, and broken because its
-blocks.json entry has no `textures` field) should probably become `ignore` too.
+are invisible in game and should almost certainly map to `ignore`, which is what
+the plain `light_block` entry was already changed to.
 
 ---
 
@@ -138,8 +137,10 @@ files the submodule would supply.
   entries, because the lookup is by exact block id.
 - **Whether `light_block_*` and `piglin_head` should be `ignore`.** That is a
   product call, not a lookup-table call.
-- **Whether `Vanilla_Resource_Pack` should keep being hand-merged at all.**
-  Every entry above is a manual copy out of the submodule. A script that merges
-  the submodule's `blocks.json` and `terrain_texture.json` entries for a named
-  list of blocks, and copies the textures they resolve to, would make this list
-  and the next one much cheaper to work through. See `PROJECT_REVIEW.md`.
+- **Nothing here needs copying by hand.**
+  `tools/sync_vanilla_pack.py --add-block <ids...>` pulls the `blocks.json`
+  entry, the `terrain_texture.json` entries and the texture files for a named
+  set of blocks out of the submodule, and reports what it cannot resolve. Run it
+  without `--apply` first. Afterwards `tools/audit_blocks.py` confirms every
+  declared block still resolves to a file. The remaining work per block is the
+  `block_definition.json` line and picking the shape family.

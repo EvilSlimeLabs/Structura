@@ -1,6 +1,5 @@
 # Runtime dependencies for the desktop program (structura.py).
-# Build tooling lives in requirements-build.txt; the AWS Lambda entry point has
-# its own list in requirements-lambda.txt.
+# Build tooling lives in requirements-build.txt.
 #
 # tkinter ships with CPython and is not installable from PyPI. On Linux it
 # usually needs a system package such as python3-tk.

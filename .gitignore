@@ -141,3 +141,5 @@ lookups/block_shapes.⏩.tabbed.json
 Models  &  Structure Exports.lnk
 Open in VS Code.lnk
 .vscode/
+# written by the GUI whenever it starts; the program recreates it
+settings.json

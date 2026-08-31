@@ -20,10 +20,12 @@ def pack_uuids(pack_name):
             str(uuid.uuid5(STRUCTURA_NAMESPACE, pack_name + "/resources")))
 
 
-def export(pack_name, nameTags=()):
+def export(work_dir, pack_name, nameTags=()):
     description = "Structura block overlay pack, created by  §o§5DrAv0011§r, §o§9 FondUnicycle§r and§o§5 RavinMaddHatter§r"
     if len(nameTags) > 0:
         description = f"Nametags: {', '.join(nameTags)}. {description}"
+    ## pack_name is what the player sees and what the UUID is derived from;
+    ## work_dir is wherever the tree happens to be assembled
     tempname = pack_name.split("/")[-1]
     header_uuid, module_uuid = pack_uuids(tempname)
     ## the generated pack carries the version of the Structura that built it, so
@@ -51,7 +53,7 @@ def export(pack_name, nameTags=()):
         ]
     }
 
-    path_to_ani = "{}/manifest.json".format(pack_name)
+    path_to_ani = "{}/manifest.json".format(work_dir)
     os.makedirs(os.path.dirname(path_to_ani), exist_ok=True)
 
     with open(path_to_ani, "w+") as json_file:

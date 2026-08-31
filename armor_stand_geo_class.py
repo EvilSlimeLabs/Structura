@@ -1,6 +1,6 @@
 try:
     import ujson as json
-except:
+except ImportError:
     print("using built in json, but that is much slower, consider installing ujson")
     import json
 from PIL import Image
@@ -12,8 +12,17 @@ import time
 import re
 debug = False##used in API test to force errors and break error handler, should remain false.
 
+## Blocks that never become geometry. structura_core needs the same list in the
+## namespaced form the structure files store it, so it derives it from here
+## rather than keeping a second copy.
+EXCLUDED_BLOCKS = ("air", "structure_block")
+
+## Alpha the ghost blocks are drawn at when nothing sets one. The texture's
+## alpha channel is multiplied by this, so it is a fraction, not a percentage.
+DEFAULT_ALPHA = 0.85
+
 class armorstandgeo:
-    def __init__(self, name, alpha = 0.5,offsets=[0,0,0], size=[64, 64, 64], ref_pack="Vanilla_Resource_Pack"):
+    def __init__(self, name, alpha = DEFAULT_ALPHA,offsets=None, size=[64, 64, 64], ref_pack="Vanilla_Resource_Pack"):
         self.ref_resource_pack = ref_pack
         ## we load all of these items containing the mapping of blocks to some property that is either hidden, implied or just not clear
         with open("{}/blocks.json".format(self.ref_resource_pack)) as f:
@@ -36,7 +45,9 @@ class armorstandgeo:
             self.block_uv = json.load(f)
         self.name = name.replace(" ","_").lower()
         self.stand = {}
-        self.offsets = offsets
+        ## a copy, because the half-block shift below is applied in place and
+        ## the caller keeps using the list it passed in
+        self.offsets = [0, 0, 0] if offsets is None else list(offsets)
         self.offsets[0] += 0.5
         self.offsets[2] -= 0.5
         self.alpha=alpha
@@ -51,12 +62,7 @@ class armorstandgeo:
         self.layers=[]
         self.uv_array = None
         self.pre_gen_blocks={}
-        ## The stuff below is a horrible cludge that should get cleaned up. +1 karma to whomever has a better plan for this.
-        # this is how I determine if something should be thin. it is ugly, but kinda works
-
-        
-        ## these blocks are either not needed, or cause issue. Grass is banned because the terrain_texture.json has a biome map in it. If someone wants to fix we can un-ban it
-        self.excluded = ["air", "structure_block"]
+        self.excluded = EXCLUDED_BLOCKS
 
     def export(self, pack_folder):
         start = time.time()
@@ -146,6 +152,10 @@ class armorstandgeo:
             json.dump(self.stand, json_file, indent=2)
         
         
+        ## Every layer gets its own texture file even though they are identical:
+        ## make_big_model declares one texture short name per layer on the armor
+        ## stand entity, and a declared texture that resolves to nothing is a
+        ## content-log error.
         for i in range(len(self.layers)):
             texture_name = "{}/textures/entity/ghost_blocks_{}.png".format(pack_folder,i)
             os.makedirs(os.path.dirname(texture_name), exist_ok=True)
@@ -174,7 +184,10 @@ class armorstandgeo:
             temp_block_group["parent"] = layer_name
             block_type = self.defs[block_name]
             
-            ## hardcoded to true for now, but this is when the variants will be called
+            ## Settle on one variant name, then read both tables with it. The
+            ## shape and the UV window describe the same cubes, so reading them
+            ## with different names is how a half-height cube ends up wearing a
+            ## full-height texture.
             shape_variant="default"
             if block_type == "hopper" and rot is not None and rot != 0:
                 shape_variant="side"
@@ -184,27 +197,31 @@ class armorstandgeo:
                 shape_variant = "on"
             elif top:
                 shape_variant = "top"
-            
+
+            ## a numeric state - snow depth, repeater delay, sea pickle count -
+            ## names its own variant and outranks the flags above
+            if str(data) in self.block_shapes[block_type] or str(data) in self.block_uv[block_type]:
+                shape_variant = str(data)
+
+            ## a shape family that does not describe this variant falls back to
+            ## its default rather than raising, which would drop the block into
+            ## the skipped list. A double slab has a vertical_half state it does
+            ## not use, and used to disappear whenever that state read "top".
+            if shape_variant not in self.block_shapes[block_type]:
+                shape_variant = "default"
+
             if data!=0 and debug:
                 print(data)
-            
-            
+
             block_shapes = self.block_shapes[block_type][shape_variant]
+            block_uv = self.block_uv[block_type].get(shape_variant,
+                                                     self.block_uv[block_type]["default"])
+
             temp_block_group["pivot"] = [ block_shapes["center"][0] - (x + self.offsets[0]) \
                                         , block_shapes["center"][1] +  y + self.offsets[1]  \
                                         , block_shapes["center"][2] +  z + self.offsets[2] ]
             #temp_block_group["inflate"] = -0.03
-            
-            
-            block_uv = self.block_uv[block_type]["default"]
-            if shape_variant in self.block_uv[block_type].keys():
-                block_uv = self.block_uv[block_type][shape_variant]
-            
-            if str(data) in self.block_uv[block_type].keys():
-                shape_variant=str(data)
-            if str(data) in self.block_shapes[block_type].keys():
-                block_shapes = self.block_shapes[block_type][str(data)]
-            
+
             if block_type in self.block_rotations.keys() and rot is not None:
                 temp_block_group["rotation"] = copy.deepcopy(self.block_rotations[block_type][str(rot)])
                 if big:

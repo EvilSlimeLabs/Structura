@@ -1,6 +1,20 @@
-import structura_core
+"""Generate every kind of pack from the bundled test structures.
+
+Exercises the nametag, big-build and multi-file paths in one go, with
+structura_core.debug on so an unsupported block raises instead of being
+swallowed into the skipped list.
+
+Run from anywhere; it works against the repository root.
+"""
 import os
+import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, ROOT)
+os.chdir(ROOT)
+
 import shutil
+import structura_core
 structura_core.debug=True
 big_hatter_files = ["test_structures/BigHatter/1.mcstructure","test_structures/BigHatter/1-1.mcstructure","test_structures/BigHatter/2.mcstructure","test_structures/BigHatter/3.mcstructure","test_structures/BigHatter/4.mcstructure"]
 files_to_conver = {
@@ -15,10 +29,7 @@ files_to_conver = {
                  "offset":[-32,0,-31]},
         "wood2":{"file":"test_structures/All Blocks World/wood2.mcstructure",
                  "offset":[-32,0,-31]}}
-try:
-    shutil.rmtree("tmp/")
-except:
-    pass
+shutil.rmtree("tmp/", ignore_errors=True)
 if os.path.exists("tmp/big_hatter.mcpack"):
     os.remove("tmp/big_hatter.mcpack")
 if os.path.exists("tmp/big_hatter Nametags.txt"):
@@ -32,7 +43,6 @@ if os.path.exists("tmp/bigBuild.mcpack"):
 if os.path.exists("tmp/bigBuild Nametags.txt"):
     os.remove("tmp/bigBuild Nametags.txt")
 structura_base=structura_core.structura("tmp/all_blocks")
-structura_base.set_opacity(20)
 
 for name_tag, info in files_to_conver.items():
     print(f'{name_tag}, {info}')
@@ -45,7 +55,6 @@ print(structura_base.compile_pack())
 print(structura_base.make_nametag_block_lists())
 
 structura_base=structura_core.structura("tmp/bigBuild")
-structura_base.set_opacity(20)
 for name_tag, info in files_to_conver.items():
     print(f'{name_tag}, {info}')
     structura_base.add_model(name_tag,info["file"])
@@ -56,7 +65,6 @@ structura_base.make_big_model([-132,-56,-65])
 print(structura_base.compile_pack())
 
 structura_base=structura_core.structura("tmp/bigHatter")
-structura_base.set_opacity(20)
 for file in big_hatter_files:
     name_tag = file.split("/")[-1].replace(".mcstructure","")
     structura_base.add_model(name_tag,file)

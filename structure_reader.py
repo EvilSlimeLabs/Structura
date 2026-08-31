@@ -1,4 +1,5 @@
 import nbtlib
+import os
 from numpy import array, argwhere , int32, maximum, minimum, zeros, count_nonzero, flip
 import json
 loaded={}
@@ -75,7 +76,9 @@ class process_structure:
                                     variant=block["states"][state]
                     try:
                         name=self.block_names[name][variant]
-                    except:
+                    except KeyError:
+                        ## no material_list_names entry for this variant;
+                        ## the raw block name is reported instead
                         print(name,variant)
                 if name not in block_counter.keys():
                     block_counter[name]=0
@@ -149,7 +152,9 @@ class combined_structures:
                                     variant=block["states"][state]
                     try:
                         name=self.block_names[name][variant]
-                    except:
+                    except KeyError:
+                        ## no material_list_names entry for this variant;
+                        ## the raw block name is reported instead
                         print(name,variant)
                 if name not in block_counter.keys():
                     block_counter[name]=0
@@ -161,7 +166,7 @@ class combined_structures:
 if __name__ == "__main__":
     testFileNameArray=[]
     excludedBlocks=["minecraft:structure_block","minecraft:air"]
-    with open("lookups\\material_list_names.json") as name_lookup:
+    with open(os.path.join("lookups", "material_list_names.json")) as name_lookup:
         blocks_def=json.load(name_lookup)
     batchtest=[]
     testFileName="test_structures\\All Blocks World\\gems and redstone.mcstructure"
@@ -193,7 +198,7 @@ if __name__ == "__main__":
                 if variant not in blocks_def[block["name"]].keys():
                     actual_name = input(f"loc: {x+test.origin[0]},{z+test.origin[2]} {block['name']} - {variant}:")
                     blocks_def[block["name"]][variant]=actual_name
-    with open("lookups\\material_list_names.json","w+") as name_file:
+    with open(os.path.join("lookups", "material_list_names.json"), "w+") as name_file:
         json.dump(blocks_def,name_file)
     #print(test.size)
         #input(f"")

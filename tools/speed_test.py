@@ -1,5 +1,15 @@
-import structura_core  
+"""Time a single large pack build and print the stage timers.
+
+Run from anywhere; it works against the repository root.
+"""
 import os
+import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, ROOT)
+os.chdir(ROOT)
+
+import structura_core
 structura_core.debug=True
 files_to_conver={
         
@@ -13,7 +23,6 @@ if os.path.exists("tmp/speed Nametags.txt"):
     os.remove("tmp/speed Nametags.txt")
 
 structura_base=structura_core.structura("tmp/speed")
-structura_base.set_opacity(20)
 for name_tag, info in files_to_conver.items():
     print(f'{name_tag}, {info}')
     

@@ -41,19 +41,12 @@ class animations:
     def export(self, pack_name):
         path_to_ani = "{}/animations/armor_stand.animation.json".format(
             pack_name)
-        try:
-
-            os.makedirs(os.path.dirname(path_to_ani), exist_ok=True)
-        except:
-            pass
+        os.makedirs(os.path.dirname(path_to_ani), exist_ok=True)
         with open(path_to_ani, "w+") as json_file:
             json.dump(self.sizing, json_file, indent=2)
         path_to_rc = "{}/animations/armor_stand.ghost_blocks.scale.animation.json".format(
             pack_name)
-        try:
-            os.makedirs(os.path.dirname(path_to_rc), exist_ok=True)
-        except:
-            pass
+        os.makedirs(os.path.dirname(path_to_rc), exist_ok=True)
         with open(path_to_rc, "w+") as json_file:
             json.dump(self.default_size, json_file, indent=2)
     def export_big(self,pack_name,offset):
@@ -65,17 +58,10 @@ class animations:
             f"((query.position(2)-{int(offset[2])-7.5})*math.cos(query.body_y_rotation)-(query.position(0)-{int(offset[0])-7.5})*math.sin(query.body_y_rotation))*16"]
         path_to_ani = f"{pack_name}/animations/armor_stand.animation.json"
         print(self.default_size["animations"]["animation.armor_stand.ghost_blocks.scale"]["bones"]["ghost_blocks"]["position"])
-        try:
-
-            os.makedirs(os.path.dirname(path_to_ani), exist_ok=True)
-        except:
-            pass
+        os.makedirs(os.path.dirname(path_to_ani), exist_ok=True)
         with open(path_to_ani, "w+") as json_file:
             json.dump(self.sizing, json_file, indent=2)
         path_to_rc = f"{pack_name}/animations/armor_stand.ghost_blocks.scale.animation.json"
-        try:
-            os.makedirs(os.path.dirname(path_to_rc), exist_ok=True)
-        except:
-            pass
+        os.makedirs(os.path.dirname(path_to_rc), exist_ok=True)
         with open(path_to_rc, "w+") as json_file:
             json.dump(self.default_size, json_file, indent=2)

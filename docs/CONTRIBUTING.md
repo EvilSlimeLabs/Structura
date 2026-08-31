@@ -6,8 +6,13 @@ Thank you for being interested in contributing. Structura is a program that can 
 ### Desktop Application
 Structura was originally only a desktop application, this comes with some baggage and some down sides. But support for using it with the gui needs to remain in place. To make this easier, the application was pulled out of the gui and mostly lives in "structura_core.py" the structura.py file is just a wrapper/gui.
 
-### Structura Discord bot / Structura Lab
-As mobile users were unable to use the desktop application, structura core was made to allow me to make an API that doesn't rely on CLI. The Discord bot (maddhatters discord bot, not available to the public) runs in AWS lambda. That means it is a read only file system. For that reason structura_core.py and all dependencies must not rely on writing files to any directory except tmp. Any pull request that break this cannot be merged.
+### Hosted use
+`structura_core.py` is the API any front end uses, including a hosted one. A service that runs Structura for other people belongs in its own project that imports this one; nothing here should know about a queue, a bucket, a bot or a user account. An earlier attempt at that lived in this repository as `lambda_function.py` and has been removed.
+
+Two rules keep the core usable that way, and a pull request that breaks either cannot be merged:
+
+- **Do not write outside the working directory or the caller's chosen output path.** Serverless hosts give you a read-only file system with only `/tmp` writable. The pack tree is assembled in a temporary directory, and the only things written where the caller asked are the `.mcpack` and its side reports.
+- **Everything the core produces must be available as data, not only as a file.** `get_material_list()`, `get_block_lists()`, `get_nametags()` and `get_skipped(write_file=False)` exist because a service wants values, not text files it then has to read back.
 
 #### Structura CLI
 The CLI was added by contributors that wanted to make their own web services. This is allowed. Structura is MIT licensed and anyone can do anything with Structura. This CLI is kept in but not highly tested (unless someone wants to take that on.
