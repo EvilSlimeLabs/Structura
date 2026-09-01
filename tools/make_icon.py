@@ -1,11 +1,16 @@
 """Regenerate the Structura icons.
 
 Draws a 5x5x5 isometric cube of hologram panes with the Structura S snaking
-through it in yellow concrete, lays it over the Slime Lab background art, and
-writes both icons the project ships:
+through it in yellow concrete, and writes both icons the project ships:
 
-    lookups/pack_icon.png   256x256, the icon copied into every generated pack
-    pack_icon.ico           the desktop icon, 16 px through 256 px
+    lookups/pack_icon.png   256x256, over the Slime Lab background art. This is
+                            the icon copied into every generated pack, where it
+                            sits in Minecraft's pack list as a filled tile.
+    pack_icon.ico           the desktop icon, 16 px through 256 px, on
+                            transparency. A taskbar or Explorer icon is composed
+                            against whatever is behind it, so it carries the
+                            iconography alone -- a baked-in background would show
+                            as a square tile against every theme.
 
 The block faces are real textures out of Vanilla_Resource_Pack; only the panes
 are hand authored, and they are generated here rather than stored, so the grid
@@ -222,25 +227,51 @@ def render(px, margin=0.06):
     return canvas
 
 
-def compose(size):
-    """The cube over the background art, square, at `size`."""
-    art = Image.open(BACKGROUND).convert("RGBA").resize((size, size), Image.LANCZOS)
+def reduce_rgba(img, size):
+    """Downsample without dark fringing.
+
+    Fully transparent pixels still carry a colour, and here that colour is
+    black. Resampling mixes it into every edge, so the cube would come back with
+    a dark halo. Premultiplying by alpha first keeps the transparent pixels from
+    contributing anything, and dividing back out afterwards restores the colour.
+    """
+    a = np.array(img, np.float32)
+    alpha = a[..., 3:4] / 255.0
+    a[..., :3] *= alpha
+    small = np.array(Image.fromarray(np.clip(a, 0, 255).astype(np.uint8), "RGBA")
+                     .resize(size, Image.LANCZOS), np.float32)
+    out_alpha = small[..., 3:4] / 255.0
+    with np.errstate(divide="ignore", invalid="ignore"):
+        small[..., :3] = np.where(out_alpha > 0, small[..., :3] / out_alpha, 0)
+    return Image.fromarray(np.clip(small, 0, 255).astype(np.uint8), "RGBA")
+
+
+def transparent(size):
+    """The cube alone, on transparency, at `size`."""
     # rendered large and reduced, so the one pixel grid lines survive
-    cube = render(size * 4).resize((size, size), Image.LANCZOS)
-    art.alpha_composite(cube)
+    return reduce_rgba(render(size * 4), (size, size))
+
+
+def compose(size):
+    """The cube over the background art, square and fully opaque, at `size`."""
+    art = Image.open(BACKGROUND).convert("RGBA").resize((size, size), Image.LANCZOS)
+    art.alpha_composite(transparent(size))
     return art
 
 
 def main():
     icon = compose(SIZE)
     icon.save(PACK_ICON)
-    print("wrote %s (%d x %d)" % (PACK_ICON, *icon.size))
+    print("wrote %s (%d x %d, over the background)" % (PACK_ICON, *icon.size))
 
-    frames = [compose(n) if n > 64 else icon.resize((n, n), Image.LANCZOS)
-              for n in ICO_SIZES]
+    ## every size rendered at its own scale rather than reduced from one big
+    ## frame: at 16 and 24 px the grid is thinner than a pixel either way, but
+    ## the S silhouette survives a fresh render better than a downsample
+    frames = [transparent(n) for n in ICO_SIZES]
     frames[-1].save(DESKTOP_ICON, sizes=[(n, n) for n in ICO_SIZES],
                     append_images=frames[:-1])
-    print("wrote %s (%s)" % (DESKTOP_ICON, ", ".join(str(n) for n in ICO_SIZES)))
+    print("wrote %s (%s, transparent)"
+          % (DESKTOP_ICON, ", ".join(str(n) for n in ICO_SIZES)))
 
 
 if __name__ == "__main__":

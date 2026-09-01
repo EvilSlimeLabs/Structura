@@ -191,8 +191,11 @@ def package(exe, release_version):
             print("   warning: %s is missing and will not ship" % name)
     data, skipped = data_entries()
     entries.extend(data)
+    tech = tech_pack_entries()
+    entries.extend(tech)
 
-    print("\n>> packaging %d files (%d source-art files skipped)" % (len(entries), skipped))
+    print("\n>> packaging %d files (%d TechPack, %d source-art files skipped)"
+          % (len(entries), len(tech), skipped))
     return write_zip(os.path.join(DIST, "Structura-%s.zip" % release_version), entries)
 
 
