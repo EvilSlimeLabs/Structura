@@ -19,7 +19,9 @@ EXCLUDED_BLOCKS = ("air", "structure_block")
 
 ## Alpha the ghost blocks are drawn at when nothing sets one. The texture's
 ## alpha channel is multiplied by this, so it is a fraction, not a percentage.
-DEFAULT_ALPHA = 0.85
+## It is the counterpart of the GUI's DEFAULT_TRANSPARENCY of 85: a caller that
+## sets nothing has to get the same ghost block the slider's default gives.
+DEFAULT_ALPHA = 0.15
 
 class armorstandgeo:
     def __init__(self, name, alpha = DEFAULT_ALPHA,offsets=None, size=[64, 64, 64], ref_pack="Vanilla_Resource_Pack"):

@@ -47,8 +47,11 @@ SHOW_UPDATE_BUTTON = False
 
 ## the slider is transparency, so 0 is a solid ghost block and 100 would be
 ## invisible. It stops at 99 so a ghost block always has some alpha left.
-DEFAULT_OPACITY = 85
-DEFAULT_TRANSPARENCY = 100 - DEFAULT_OPACITY
+## Transparency is the number the user sets, so it is the one defined here and
+## everything else is derived from it -- the CLI's --opacity and the core's
+## DEFAULT_ALPHA both have to land on the same ghost block as the slider does.
+DEFAULT_TRANSPARENCY = 85
+DEFAULT_OPACITY = 100 - DEFAULT_TRANSPARENCY
 MAX_TRANSPARENCY = 99
 
 DEFAULT_LANGUAGE = "English"
@@ -233,11 +236,11 @@ def box_checked():
         export_check.grid(row=r, column=1)
         saveButton.grid(row=r, column=2)
         r += 1
-        if tech_pack.available():
-            tech_check.grid(row=r, column=0, columnspan=2)
-            r += 1
-        else:
-            tech_check.grid_forget()
+        ## bundling somebody else's resource pack is an advanced choice; it is
+        ## offered there only, and the tick is cleared on the way out so a
+        ## setting made in advanced mode cannot follow the user back to basic
+        tech_check.grid_forget()
+        tech_var.set(0)
 
     else:
         saveButton.grid_forget()
@@ -363,7 +366,7 @@ def runFromGui():
         structura_base.set_opacity(transparency_to_alpha(sliderVar.get()))
         if len(icon_var.get())>0:
             structura_base.set_icon(icon_var.get())
-        if tech_var.get() and tech_pack.available():
+        if check_var.get() and tech_var.get() and tech_pack.available():
             structura_base.set_tech_pack(True)
 
 
