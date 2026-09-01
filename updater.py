@@ -10,10 +10,18 @@ from zipfile import ZipFile
 
 import requests
 
-## The only directories an update may write into, relative to the working
-## directory. Keep this in step with DATA_DIRS in build.py, which is what
+import paths
+
+## The only directories an update may write into. Keep this in step with
+## paths.DATA_DIRS, which is what an update replaces, and with build.py, which
 ## produces the archive.
-UPDATABLE_DIRS = ("lookups", "Vanilla_Resource_Pack")
+##
+## An update lands *beside the executable*, never inside the bundle: a frozen
+## build unpacks itself into a temporary folder that is thrown away on exit, so
+## writing there would silently do nothing. paths.data() looks beside the
+## executable first for exactly this reason, so a drop written here wins over
+## the bundled copy.
+UPDATABLE_DIRS = paths.DATA_DIRS
 
 TEMP_ARCHIVE = "lookup_temp.zip"
 
@@ -60,7 +68,7 @@ def update(url, structura_version, lookup_verison):
             if not members:
                 print("update: the archive held nothing this program may replace")
                 return updated
-            archive.extractall(path=".", members=members)
+            archive.extractall(path=paths.beside_executable(), members=members)
         updated = True
     finally:
         os.remove(TEMP_ARCHIVE)

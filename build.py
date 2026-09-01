@@ -1,8 +1,9 @@
 """Local release build.
 
-Runs the tests, freezes structura.py with PyInstaller using structura.spec,
-and assembles the release zip: the executable plus the data directories the
-program reads at runtime.
+Runs the tests, freezes structura.py with PyInstaller using structura.spec, and
+writes the release: a **single self-contained executable**, and a zip of it for
+places that will not carry a bare .exe. Nothing has to be extracted alongside it
+-- the lookup tables, the vanilla pack and the TechPack assets are all inside.
 
     python build.py                    full build
     python build.py --skip-tests       freeze and package without running tests
@@ -13,7 +14,7 @@ The update package is opt-in because this fork does not publish to the update
 server; the output is kept so repointing it later does not mean rewriting the
 packaging.
 
-The version comes from the VERSION file, which is also copied into the zip so
+The version comes from the VERSION file, which is packed into the executable so
 the frozen program can read it back.
 """
 import argparse
@@ -25,7 +26,7 @@ import subprocess
 import sys
 import zipfile
 
-import tech_pack
+import paths
 from datetime import date
 
 import version
@@ -36,21 +37,16 @@ DIST = os.path.join(ROOT, "dist")
 SPEC = os.path.join(ROOT, "structura.spec")
 EXE_NAME = "Structura.exe" if os.name == "nt" else "Structura"
 
-## Directories the program opens by relative path at runtime. They ship beside
-## the executable rather than inside it: the code reads "lookups/..." and
-## "Vanilla_Resource_Pack/..." from the working directory, and a --onefile
-## bundle would unpack them somewhere else entirely.
-DATA_DIRS = ["lookups", "Vanilla_Resource_Pack"]
-LOOSE_FILES = ["VERSION", "LICENSE", "README.md"]
+## Directories the program reads at runtime. They are packed *inside*
+## the executable -- see structura.spec -- so nothing here ships beside it any
+## more. The list is still needed because the update package is built from it.
+DATA_DIRS = list(paths.DATA_DIRS)
+LOOSE_FILES = ["LICENSE", "README.md"]
 
-## The TechPack submodule ships beside the executable as well, so the bundle
-## toggle works in a release, but only the folders a generated pack draws from.
-## Its tests, tools, branding and documentation have no business in a release,
-## and it is deliberately kept out of the update package -- the update server
-## ships lookup drops, not somebody else's resource pack.
-TECH_PACK_DIR = tech_pack.SUBMODULE
-TECH_PACK_KEEP = tuple(sorted(set(tech_pack.ASSET_DIRS) | {"entity"}))
-TECH_PACK_FILES = ("manifest.json", "LICENSE", "README.md")
+## The TechPack submodule is packed into the executable by structura.spec, which
+## keeps its own list of the folders a generated pack draws from. It is
+## deliberately kept out of the update package -- the update server ships lookup
+## drops, not somebody else's resource pack.
 
 ## Source art and one-off helper scripts that live in the data directories but
 ## have no business in a release.
@@ -114,34 +110,6 @@ def data_entries():
     return entries, skipped
 
 
-def tech_pack_entries():
-    """(source, archive name) for the parts of the TechPack submodule we ship.
-
-    Missing is not fatal: a checkout without submodules still builds, and
-    tech_pack.available() turns the toggle off at runtime.
-    """
-    root_dir = os.path.join(ROOT, TECH_PACK_DIR)
-    if not os.path.isdir(root_dir):
-        print("   warning: %s is missing; the built app will not offer the "
-              "TechPack toggle" % TECH_PACK_DIR)
-        return []
-    entries = []
-    for folder in TECH_PACK_KEEP:
-        source = os.path.join(root_dir, folder)
-        for dirpath, dirnames, filenames in os.walk(source):
-            dirnames[:] = [d for d in dirnames if not d.startswith(".")]
-            for filename in filenames:
-                path = os.path.join(dirpath, filename)
-                if not should_ship(path):
-                    continue
-                entries.append((path, os.path.relpath(path, ROOT).replace("\\", "/")))
-    for filename in TECH_PACK_FILES:
-        path = os.path.join(root_dir, filename)
-        if os.path.isfile(path):
-            entries.append((path, os.path.relpath(path, ROOT).replace("\\", "/")))
-    return entries
-
-
 def write_zip(zip_path, entries):
     """Sorted entries and a fixed timestamp, so the archive layout is stable
     between builds and a diff of two releases is about content, not ordering.
@@ -182,6 +150,15 @@ def update_package():
 
 
 def package(exe, release_version):
+    """The release: the executable, and a zip of it.
+
+    The executable is self-contained, so the zip exists only because some
+    browsers and chat clients refuse a bare .exe download. Extracting it gives
+    you the program, not a folder you have to keep together -- which is the
+    whole point of the self-contained packaging.
+
+    The licence travels with the binary because it has to; nothing else does.
+    """
     entries = [(exe, EXE_NAME)]
     for name in LOOSE_FILES:
         path = os.path.join(ROOT, name)
@@ -189,13 +166,9 @@ def package(exe, release_version):
             entries.append((path, name))
         else:
             print("   warning: %s is missing and will not ship" % name)
-    data, skipped = data_entries()
-    entries.extend(data)
-    tech = tech_pack_entries()
-    entries.extend(tech)
 
-    print("\n>> packaging %d files (%d TechPack, %d source-art files skipped)"
-          % (len(entries), len(tech), skipped))
+    print("\n>> packaging the executable (%.1f MB) and %d loose files"
+          % (os.path.getsize(exe) / 1024 / 1024, len(entries) - 1))
     return write_zip(os.path.join(DIST, "Structura-%s.zip" % release_version), entries)
 
 
@@ -226,14 +199,16 @@ def main():
         exe = freeze()
 
     zip_path = package(exe, release_version)
-    digest = hashlib.sha256(open(zip_path, "rb").read()).hexdigest()
-    print("\nBuilt %s" % os.path.relpath(zip_path, ROOT))
-    print("  %.1f MB" % (os.path.getsize(zip_path) / 1024 / 1024))
-    print("  sha256 %s" % digest)
-
     if args.update_package:
         update_package()
 
+    digest = hashlib.sha256(open(zip_path, "rb").read()).hexdigest()
+    print("\nBuilt %s" % os.path.relpath(exe, ROOT))
+    print("      %s" % os.path.relpath(zip_path, ROOT))
+    print("  %.1f MB zipped" % (os.path.getsize(zip_path) / 1024 / 1024))
+    print("  sha256 %s" % digest)
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

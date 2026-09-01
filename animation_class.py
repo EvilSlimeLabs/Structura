@@ -1,17 +1,19 @@
 import json
 import os
 
+import paths
+
 
 class animations:
-    def __init__(self, path_to_default="Vanilla_Resource_Pack"):
+    def __init__(self, path_to_default=None):
         self.default_size = {"format_version": "1.8.0",
                              "animations": {
                                  "animation.armor_stand.ghost_blocks.scale": {
                                      "loop": True,
                                      "bones": {
                                          "ghost_blocks": {"scale": 16.0}}}}}
-        pathtofile = "{}/animations/armor_stand.animation.json".format(
-            path_to_default)
+        pathtofile = os.path.join(path_to_default or paths.vanilla_pack(),
+                                  "animations", "armor_stand.animation.json")
         with open(pathtofile) as f:
             self.sizing = json.load(f)
         self.poses = {}

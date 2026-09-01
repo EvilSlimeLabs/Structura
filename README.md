@@ -1,46 +1,166 @@
 # Structura
-[![Github All Releases](https://img.shields.io/github/downloads/RavinMaddHatter/Structura/total.svg)]()
 
-English丨[**简体中文**](README-zh-cn.md)
+![EvilSlimeLabs](images/evilslimelabs-logo3.png)
 
-This tool is inspired by Litematica. It is a tool that generates Resource packs from .mcstructure files. In this resource pack the armor stands were modified to render when off screen, and have all the blocks from your structure file as bones in their model. then "ghost blocks" are used to show the user where to place the real blocks. 
+**Maintained by [EvilSlimeLabs](https://github.com/EvilSlimeLabs).** Originally
+created by DrAv0011, FondUnicycle and RavinMaddHatter, whose work this is built
+on and who are credited in every pack it produces.
+
+Structura turns a `.mcstructure` file into a Minecraft Bedrock resource pack.
+The pack replaces the armor stand so it renders when off screen and carries
+every block of your build as a bone in its model, drawn as semi-transparent
+*ghost blocks* that show you exactly where the real blocks go. Inspired by
+Litematica, and it needs no behaviour pack, no commands and no cheats — just a
+resource pack and an armor stand, so it works in a survival, achievements-on
+world.
 
 [![Intro to Structura video](https://img.youtube.com/vi/IdKT925LKMM/0.jpg)](https://www.youtube.com/watch?v=IdKT925LKMM)
 
-## Generating an .mcstructure file
+*(The video shows an older version. The program it demonstrates now looks like
+the screenshots below, but the idea and the in-game result are the same.)*
 
-First you must get a structure block, as this is typically done from a creative copy with cheats enabled, simply execute `/give @s structure_block` to get a structure block 
-![alt text](https://github.com/RavinMaddHatter/Structura/blob/main/docs/give_structure.png?raw=true)
-Next configure the structure using the GUI, selecte every block you wish to have in your armor stand. Note the largest size suported by a single structure block is 64x64x64 (without editing your worlds NBT data)
-![alt text](https://github.com/RavinMaddHatter/Structura/blob/main/docs/select_structure.PNG?raw=true)
-Next click the export button at the bottom to produce a save prompt, this will allow you to save the structure to a file. Name it whatever you want and not the location, you will need it later.
-![alt text](https://github.com/RavinMaddHatter/Structura/blob/main/docs/export_structure.PNG?raw=true)
+---
 
-## Converting a structure into a .mcpack file
-First you will need to download the current release of Structura. Extract the zip file, and launch executable. once it is launched you should see something like the image below.
-![alt text](https://github.com/RavinMaddHatter/Structura/blob/main/docs/launch_structura.PNG?raw=true)
-Next open your exported structure from earlier using browse button, or type the path in manually.
-![alt text](https://github.com/RavinMaddHatter/Structura/blob/main/docs/browse_file.PNG?raw=true)
-Enter a name for you structura pack.
-![alt text](https://github.com/RavinMaddHatter/Structura/blob/main/docs/name.PNG?raw=true)
-** if you mistakenly name two files the same it will show you the prompt below to rename it
-![alt text](https://github.com/RavinMaddHatter/Structura/blob/main/docs/already_exists.PNG?raw=true)
-If everything worked you should now have an mcpack file 
-![alt text](https://github.com/RavinMaddHatter/Structura/blob/main/docs/pack_made.PNG?raw=true)
+## 1. Export a structure from Minecraft
 
-## Using the pack
-This pack is like any texture pack. To use it you must make sure it is active, enabling it in your global resources works well.
-![alt text](https://github.com/RavinMaddHatter/Structura/blob/main/docs/make_pack_active.PNG?raw=true)
-The structure will appear around every armor stand in the worlds you load. It is how we are able to make it work on any world. So get out an armor stand and place it down to see your structure.
-![alt text](https://github.com/RavinMaddHatter/Structura/blob/main/docs/example_full.png?raw=true)
-You can go through a structure layer by layer if you like by shift right clicking on the stand. This will minimize all layers except the "active" ones. I cannot add poses without adding a behavior pack so for large structures there will be mutiple layers displayed at a time (12 blocks apart)
-![alt text](https://github.com/RavinMaddHatter/Structura/blob/main/docs/example_layer.png?raw=true)
+Get a structure block — in a creative world with cheats on, run
+`/give @s structure_block`.
 
+![Giving yourself a structure block](docs/give_structure.png)
+
+Set the structure block over your build and select every block you want in the
+ghost model. A single structure block covers at most **64×64×64** without
+editing your world's NBT data.
+
+![Configuring the structure block](docs/select_structure.PNG)
+
+Press **Export** at the bottom to save it to a file. Note where it goes; you
+need it in a moment.
+
+![Exporting the structure](docs/export_structure.PNG)
+
+![The exported structure file](docs/exported.PNG)
+
+---
+
+## 2. Build the pack
+
+Download `Structura.exe` and run it. That is the whole install — it is a single
+self-contained file with everything inside it, so there is no folder to keep
+together and nothing to extract. (A zip of the same executable is published
+alongside it, for browsers and chat clients that refuse a bare `.exe`.)
+
+![The Structura window](docs/window_dark.png)
+
+Drop your `.mcstructure` file onto the window, or click the add area to browse
+for it. Give the pack a name, and press **Make Pack**.
+
+Each structure sits on its own row. Click the file name to swap in a different
+file without losing the row, or the ✕ to drop it.
+
+That is the whole flow. Everything else is optional:
+
+| Setting | What it does |
+| --- | --- |
+| **Pack icon** | Click the preview to choose your own image. A small ✕ on it returns to the Structura icon. |
+| **Short description** | Up to 25 characters, shown in the pack list in game. |
+| **Block Transparency** | How see-through the ghost blocks are. 0 is solid, higher is fainter. Defaults to 65. |
+| **Offset** | Moves the ghost model relative to the armor stand, per structure. |
+| **Bundle TechPack** | Folds in the Bedrock Technical Resource Pack — see below. |
+| **Big Build Mode** | For builds larger than one structure block; see below. |
+| **Make Block Lists** | Writes a text file of every block the build needs, beside the pack. |
+| **Output folder** | Where finished packs land. Defaults to `Structura Builds` in your Documents, and is remembered. |
+
+**Name tags.** With a single structure the name tag is optional. Add a second
+and it becomes required, because the tag is how you tell the armor stands apart:
+name an armor stand `north wing` and it shows that structure. The window says so
+as you type.
+
+![Name tags become required with more than one structure](docs/window_validation.png)
+
+**Big Build Mode** is for builds too large for one structure block. Export the
+build in pieces, add them all, and Structura assembles them into one model
+spread across the armor stand's layers.
+
+The name tag fields step aside while it is on — big build mode names its own
+models — and the offset becomes the **Corner** of the whole assembly. **Get
+Global Cords** fills that in for you: every `.mcstructure` records where in the
+world it was taken from, so the corner is the lowest of those origins, and the
+ghost model lands back where the pieces came from without you reading
+coordinates off the structure blocks.
+
+Turning it off gives you your name tags and per-structure offsets back exactly
+as they were.
+
+![Big build mode](docs/window_big_build.png)
+
+When the pack is written you get told, with the path and anything that had to be
+skipped:
+
+![The pack built dialog](docs/pack_built.png)
+
+**Theme and language** sit in the bottom right, alongside a **?** that opens the
+issue tracker and an **i** that says who made this. The theme follows your
+desktop by default; light and dark are there if you would rather pin it.
+
+![The window in light mode](docs/window_light.png)
+
+Your theme, language and output folder are remembered in a `.structura` file.
+Structura looks for one **next to the executable** first — put it there and the
+program is portable, carrying its settings on a stick and touching nothing on
+the host — and otherwise uses (and creates) one in your home directory.
+
+### Languages
+
+Labelled by ISO code rather than a flag, because a flag is a country and a
+country is not a language.
+
+**Real:** English, Українська, Español, 简体中文, Tagalog, Cebuano.
+
+**Not real,** and badged in their own colours so you can tell:
+
+| | |
+| --- | --- |
+| **Enchanting** | rune-like script, in the spirit of the enchanting table |
+| **Pirate Speak** | *Hoist or drop an .mcstructure scroll t' include in this haul* |
+| **LOLCAT** | *Gimme or drop an .mcstructure fiel to include in this pak* |
+| **Shakespearean** | *Prithee add or drop an .mcstructure scroll* |
+| **ɥsᴉlƃuƎ** | the whole window, upside down |
+
+![Pirate Speak](docs/window_pirate.png)
+
+The joke languages are generated from the English strings rather than stored, so
+they cover every label automatically — including any added later.
+
+![About](docs/about.png)
+
+---
+
+## 3. Use the pack in game
+
+Apply the `.mcpack` like any resource pack — enabling it in your **global
+resources** works well.
+
+![Making the pack active](docs/make_pack_active.PNG)
+
+Your structure now appears around **every armor stand** in the worlds you load.
+That is how it works without a behaviour pack. Place an armor stand where the
+build should go.
+
+![Ghost blocks around an armor stand](docs/example_full.png)
+
+**Shift-right-click** the armor stand to step through the build a layer at a
+time. Layers 12 blocks apart share a step, so a tall build shows more than one
+layer at once.
+
+![One layer at a time](docs/example_layer.png)
+
+---
 
 ## Bundling TechPack
 
 Structura can fold the [Bedrock Technical Resource Pack](https://github.com/EvilSlimeLabs/Bedrock-Technical-Resource-Pack)
-into the pack it builds. Tick **Bundle TechPack** before making the pack, or
+into the pack it builds. Turn on **Bundle TechPack** before making the pack, or
 pass `--tech_pack` on the command line.
 
 **Do not apply both packs at once.** Both Structura and TechPack replace the
@@ -54,41 +174,44 @@ Bundling is the way to run both. The generated pack carries TechPack's
 declarations and assets alongside Structura's own, so:
 
 - turn the toggle on and apply **only** the generated pack
-- remove or disable the standalone TechPack while the bundled pack is active,
-  or the conflict comes straight back
+- remove or disable the standalone TechPack while the bundled pack is active
 
 The bundled copy is whatever version of TechPack shipped with your Structura
-build; it does not update on its own. If you want a newer TechPack, take a newer
+build; it does not update on its own. For a newer TechPack, take a newer
 Structura release or update the `be_tech_pack` submodule and rebuild.
 
+---
+
+## Command line
+
+```bash
+python structura.py --structure path/to/build.mcstructure --pack_name "CLI Pack" --overwrite
+```
+
+`--opacity` (1–100, the inverse of the window's transparency slider),
+`--description`, `--icon`, `--output`, `--offset x,y,z`, `--tech_pack` and
+`--overwrite` are all available. `--help` lists them. Without `--output` the
+pack lands in the same folder the window uses.
 
 ## Linux
 
-To start, you definitely need to install the python3-tk package.
+You need the Tk package for your Python:
 
-Choose the method that suits you:
+```bash
+sudo apt-get install python3-tk     # Debian/Ubuntu
+sudo dnf install python3-tkinter    # Fedora
+```
 
-Debian/Ubuntu:
+Then install the requirements and run it:
+
 ```bash
-sudo apt-get install python3.7-tk
-```
-Fedora:
-```bash
-sudo dnf install python3-tkinter
-```
-Arch:
-```bash
-yay -S python37 # yay or any other AUR component
-```
-To run Structure, allow start.sh run and run:
-```bash
+python -m pip install -r requirements.txt
 chmod +x start.sh && sh start.sh
 ```
 
-To run from command line
-```bash
-python structura.py --structure path/to/build.mcstructure --pack_name 'CLI Pack' --overwrite
-```
+The theme setting has one limitation here: CustomTkinter cannot read a Linux
+desktop's light or dark preference, so **System** resolves to light. Pick
+**Light** or **Dark** explicitly if that is not what you want.
 
 ## Building a release
 
@@ -101,36 +224,55 @@ python build.py
 ```
 
 `build.py` runs the unit tests, freezes `structura.py` with PyInstaller using
-`structura.spec`, and writes `dist/Structura-<version>.zip` containing the
-executable alongside `lookups/`, `Vanilla_Resource_Pack/`, `VERSION`, the
-license and this README. It prints the archive's size and SHA-256 when it is
-done. The tests are not optional in the normal path; `--skip-tests` and
-`--skip-freeze` exist for iterating on the packaging step.
+`structura.spec`, and writes two things into `dist/`: `Structura.exe`, and
+`Structura-<version>.zip` containing that executable and the licence. It prints
+the size and SHA-256 when it is done. The tests are not optional in the normal
+path; `--skip-tests` and `--skip-freeze` exist for iterating on the packaging
+step.
 
-The data directories ship beside the executable rather than inside it, because
-the program opens them by relative path at runtime.
+Everything the program reads — the lookup tables, the trimmed vanilla pack, the
+TechPack assets, `VERSION` and the branding — is packed **inside** the
+executable. A copy of any of those folders placed *beside* the executable still
+wins, which is what keeps the updater working and lets you override a lookup
+table by dropping an edited folder next to the exe.
+
+### Keeping the screenshots current
+
+The window screenshots in this file are taken from the running program:
+
+```bash
+python tools/make_screenshots.py
+```
+
+Run it after any interface change and the documentation comes back in step. The
+in-game screenshots are the ones only a person in a world can take.
 
 ## Updating blocks
-As of structura 1.3 you can update the blocks manually and contribute back to the project.
-[Here is a write up on how this works](docs/Editing%20Blocks.md)
 
+You can add block support yourself and contribute it back.
+[Here is a write-up on how that works](docs/Editing%20Blocks.md).
+
+Two tools report where the coverage stands:
+
+```bash
+python tools/audit_blocks.py      # blocks whose textures do not resolve
+python tools/coverage_report.py   # what the bundled test structures still drop
+```
 
 ## Contributing
 
-[![GitHub repo Good Issues for newbies](https://img.shields.io/github/issues/RavinMaddHatter/Structura/good%20first%20issue?style=flat&logo=github&logoColor=green&label=Good%20First%20issues)](https://github.com/RavinMaddHatter/Structura/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) [![GitHub Help Wanted issues](https://img.shields.io/github/issues/RavinMaddHatter/Structura/help%20wanted?style=flat&logo=github&logoColor=b545d1&label=%22Help%20Wanted%22%20issues)](https://github.com/RavinMaddHatter/Structura/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22) [![GitHub Help Wanted PRs](https://img.shields.io/github/issues-pr/RavinMaddHatter/Structura/help%20wanted?style=flat&logo=github&logoColor=b545d1&label=%22Help%20Wanted%22%20PRs)](https://github.com/RavinMaddHatter/Structura/pulls?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22) [![GitHub repo Issues](https://img.shields.io/github/issues/RavinMaddHatter/Structura?style=flat&logo=github&logoColor=red&label=Issues)](https://github.com/RavinMaddHatter/Structura/issues?q=is%3Aopen)
-
-👋 **Welcome, new contributors!**
-
-Whether you're a seasoned developer or just getting started, your contributions are valuable to us. Don't hesitate to jump in, explore the project, and make an impact. To start contributing, please check out our [Contribution Guidelines](docs/CONTRIBUTING.md). 
-
+Contributions are welcome — see the [Contribution Guidelines](docs/CONTRIBUTING.md).
 
 ## Coverage
-Coverage results of block mcstructure tests
 
-| Test Structures               | Coverage | Unique Blocks | Missing Blocks |
-|-------------------------------|----------|---------------|----------------|
-| Stones.mcstructure            | 100%     | 332           | 0              |
-| gems and redstone.mcstructure | 100%     | 74            | 0              |
-| wood2.mcstructure             | 100%     | 79            | 0              |
-| wood.mcstructure              | 100%     | 185           | 0              |
-| decorative.mcstructure        | 97.8%    | 267           | 6              |
+Every block in all 108 bundled test structures builds, and every block the
+community vanilla resource pack defines has a Structura definition.
+`BLOCK_COVERAGE_GAPS.md` records what was decided and which shapes are still
+approximations. Re-check at any time with `python tools/coverage_report.py`.
+
+## Credits
+
+- **EvilSlimeLabs** — current maintainer
+- **DrAv0011**, **FondUnicycle**, **RavinMaddHatter** — original authors
+
+Every generated pack carries these credits in its description.

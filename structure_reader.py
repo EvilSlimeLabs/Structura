@@ -1,5 +1,7 @@
 import nbtlib
 import os
+
+import paths
 from numpy import array, argwhere , int32, maximum, minimum, zeros, count_nonzero, flip
 import json
 loaded={}
@@ -15,10 +17,10 @@ def embed( small_array, big_array, loc):
 class process_structure:
     def __init__(self, file):
         global loaded
-        with open("lookups/nbt_defs.json") as nbt_file:
+        with open(paths.lookup("nbt_defs.json")) as nbt_file:
             self.nbt_defs=json.load(nbt_file)
             
-        with open("lookups/material_list_names.json") as nbt_file:
+        with open(paths.lookup("material_list_names.json")) as nbt_file:
             self.block_names=json.load(nbt_file)
         if type(file) is dict:
             self.NBTfile = file
@@ -166,7 +168,7 @@ class combined_structures:
 if __name__ == "__main__":
     testFileNameArray=[]
     excludedBlocks=["minecraft:structure_block","minecraft:air"]
-    with open(os.path.join("lookups", "material_list_names.json")) as name_lookup:
+    with open(paths.lookup("material_list_names.json")) as name_lookup:
         blocks_def=json.load(name_lookup)
     batchtest=[]
     testFileName="test_structures\\All Blocks World\\gems and redstone.mcstructure"
@@ -198,7 +200,7 @@ if __name__ == "__main__":
                 if variant not in blocks_def[block["name"]].keys():
                     actual_name = input(f"loc: {x+test.origin[0]},{z+test.origin[2]} {block['name']} - {variant}:")
                     blocks_def[block["name"]][variant]=actual_name
-    with open(os.path.join("lookups", "material_list_names.json"), "w+") as name_file:
+    with open(paths.writable("lookups", "material_list_names.json"), "w+") as name_file:
         json.dump(blocks_def,name_file)
     #print(test.size)
         #input(f"")

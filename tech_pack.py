@@ -19,9 +19,9 @@ submodules -- `available()` is False and the toggle has nothing to offer.
 """
 import os
 import shutil
-import sys
 
 import jsonc
+import paths
 
 SUBMODULE = "be_tech_pack"
 
@@ -29,21 +29,16 @@ SUBMODULE = "be_tech_pack"
 def _root():
     """Where be_tech_pack/ lives, nearest first.
 
-    A frozen build runs from a PyInstaller temp directory, so the copy that
-    matters ships beside the executable -- the same lookup version.py does for
-    the VERSION file, and the reason lookups/ and Vanilla_Resource_Pack/ are
-    packaged next to the exe rather than inside it.
+    Beside the executable first, then inside a frozen bundle, then the source
+    checkout -- the same order paths.py uses for the other data directories, and
+    for the same reason: a copy the user can replace should beat the packaged
+    one.
     """
-    candidates = []
-    if getattr(sys, "frozen", False):
-        candidates.append(os.path.dirname(sys.executable))
-    candidates.append(os.path.dirname(os.path.abspath(__file__)))
-    candidates.append(os.getcwd())
-    for directory in candidates:
-        path = os.path.join(directory, SUBMODULE)
-        if os.path.isfile(os.path.join(path, "entity", "armor_stand.entity.json")):
-            return path
-    return os.path.join(candidates[-1], SUBMODULE)
+    for directory in paths.roots():
+        candidate = os.path.join(directory, SUBMODULE)
+        if os.path.isfile(os.path.join(candidate, "entity", "armor_stand.entity.json")):
+            return candidate
+    return os.path.join(paths.beside_executable(), SUBMODULE)
 
 
 ROOT = _root()

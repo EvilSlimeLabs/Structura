@@ -13,6 +13,7 @@ import armor_stand_geo_class as asgc
 import big_render_controller as brc
 import manifest
 import render_controller_class as rcc
+import paths
 import structure_reader
 import tech_pack
 
@@ -42,7 +43,7 @@ class UnsupportedBlock:
     def __hash__(self):
         return hash((frozenset(self.block["name"]), self.variant))
 
-with open("lookups/nbt_defs.json") as f:
+with open(paths.lookup("nbt_defs.json")) as f:
     nbt_def = json.load(f)
 class structura:
     def __init__(self,pack_name):
@@ -69,8 +70,9 @@ class structura:
         self.longestY=0
         self.unsupported_blocks=[]
         self.all_blocks={}
-        self.icon="lookups/pack_icon.png"
+        self.icon=paths.lookup("pack_icon.png")
         self.dead_blocks={}
+        self.description=""
         self.tech_pack=False
         self._tech_pack_merged=False
     def cleanup(self):
@@ -81,6 +83,12 @@ class structura:
         self.work_dir=None
     def set_icon(self,icon):
         self.icon=icon
+    def set_description(self,text):
+        """A short note from the builder, shown above the credits in game.
+
+        Trimmed to what the pack list can show without pushing the rest of the
+        description out of view."""
+        self.description=(text or "").strip()[:manifest.DESCRIPTION_LIMIT]
     def set_tech_pack(self,enabled=True):
         """Bundle the Bedrock Technical Resource Pack into this pack.
 
@@ -245,12 +253,14 @@ class structura:
     def compile_pack(self, overwrite=False):
         ## consider temp file
         nametags=list(self.structure_files.keys())
-        if len(nametags)>1:
-            manifest.export(self.work_dir,self.display_name,nameTags=nametags)
-        else:
-            manifest.export(self.work_dir,self.display_name)
+        ## a single unnamed model has nothing worth listing; an empty tag is how
+        ## the one-structure case reaches here
+        listed=[tag for tag in nametags if tag]
+        manifest.export(self.work_dir,self.display_name,nameTags=listed,
+                        user_text=self.description,
+                        tech_pack_version=tech_pack.version() if self.tech_pack else None)
         copyfile(self.icon, f"{self.work_dir}/pack_icon.png")
-        larger_render = "lookups/armor_stand.larger_render.geo.json"
+        larger_render = paths.lookup("armor_stand.larger_render.geo.json")
         larger_render_path = f"{self.work_dir}/models/entity/armor_stand.larger_render.geo.json"
         os.makedirs(os.path.dirname(larger_render_path), exist_ok=True)
         copyfile(larger_render, larger_render_path)
@@ -355,7 +365,7 @@ class structura:
         Get the version from lookup_version.json.
         :return:
         """
-        look_up_path = os.path.join("lookups", "lookup_version.json")
+        look_up_path = paths.lookup("lookup_version.json")
         if os.path.isfile(look_up_path):
             with open(look_up_path) as file:
                 version_data = json.load(file)

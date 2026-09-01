@@ -10,6 +10,8 @@ import copy
 import os
 import time
 import re
+
+import paths
 debug = False##used in API test to force errors and break error handler, should remain false.
 
 ## Blocks that never become geometry. structura_core needs the same list in the
@@ -19,13 +21,14 @@ EXCLUDED_BLOCKS = ("air", "structure_block")
 
 ## Alpha the ghost blocks are drawn at when nothing sets one. The texture's
 ## alpha channel is multiplied by this, so it is a fraction, not a percentage.
-## It is the counterpart of the GUI's DEFAULT_TRANSPARENCY of 85: a caller that
-## sets nothing has to get the same ghost block the slider's default gives.
-DEFAULT_ALPHA = 0.15
+## It is the counterpart of app_settings.DEFAULT_TRANSPARENCY: a caller that
+## sets nothing has to get the same ghost block the slider's default gives, and
+## a test asserts the two stay in step.
+DEFAULT_ALPHA = 0.35
 
 class armorstandgeo:
-    def __init__(self, name, alpha = DEFAULT_ALPHA,offsets=None, size=[64, 64, 64], ref_pack="Vanilla_Resource_Pack"):
-        self.ref_resource_pack = ref_pack
+    def __init__(self, name, alpha = DEFAULT_ALPHA,offsets=None, size=[64, 64, 64], ref_pack=None):
+        self.ref_resource_pack = ref_pack or paths.vanilla_pack()
         ## we load all of these items containing the mapping of blocks to some property that is either hidden, implied or just not clear
         with open("{}/blocks.json".format(self.ref_resource_pack)) as f:
             ## defines the blocks from the NBT name tells us sides vs textures
@@ -33,17 +36,17 @@ class armorstandgeo:
         with open("{}/textures/terrain_texture.json".format(self.ref_resource_pack)) as f:
             ##maps textures names to texture files.
             self.terrain_texture = json.load(f)
-        with open("lookups/block_rotation.json") as f:
+        with open(paths.lookup("block_rotation.json")) as f:
             ## custom look up table i wrote to help with rotations, error messages dump if something has undefined rotations 
             self.block_rotations = json.load(f)
-        with open("lookups/variants.json") as f:
+        with open(paths.lookup("variants.json")) as f:
             ## custom lookup table mapping the assumed array location in the terrain texture to the relevant blocks IE log2 index 2 implies a specific wood type not captured anywhere
             self.block_variants = json.load(f)
-        with open("lookups/block_definition.json") as f:
+        with open(paths.lookup("block_definition.json")) as f:
             self.defs = json.load(f)
-        with open("lookups/block_shapes.json") as f:
+        with open(paths.lookup("block_shapes.json")) as f:
             self.block_shapes = json.load(f)
-        with open("lookups/block_uv.json") as f:
+        with open(paths.lookup("block_uv.json")) as f:
             self.block_uv = json.load(f)
         self.name = name.replace(" ","_").lower()
         self.stand = {}

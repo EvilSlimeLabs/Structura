@@ -6,6 +6,9 @@ through it in yellow concrete, and writes both icons the project ships:
     lookups/pack_icon.png   256x256, over the Slime Lab background art. This is
                             the icon copied into every generated pack, where it
                             sits in Minecraft's pack list as a filled tile.
+    lookups/app_icon.png    256x256 on transparency. The window's own title bar
+                            icon, which is composed against the title bar rather
+                            than sitting in a tile of its own.
     pack_icon.ico           the desktop icon, 16 px through 256 px, on
                             transparency. A taskbar or Explorer icon is composed
                             against whatever is behind it, so it carries the
@@ -28,6 +31,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PACK = os.path.join(ROOT, "Vanilla_Resource_Pack", "textures", "blocks")
 BACKGROUND = os.path.join(ROOT, "background_slimelab.png")
 PACK_ICON = os.path.join(ROOT, "lookups", "pack_icon.png")
+APP_ICON = os.path.join(ROOT, "lookups", "app_icon.png")
 DESKTOP_ICON = os.path.join(ROOT, "pack_icon.ico")
 
 # --- the two decisions ------------------------------------------------------
@@ -263,6 +267,10 @@ def main():
     icon = compose(SIZE)
     icon.save(PACK_ICON)
     print("wrote %s (%d x %d, over the background)" % (PACK_ICON, *icon.size))
+
+    bare = transparent(SIZE)
+    bare.save(APP_ICON)
+    print("wrote %s (%d x %d, transparent)" % (APP_ICON, *bare.size))
 
     ## every size rendered at its own scale rather than reduced from one big
     ## frame: at 16 and 24 px the grid is thinner than a pixel either way, but

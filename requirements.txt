@@ -9,3 +9,14 @@ numpy>=1.24.2
 Pillow>=9.4.0
 requests>=2.32.0
 ujson>=5.10.0
+
+# The window. CustomTkinter draws the modern widgets on top of tkinter, so the
+# frozen build stays the size it was; darkdetect is what lets "system" follow
+# the desktop rather than guess.
+customtkinter>=6.0.0
+darkdetect>=0.8.0
+
+# Dropping files onto the window. Optional at runtime -- the window opens and
+# the add button works without it -- but installed by default because the drop
+# target is part of the design.
+tkinterdnd2>=0.4.0
