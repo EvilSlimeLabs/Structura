@@ -222,13 +222,23 @@ class armorstandgeo:
                                         , block_shapes["center"][2] +  z + self.offsets[2] ]
             #temp_block_group["inflate"] = -0.03
 
+            ## a rotation table that does not describe this state leaves the
+            ## block unrotated rather than raising. The tables are keyed by the
+            ## state's value, and a family can carry a rotation state it has no
+            ## entry for -- soul_campfire reads direction 0 against a table that
+            ## only listed 1, and the block was dropped every time it faced that
+            ## way.
+            rotation = None
             if block_type in self.block_rotations.keys() and rot is not None:
-                temp_block_group["rotation"] = copy.deepcopy(self.block_rotations[block_type][str(rot)])
+                rotation = self.block_rotations[block_type].get(str(rot))
+                if rotation is None and debug:
+                    print("no rotation {} for block type {}".format(rot, block_type))
+            if rotation is not None:
+                temp_block_group["rotation"] = copy.deepcopy(rotation)
                 if big:
                     temp_block_group["rotation"][1] += 180
-            else:
-                if debug:
-                    print("no rotation for block type {} found".format(block_type))
+            elif debug:
+                print("no rotation for block type {} found".format(block_type))
             temp_block_group["cubes"] = []
             uv_idx = 0
             

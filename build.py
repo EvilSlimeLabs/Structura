@@ -24,6 +24,8 @@ import shutil
 import subprocess
 import sys
 import zipfile
+
+import tech_pack
 from datetime import date
 
 import version
@@ -40,6 +42,15 @@ EXE_NAME = "Structura.exe" if os.name == "nt" else "Structura"
 ## bundle would unpack them somewhere else entirely.
 DATA_DIRS = ["lookups", "Vanilla_Resource_Pack"]
 LOOSE_FILES = ["VERSION", "LICENSE", "README.md"]
+
+## The TechPack submodule ships beside the executable as well, so the bundle
+## toggle works in a release, but only the folders a generated pack draws from.
+## Its tests, tools, branding and documentation have no business in a release,
+## and it is deliberately kept out of the update package -- the update server
+## ships lookup drops, not somebody else's resource pack.
+TECH_PACK_DIR = tech_pack.SUBMODULE
+TECH_PACK_KEEP = tuple(sorted(set(tech_pack.ASSET_DIRS) | {"entity"}))
+TECH_PACK_FILES = ("manifest.json", "LICENSE", "README.md")
 
 ## Source art and one-off helper scripts that live in the data directories but
 ## have no business in a release.
@@ -101,6 +112,34 @@ def data_entries():
                     continue
                 entries.append((path, os.path.relpath(path, ROOT).replace("\\", "/")))
     return entries, skipped
+
+
+def tech_pack_entries():
+    """(source, archive name) for the parts of the TechPack submodule we ship.
+
+    Missing is not fatal: a checkout without submodules still builds, and
+    tech_pack.available() turns the toggle off at runtime.
+    """
+    root_dir = os.path.join(ROOT, TECH_PACK_DIR)
+    if not os.path.isdir(root_dir):
+        print("   warning: %s is missing; the built app will not offer the "
+              "TechPack toggle" % TECH_PACK_DIR)
+        return []
+    entries = []
+    for folder in TECH_PACK_KEEP:
+        source = os.path.join(root_dir, folder)
+        for dirpath, dirnames, filenames in os.walk(source):
+            dirnames[:] = [d for d in dirnames if not d.startswith(".")]
+            for filename in filenames:
+                path = os.path.join(dirpath, filename)
+                if not should_ship(path):
+                    continue
+                entries.append((path, os.path.relpath(path, ROOT).replace("\\", "/")))
+    for filename in TECH_PACK_FILES:
+        path = os.path.join(root_dir, filename)
+        if os.path.isfile(path):
+            entries.append((path, os.path.relpath(path, ROOT).replace("\\", "/")))
+    return entries
 
 
 def write_zip(zip_path, entries):

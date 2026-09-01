@@ -37,6 +37,31 @@ You can go through a structure layer by layer if you like by shift right clickin
 ![alt text](https://github.com/RavinMaddHatter/Structura/blob/main/docs/example_layer.png?raw=true)
 
 
+## Bundling TechPack
+
+Structura can fold the [Bedrock Technical Resource Pack](https://github.com/EvilSlimeLabs/Bedrock-Technical-Resource-Pack)
+into the pack it builds. Tick **Bundle TechPack** before making the pack, or
+pass `--tech_pack` on the command line.
+
+**Do not apply both packs at once.** Both Structura and TechPack replace the
+game's armor stand entity, and a resource pack *replaces* that file rather than
+merging with it — between two packs, only the one higher in your list is read at
+all. Applying them side by side does not half-work: whichever sits lower is
+ignored completely, so you either lose the ghost blocks or you lose every
+TechPack visualisation, depending on the order. No ordering gives you both.
+
+Bundling is the way to run both. The generated pack carries TechPack's
+declarations and assets alongside Structura's own, so:
+
+- turn the toggle on and apply **only** the generated pack
+- remove or disable the standalone TechPack while the bundled pack is active,
+  or the conflict comes straight back
+
+The bundled copy is whatever version of TechPack shipped with your Structura
+build; it does not update on its own. If you want a newer TechPack, take a newer
+Structura release or update the `be_tech_pack` submodule and rebuild.
+
+
 ## Linux
 
 To start, you definitely need to install the python3-tk package.

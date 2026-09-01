@@ -35,6 +35,7 @@ from tkinter import (
     ACTIVE,
 )
 
+import tech_pack
 from structura_core import structura
 
 structura_update_version = "Structura1-7"
@@ -123,6 +124,10 @@ def parse_args(argv=None):
     parser.add_argument("--overwrite", action="store_true", help="Overwrite the output file.")
     parser.add_argument("--debug", "-db", action='store_true', help='Enable debug mode')
     parser.add_argument("--update", action='store_true', help='Run updater')
+    parser.add_argument("--tech_pack", action="store_true",
+                        help="Bundle TechPack into the generated pack, so one pack "
+                             "carries both. Both projects replace the armor stand "
+                             "entity, so applying them separately loses one of them.")
     args = parser.parse_args(argv)
     ## half a command line used to fall through to the window, which on a
     ## headless machine fails somewhere much less obvious
@@ -147,6 +152,9 @@ def run_cli(args):
 
     if icon := args.icon:
         structura_base.set_icon(icon)
+
+    if args.tech_pack:
+        structura_base.set_tech_pack(True)
 
     structura_base.add_model("", args.structure)
     structura_base.set_model_offset("", offset)
@@ -225,6 +233,11 @@ def box_checked():
         export_check.grid(row=r, column=1)
         saveButton.grid(row=r, column=2)
         r += 1
+        if tech_pack.available():
+            tech_check.grid(row=r, column=0, columnspan=2)
+            r += 1
+        else:
+            tech_check.grid_forget()
 
     else:
         saveButton.grid_forget()
@@ -274,6 +287,10 @@ def box_checked():
         saveButton.grid(row=r, column=2)
         r +=1
         big_build_check.grid(row=r, column=0,columnspan=2)
+        if tech_pack.available():
+            tech_check.grid(row=r, column=2)
+        else:
+            tech_check.grid_forget()
         r += 1
     ## the language row sits at the bottom of whichever layout is showing
     language_lb.grid(row=r, column=0)
@@ -346,6 +363,8 @@ def runFromGui():
         structura_base.set_opacity(transparency_to_alpha(sliderVar.get()))
         if len(icon_var.get())>0:
             structura_base.set_icon(icon_var.get())
+        if tech_var.get() and tech_pack.available():
+            structura_base.set_tech_pack(True)
 
 
         if not(check_var.get()):
@@ -390,6 +409,7 @@ def build_gui():
     global packButton, advanced_check, export_check, big_build_check
     global deleteButton, saveButton, modelButton, get_cords_button
     global transparency_lb, transparency_entry, language_lb, language_menu
+    global tech_var, tech_check
     global TRANSLATABLE
 
     root = Tk()
@@ -408,6 +428,7 @@ def build_gui():
     check_var = IntVar()
     export_list = IntVar()
     big_build = IntVar()
+    tech_var = IntVar()
     big_build.set(0)
     sliderVar.set(DEFAULT_TRANSPARENCY)
     listbox=Listbox(root)
@@ -431,6 +452,9 @@ def build_gui():
     advanced_check = Checkbutton(root, text=lang["advance"], variable=check_var, onvalue=1, offvalue=0, command=box_checked)
     export_check = Checkbutton(root, text=lang["lists"], variable=export_list, onvalue=1, offvalue=0)
     big_build_check = Checkbutton(root, text=lang["bigbuild"], variable=big_build, onvalue=1, offvalue=0, command=box_checked )
+    ## only offered when the submodule is actually checked out; a source
+    ## checkout without submodules has nothing to bundle
+    tech_check = Checkbutton(root, text=lang["techpack"], variable=tech_var, onvalue=1, offvalue=0)
 
     deleteButton = Button(root, text=lang["remove"], command=delete_model)
     saveButton = Button(root, text=lang["makepack"], command=runFromGui)
@@ -455,6 +479,7 @@ def build_gui():
         (big_build_check, "bigbuild"), (deleteButton, "remove"),
         (saveButton, "makepack"), (modelButton, "addmodel"),
         (get_cords_button, "getcords"), (transparency_lb, "transparency"),
+        (tech_check, "techpack"),
         (language_lb, "language"),
     ]
 

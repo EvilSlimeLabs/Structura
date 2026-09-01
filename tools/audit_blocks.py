@@ -14,7 +14,9 @@ import os
 import re
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+## jsonc lives at the repository root: the generated pack reads the
+## submodule's JSONC at runtime too, so it is shipped code, not a tool
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import jsonc
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

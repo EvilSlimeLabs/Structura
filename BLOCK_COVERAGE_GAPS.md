@@ -1,146 +1,131 @@
-# Block coverage gaps
+# Block coverage
 
-Blocks that the `CommunityVanillaResourcePack` submodule defines and
+Blocks that `CommunityVanillaResourcePack` defines and
 `lookups/block_definition.json` does not. A block missing from that file raises
 a `KeyError` in `armorstandgeo.make_block`, which `structura._add_blocks_to_geo`
 catches and records as an unsupported block — so the block is silently dropped
 from the ghost model and the user only sees it in the skipped list.
 
-Generated against `CommunityVanillaResourcePack` at `b6bdfc8` (min engine
-1.26.40) versus `block_definition.json`. **158 blocks are uncovered.** Nothing
-in this file has been acted on.
+**The gap is closed.** All 158 blocks that were uncovered against
+`CommunityVanillaResourcePack` at `b6bdfc8` (min engine 1.26.40) are now
+defined, and every block in `test_structures/` builds. What is left below is the
+record of what was decided and the handful of shapes that are approximations.
 
-## How to read the tables
+Check either number at any time:
 
-Three separate things can be missing, and they cost very different amounts of
-work:
-
-- **definition** — a line in `lookups/block_definition.json` mapping the block
-  to a shape family. Every entry below needs this.
-- **blocks.json** — an entry in `Vanilla_Resource_Pack/blocks.json` mapping the
-  block to texture short names. 95 of the 158 need one.
-- **textures** — terrain_texture.json entries plus the `.png` files. 88 of the
-  158 need these; they can be copied from the submodule.
-
-62 of the 158 need **only** the definition line — the bundled pack already
-carries their blocks.json entry and textures. Those are the cheap ones.
-
-A spot check ran `make_block` against 30 of the definition-only candidates with
-a hand-supplied shape family; all 30 produced geometry without error, so for
-that group a single line really is the whole fix.
+```bash
+python tools/audit_blocks.py --gaps        blocks the community pack has and we do not
+python tools/coverage_report.py            what the bundled structures still drop
+```
 
 ---
 
-## Priority 1 — uncovered blocks that appear in the bundled test structures
+## Where it stands
 
-These are being dropped today, from structures that ship with the repo. All of
-them are definition-only fixes.
+| Check | Result |
+| --- | --- |
+| Blocks declared in `block_definition.json` | 1380 (1335 drawn, 45 `ignore`) |
+| Declared blocks whose textures do not resolve | 0 |
+| Community pack blocks with no definition | 0 |
+| Blocks skipped across the 108 bundled structures | 0 |
 
-| Block | Suggested shape | Appears in |
+The 130 blocks the audit reports as *expected unresolved* are Education Edition
+and unobtainable blocks that no vanilla pack ships textures for. They are
+declared so a structure containing one is named rather than mysterious, and they
+will never resolve.
+
+---
+
+## What was added
+
+**62 needed only a definition line.** The bundled pack already carried their
+`blocks.json` entry and textures.
+
+- **Legacy stone slab ids (12)** — `stone_slab` through `stone_slab4` and their
+  `double_` forms, plus `petrified_oak_slab`, `petrified_oak_double_slab`,
+  `pale_oak_double_slab`, `bamboo_mosaic_double_slab`. Slabs map to `slab`,
+  double slabs to `cube`. The numbered variants pick their material through
+  `stone_slab_type_2/3/4`, which `variants.json` already defined. `stone_slab`
+  alone appeared in ten of the bundled structures, including the ones used to
+  check slab orientation.
+- **camelCase and pre-flattening spellings (10)** — `carpet`, `concretePowder`,
+  `seaLantern`, `yellow_shulker_box`, `chiseled_stone_bricks`,
+  `cracked_stone_bricks`, `quartz_pillar` (`tree`, so `pillar_axis` turns it),
+  `deprecated_anvil`, `deprecated_purpur_block_1` and `_2`.
+- **Two-tall plants (7)** — `large_fern`, `lilac`, `peony`, `pitcher_plant`,
+  `rose_bush`, `sunflower`, `tall_grass`, all `double_plant`.
+- **Single-height flora and the pale garden (6)** — `lily_of_the_valley`,
+  `open_eyeblossom`, `closed_eyeblossom` and `pale_hanging_moss` as
+  `cross_texture`, `pale_oak_door` as `door`, and `resin_clump` as `vine-multi`,
+  which is what `glow_lichen` and `sculk_vein` use — it is a multi-face decal
+  driven by `multi_face_direction_bits`, not a cross.
+- **Chiseled copper (8)** — all four oxidation stages and their waxed forms,
+  `cube`.
+- **Light block levels (16)** — `light_block_0` through `light_block_15`,
+  `ignore`. They are invisible in game, as the plain `light_block` already was.
+- **1.21 odds and ends (3)** — `vault` as `cube`, `piglin_head` as `ignore` to
+  match every other head, and `heavy_core` on a new shape.
+
+**96 needed assets**, pulled from the submodule with
+`tools/sync_vanilla_pack.py --add-block` — 95 `blocks.json` entries, 64
+`terrain_texture.json` entries and 92 texture files.
+
+- **Sulfur and cinnabar (34)** — two full stone families: block, bricks,
+  polished and (sulfur) chiseled and potent forms, each with slab, double slab,
+  stairs and wall. Plus `sulfur_spike` on a new shape.
+- **Copper, in all eight oxidation and waxing states (32)** — bars as `pane`,
+  chests as `chest`, lanterns as `lantern`, statues on a new shape.
+- **Lightning rod oxidation (7)** — the seven oxidised and waxed forms of a
+  block whose plain id was already covered.
+- **Shelves (12)** — one per wood, on a new shape.
+- **New flora (8)** — `bush`, `cactus_flower`, `firefly_bush`,
+  `golden_dandelion`, `short_dry_grass`, `tall_dry_grass` and `wildflowers` as
+  `cross_texture`; `leaf_litter` as `carpet`, because it lies on the floor
+  rather than standing up as a cross.
+- **The rest (3)** — `creaking_heart` as `tree` so `pillar_axis` turns it,
+  `copper_torch` as `torch`, `dried_ghast` as `cube`.
+
+---
+
+## Two defects the work surfaced
+
+**`soul_campfire` was mapped to `cube`.** It is a campfire, and `campfire` has
+no rotation table, so the mismapping only mattered because of the second defect.
+
+**A rotation state the table could not describe dropped the block.**
+`make_block` indexed `block_rotation.json` directly, so a `cube` carrying
+`direction` 0 — a state the `cube` entry never listed — raised a `KeyError` and
+the block was recorded as unsupported. It now leaves the block unrotated
+instead. Losing an orientation is a smaller wrong answer than losing the block,
+and it matches how the shape-variant lookup beside it already behaved. This was
+the only block still being dropped by the bundled structures.
+
+---
+
+## Shapes that are approximations
+
+These four have geometry no existing entry described, and nothing in the
+textures or the lookup tables pins their real dimensions down. They are drawn
+close enough to be useful as placement guides and are **worth a look in a live
+world** before anyone trusts the exact sizes.
+
+| Family | What it draws | What is uncertain |
 | --- | --- | --- |
-| `stone_slab` | `slab` | 10 palettes |
-| `pale_oak_door` | `door` | 4 palettes |
-| `double_stone_slab` | `cube` | 3 palettes |
-| `chiseled_copper` | `cube` | 1 palette |
-| `exposed_chiseled_copper` | `cube` | 1 palette |
-| `weathered_chiseled_copper` | `cube` | 1 palette |
-| `oxidized_chiseled_copper` | `cube` | 1 palette |
-| `large_fern` | `double_plant` | 1 palette |
-| `lilac` | `double_plant` | 1 palette |
-| `peony` | `double_plant` | 1 palette |
-| `rose_bush` | `double_plant` | 1 palette |
-| `sunflower` | `double_plant` | 1 palette |
-| `tall_grass` | `double_plant` | 1 palette |
-| `pitcher_plant` | `double_plant` | 1 palette |
+| `heavy_core` | a half-size cube floating at the middle of the block | the exact edge length |
+| `shelf` | a board across the full width, 3/16 tall and half a block deep, mounted at mid height and turned by facing | the height it sits at and its depth |
+| `sulfur_spike` | three boxes narrowing toward the tip | `blocks.json` hands this block five *part* textures through the six face slots — frustum, base, tip, middle, merge — rather than one texture per face, so the parts wear them in face order. The silhouette is right; which part shows which texture is not |
+| `copper_golem_statue` | a full-height box narrower than a block | the footprint. It wears the plain copper block texture, so only the proportions are in question |
 
-`stone_slab` and `double_stone_slab` matter most. They are the pre-flattening
-ids that older worlds still store, they carry `stone_slab_type` (already in
-`lookups/variants.json`) and `top_slot_bit`, and they turn up in ten of the
-bundled structures — including the ones used to check slab orientation.
+`vault` is drawn as a plain cube. It is close to block-sized, so this is a
+smaller compromise than the four above, but it is not exact either.
 
 ---
 
-## Priority 2 — definition-only, no new assets
+## Two orphans in the tables
 
-The bundled pack already has everything these need.
-
-**Legacy stone slab ids (12)** — `stone_slab`, `stone_slab2`, `stone_slab3`,
-`stone_slab4`, `double_stone_slab`, `double_stone_slab2`, `double_stone_slab3`,
-`double_stone_slab4`, `petrified_oak_slab`, `petrified_oak_double_slab`,
-`pale_oak_double_slab`, `bamboo_mosaic_double_slab`.
-Slabs map to `slab`, double slabs to `cube`. The numbered variants select their
-material through `stone_slab_type_2/3/4`, all of which `variants.json` already
-defines.
-
-**Other legacy or aliased ids (10)** — `carpet`, `concretePowder`, `seaLantern`,
-`yellow_shulker_box`, `chiseled_stone_bricks`, `cracked_stone_bricks`,
-`quartz_pillar`, `deprecated_anvil`, `deprecated_purpur_block_1`,
-`deprecated_purpur_block_2`.
-The pack already covers the flattened spellings (`concrete_powder`,
-`sea_lantern`, `stonebrick`); these are the camelCase and pre-flattening names
-the same blocks are stored under in older structures. `quartz_pillar` wants
-`tree` so `pillar_axis` rotates it.
-
-**Double plants (8)** — `large_fern`, `lilac`, `lily_of_the_valley`, `peony`,
-`pitcher_plant`, `rose_bush`, `sunflower`, `tall_grass`.
-All `double_plant`. These are the flattened replacements for the `double_plant`
-block that the pack covers through the old `flower_type` variant.
-
-**Chiseled copper (8)** — `chiseled_copper` and its exposed / weathered /
-oxidized / waxed forms. All `cube`.
-
-**Pale garden, 1.21.4 (5)** — `pale_oak_door` (`door`), `open_eyeblossom` and
-`closed_eyeblossom` (`cross_texture`), `pale_hanging_moss` (`cross_texture`),
-`resin_clump` (`cross_texture`).
-
-**Misc 1.21 (3)** — `vault`, `heavy_core`, `piglin_head`. `vault` and
-`heavy_core` are not cubes in game; `cube` is a rough stand-in and the shape is
-worth a second look. `piglin_head` is a skull, and `skull` is currently mapped
-to `ignore` — decide whether heads should render at all before adding it.
-
-**Light block levels (16)** — `light_block_0` through `light_block_15`. These
-are invisible in game and should almost certainly map to `ignore`, which is what
-the plain `light_block` entry was already changed to.
-
----
-
-## Priority 3 — new content, needs textures copied from the submodule
-
-Each of these needs a definition line, a `blocks.json` entry, terrain_texture
-entries and the `.png` files. The texture count is the number of distinct new
-files the submodule would supply.
-
-| Family | Blocks | New textures | Notes |
-| --- | --- | --- | --- |
-| Sulfur (Copper Age) | 18 | 15 | Full stone-family set plus `sulfur_spike`, which is a five-part multi-shape and needs a new shape entry |
-| Cinnabar (Copper Age) | 16 | 4 | Full stone-family set; block, bricks, polished, chiseled, each with slab / stairs / wall / double slab |
-| Shelves | 12 | 12 | One per wood type. New shape family — a shelf is a wall-mounted partial block with a facing direction |
-| Copper bars | 8 | 4 | Reuses the `pane` shape; waxed forms share the unwaxed textures |
-| Copper chests | 8 | 12 | `chest` shape already exists |
-| Copper lanterns | 8 | 4 | `lantern` shape already exists |
-| Copper golem statues | 8 | 0 | Textures already resolve; needs `blocks.json` entries. The statue is an entity-shaped model, so `cube` will look wrong — a new shape is the honest fix |
-| Lightning rod oxidation | 7 | 4 | `lightning_rod` shape already exists |
-| New flora | 8 | 10 | `bush`, `cactus_flower`, `firefly_bush`, `golden_dandelion`, `leaf_litter`, `short_dry_grass`, `tall_dry_grass`, `wildflowers`. Most are `cross_texture`; `leaf_litter` is a floor decal closer to `carpet` |
-| Other new | 3 | 27 | `creaking_heart` (`tree`, `pillar_axis`), `copper_torch` (`torch`), `dried_ghast` (four hydration states, 24 textures) |
-
----
-
-## Things to settle before working the list
-
-- **Which shape family gets the benefit of the doubt.** `vault`, `heavy_core`,
-  `copper_golem_statue`, `dried_ghast` and `sulfur_spike` all have geometry no
-  existing entry in `block_shapes.json` describes. Mapping them to `cube` gets
-  them on screen at the wrong size; leaving them out keeps them in the skipped
-  list where the user at least sees the name. Neither is obviously right.
-- **Whether the waxed variants deserve their own entries.** They are visually
-  identical to the unwaxed block and quadruple the diff. They do need their own
-  entries, because the lookup is by exact block id.
-- **Whether `light_block_*` and `piglin_head` should be `ignore`.** That is a
-  product call, not a lookup-table call.
-- **Nothing here needs copying by hand.**
-  `tools/sync_vanilla_pack.py --add-block <ids...>` pulls the `blocks.json`
-  entry, the `terrain_texture.json` entries and the texture files for a named
-  set of blocks out of the submodule, and reports what it cannot resolve. Run it
-  without `--apply` first. Afterwards `tools/audit_blocks.py` confirms every
-  declared block still resolves to a file. The remaining work per block is the
-  `block_definition.json` line and picking the shape family.
+`block_shapes.json` defines `waterlily` and `block_uv.json` defines
+`purpur_block`, and no block maps to either — `waterlily` the block uses
+`lilypad`, and `purpur_block` uses `tree`. Neither is reachable, so neither is
+breaking anything; they are dead entries that only show up if you compare the
+two files directly. Left alone rather than deleted, since removing table data
+that nothing reads is churn without a reader.

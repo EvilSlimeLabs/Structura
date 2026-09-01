@@ -59,6 +59,53 @@ class armorstand:
         prog_name = "ghost_blocks_{}".format(name.replace(" ","_").lower())
         self.geos[prog_name] = "geometry.armor_stand.{}".format(prog_name)
         self.textures[prog_name] = "textures/entity/{}".format(prog_name)
+    def merge_description(self, extra):
+        """Fold another pack's client entity description into this one.
+
+        A client entity file in a resource pack replaces the vanilla one rather
+        than merging with it, and between two packs only the higher in the
+        player's list is read at all. A pack that wants both its own armor stand
+        and somebody else's therefore has to carry both sets of declarations in
+        one file; there is no ordering that combines them.
+
+        Structura's own entries win every conflict. The ghost blocks are the
+        point of the pack, and `geometry.default` in particular has to stay on
+        the larger render bounds or the model stops drawing once the stand
+        leaves the screen.
+        """
+        desc = self.stand["minecraft:client_entity"]["description"]
+
+        for key in ("materials", "animations", "particle_effects"):
+            merged = dict(extra.get(key, {}))
+            merged.update(desc.get(key, {}))
+            if merged:
+                desc[key] = merged
+
+        ## geometry and textures are not written into the description until
+        ## export, which assigns them wholesale -- merging them there instead
+        ## would be overwritten on the way out
+        for name, value in extra.get("geometry", {}).items():
+            self.geos.setdefault(name, value)
+        for name, value in extra.get("textures", {}).items():
+            self.textures.setdefault(name, value)
+
+        ## script order is what decides what runs over what. Structura's pose
+        ## controller has to stay ahead of anything that reads the pose index.
+        scripts = desc.setdefault("scripts", {})
+        for key, value in extra.get("scripts", {}).items():
+            if key not in scripts:
+                scripts[key] = list(value) if isinstance(value, list) else value
+            elif isinstance(value, list) and isinstance(scripts[key], list):
+                for item in value:
+                    if item not in scripts[key]:
+                        scripts[key].append(item)
+
+        controllers = list(desc.get("render_controllers", []))
+        for item in extra.get("render_controllers", []):
+            if item not in controllers:
+                controllers.append(item)
+        desc["render_controllers"] = controllers
+
     def add_scale(self):
         self.stand["minecraft:client_entity"]["description"]["animations"]["scale"] = "animation.armor_stand.ghost_blocks.scale"
         self.stand["minecraft:client_entity"]["description"]["scripts"]["animate"].append("scale")

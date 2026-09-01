@@ -14,6 +14,7 @@ import big_render_controller as brc
 import manifest
 import render_controller_class as rcc
 import structure_reader
+import tech_pack
 
 debug=False
 
@@ -70,6 +71,8 @@ class structura:
         self.all_blocks={}
         self.icon="lookups/pack_icon.png"
         self.dead_blocks={}
+        self.tech_pack=False
+        self._tech_pack_merged=False
     def cleanup(self):
         """Drop the working tree. Safe to call twice; callers may use it in
         a finally so a failed build leaves nothing behind."""
@@ -78,6 +81,28 @@ class structura:
         self.work_dir=None
     def set_icon(self,icon):
         self.icon=icon
+    def set_tech_pack(self,enabled=True):
+        """Bundle the Bedrock Technical Resource Pack into this pack.
+
+        Both projects replace the armor stand client entity, and a resource pack
+        replaces that file rather than merging with it, so applying Structura
+        and TechPack side by side loses whichever sits lower in the player's
+        list. Folding TechPack's declarations and assets into the generated pack
+        is the only arrangement that runs both. Raises when the submodule is not
+        checked out, rather than quietly producing a pack without it."""
+        if enabled and not tech_pack.available():
+            raise FileNotFoundError(
+                "be_tech_pack is not available; run "
+                "'git submodule update --init be_tech_pack'")
+        self.tech_pack=bool(enabled)
+    def _apply_tech_pack(self):
+        """Merge TechPack into the armor stand before it is exported.
+
+        The entity file is rewritten once per model, so this guards itself
+        rather than relying on the merge being harmless to repeat."""
+        if self.tech_pack and not self._tech_pack_merged:
+            self.armorstand_entity.merge_description(tech_pack.description())
+            self._tech_pack_merged=True
     def set_opacity(self,opacity):
         ## an alpha fraction, not a slider position. Out of range values used
         ## to reach the uint8 alpha multiply and wrap around, which looked
@@ -115,6 +140,7 @@ class structura:
         self.armorstand_entity.add_scale()#scale animation was removed from normal build this needs to be added back for big builds
         self.big_offset=offset
         self.all_blocks=self._add_blocks_to_geo(struct2make,"",export_big=True)
+        self._apply_tech_pack()
         self.armorstand_entity.export(self.work_dir)
     def generate_with_nametags(self):
         update_animation=True
@@ -129,6 +155,7 @@ class structura:
             blocks=self._add_blocks_to_geo(struct2make,model_name)
             self.structure_files[model_name]["block_list"]=blocks
             ##consider temp folder
+            self._apply_tech_pack()
             self.armorstand_entity.export(self.work_dir)## this may be in the wrong spot, but transferred from 1.5
         
     def make_nametag_block_lists(self):
@@ -228,6 +255,13 @@ class structura:
         os.makedirs(os.path.dirname(larger_render_path), exist_ok=True)
         copyfile(larger_render, larger_render_path)
         self.rc.export(self.work_dir)
+        ## after Structura's own files, so a name both projects use keeps
+        ## Structura's copy and the collision is reported rather than silent
+        if self.tech_pack:
+            written,skipped=tech_pack.copy_assets(self.work_dir)
+            if debug:
+                print("TechPack {}: {} files, {} skipped".format(
+                    tech_pack.version(),written,len(skipped)))
         shutil.make_archive("{}".format(self.pack_name), 'zip', self.work_dir)
         if overwrite and os.path.isfile(f'{self.pack_name}.mcpack'):
             os.remove(f'{self.pack_name}.mcpack')

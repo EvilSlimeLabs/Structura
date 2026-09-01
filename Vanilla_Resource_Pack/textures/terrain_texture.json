@@ -5228,6 +5228,312 @@
       "textures": [
         "textures/blocks/eyeblossom_dormant"
       ]
+    },
+    "acacia_shelf": {
+      "textures": [
+        "textures/blocks/acacia_shelf"
+      ]
+    },
+    "bamboo_shelf": {
+      "textures": [
+        "textures/blocks/bamboo_shelf"
+      ]
+    },
+    "birch_shelf": {
+      "textures": [
+        "textures/blocks/birch_shelf"
+      ]
+    },
+    "bush": {
+      "textures": "textures/blocks/bush"
+    },
+    "cactus_flower": {
+      "textures": "textures/blocks/cactus_flower"
+    },
+    "cherry_shelf": {
+      "textures": [
+        "textures/blocks/cherry_shelf"
+      ]
+    },
+    "chiseled_cinnabar": {
+      "textures": "textures/blocks/chiseled_cinnabar"
+    },
+    "chiseled_sulfur": {
+      "textures": "textures/blocks/chiseled_sulfur"
+    },
+    "cinnabar": {
+      "textures": "textures/blocks/cinnabar"
+    },
+    "cinnabar_bricks": {
+      "textures": "textures/blocks/cinnabar_bricks"
+    },
+    "copper_bars": {
+      "textures": "textures/blocks/copper_bars"
+    },
+    "copper_chest_inventory_front": {
+      "textures": [
+        "textures/blocks/copper_chest_inventory_front"
+      ]
+    },
+    "copper_chest_inventory_side": {
+      "textures": [
+        "textures/blocks/copper_chest_inventory_side"
+      ]
+    },
+    "copper_chest_inventory_top": {
+      "textures": [
+        "textures/blocks/copper_chest_inventory_top"
+      ]
+    },
+    "copper_lantern": {
+      "textures": "textures/blocks/copper_lantern"
+    },
+    "copper_torch": {
+      "textures": "textures/blocks/copper_torch"
+    },
+    "crimson_shelf": {
+      "textures": [
+        "textures/blocks/crimson_shelf"
+      ]
+    },
+    "dark_oak_shelf": {
+      "textures": [
+        "textures/blocks/dark_oak_shelf"
+      ]
+    },
+    "dried_ghast_back": {
+      "textures": [
+        "textures/blocks/dried_ghast_state_1_back",
+        "textures/blocks/dried_ghast_state_2_back",
+        "textures/blocks/dried_ghast_state_3_back",
+        "textures/blocks/dried_ghast_state_4_back"
+      ]
+    },
+    "dried_ghast_bottom": {
+      "textures": [
+        "textures/blocks/dried_ghast_state_1_bottom",
+        "textures/blocks/dried_ghast_state_2_bottom",
+        "textures/blocks/dried_ghast_state_3_bottom",
+        "textures/blocks/dried_ghast_state_4_bottom"
+      ]
+    },
+    "dried_ghast_front": {
+      "textures": [
+        "textures/blocks/dried_ghast_state_1_front",
+        "textures/blocks/dried_ghast_state_2_front",
+        "textures/blocks/dried_ghast_state_3_front",
+        "textures/blocks/dried_ghast_state_4_front"
+      ]
+    },
+    "dried_ghast_left": {
+      "textures": [
+        "textures/blocks/dried_ghast_state_1_left",
+        "textures/blocks/dried_ghast_state_2_left",
+        "textures/blocks/dried_ghast_state_3_left",
+        "textures/blocks/dried_ghast_state_4_left"
+      ]
+    },
+    "dried_ghast_right": {
+      "textures": [
+        "textures/blocks/dried_ghast_state_1_right",
+        "textures/blocks/dried_ghast_state_2_right",
+        "textures/blocks/dried_ghast_state_3_right",
+        "textures/blocks/dried_ghast_state_4_right"
+      ]
+    },
+    "dried_ghast_top": {
+      "textures": [
+        "textures/blocks/dried_ghast_state_1_top",
+        "textures/blocks/dried_ghast_state_2_top",
+        "textures/blocks/dried_ghast_state_3_top",
+        "textures/blocks/dried_ghast_state_4_top"
+      ]
+    },
+    "exposed_copper_bars": {
+      "textures": "textures/blocks/exposed_copper_bars"
+    },
+    "exposed_copper_chest_inventory_front": {
+      "textures": [
+        "textures/blocks/exposed_copper_chest_inventory_front"
+      ]
+    },
+    "exposed_copper_chest_inventory_side": {
+      "textures": [
+        "textures/blocks/exposed_copper_chest_inventory_side"
+      ]
+    },
+    "exposed_copper_chest_inventory_top": {
+      "textures": [
+        "textures/blocks/exposed_copper_chest_inventory_top"
+      ]
+    },
+    "exposed_copper_lantern": {
+      "textures": "textures/blocks/exposed_copper_lantern"
+    },
+    "exposed_lightning_rod": {
+      "textures": [
+        "textures/blocks/exposed_lightning_rod",
+        "textures/blocks/lightning_rod_powered"
+      ]
+    },
+    "firefly_bush": {
+      "textures": [
+        "textures/blocks/firefly_bush",
+        "textures/blocks/firefly_bush_firefly"
+      ]
+    },
+    "golden_dandelion": {
+      "textures": "textures/blocks/golden_dandelion"
+    },
+    "jungle_shelf": {
+      "textures": [
+        "textures/blocks/jungle_shelf"
+      ]
+    },
+    "leaf_litter": {
+      "textures": [
+        "textures/blocks/leaf_litter"
+      ]
+    },
+    "mangrove_shelf": {
+      "textures": [
+        "textures/blocks/mangrove_shelf"
+      ]
+    },
+    "oak_shelf": {
+      "textures": [
+        "textures/blocks/oak_shelf"
+      ]
+    },
+    "oxidized_copper_bars": {
+      "textures": "textures/blocks/oxidized_copper_bars"
+    },
+    "oxidized_copper_chest_inventory_front": {
+      "textures": [
+        "textures/blocks/oxidized_copper_chest_inventory_front"
+      ]
+    },
+    "oxidized_copper_chest_inventory_side": {
+      "textures": [
+        "textures/blocks/oxidized_copper_chest_inventory_side"
+      ]
+    },
+    "oxidized_copper_chest_inventory_top": {
+      "textures": [
+        "textures/blocks/oxidized_copper_chest_inventory_top"
+      ]
+    },
+    "oxidized_copper_lantern": {
+      "textures": "textures/blocks/oxidized_copper_lantern"
+    },
+    "oxidized_lightning_rod": {
+      "textures": [
+        "textures/blocks/oxidized_lightning_rod",
+        "textures/blocks/lightning_rod_powered"
+      ]
+    },
+    "pale_oak_shelf": {
+      "textures": [
+        "textures/blocks/pale_oak_shelf"
+      ]
+    },
+    "polished_cinnabar": {
+      "textures": "textures/blocks/polished_cinnabar"
+    },
+    "polished_sulfur": {
+      "textures": "textures/blocks/polished_sulfur"
+    },
+    "potent_sulfur": {
+      "textures": "textures/blocks/potent_sulfur"
+    },
+    "short_dry_grass": {
+      "textures": [
+        "textures/blocks/short_dry_grass"
+      ]
+    },
+    "spruce_shelf": {
+      "textures": [
+        "textures/blocks/spruce_shelf"
+      ]
+    },
+    "sulfur": {
+      "textures": "textures/blocks/sulfur"
+    },
+    "sulfur_bricks": {
+      "textures": "textures/blocks/sulfur_bricks"
+    },
+    "sulfur_spike_base": {
+      "textures": [
+        "textures/blocks/sulfur_spike_down_base",
+        "textures/blocks/sulfur_spike_up_base"
+      ]
+    },
+    "sulfur_spike_frustum": {
+      "textures": [
+        "textures/blocks/sulfur_spike_down_frustum",
+        "textures/blocks/sulfur_spike_up_frustum"
+      ]
+    },
+    "sulfur_spike_merge": {
+      "textures": [
+        "textures/blocks/sulfur_spike_down_tip_merge",
+        "textures/blocks/sulfur_spike_up_tip_merge"
+      ]
+    },
+    "sulfur_spike_middle": {
+      "textures": [
+        "textures/blocks/sulfur_spike_down_middle",
+        "textures/blocks/sulfur_spike_up_middle"
+      ]
+    },
+    "sulfur_spike_tip": {
+      "textures": [
+        "textures/blocks/sulfur_spike_down_tip",
+        "textures/blocks/sulfur_spike_up_tip"
+      ]
+    },
+    "tall_dry_grass": {
+      "textures": [
+        "textures/blocks/tall_dry_grass"
+      ]
+    },
+    "warped_shelf": {
+      "textures": [
+        "textures/blocks/warped_shelf"
+      ]
+    },
+    "weathered_copper_bars": {
+      "textures": "textures/blocks/weathered_copper_bars"
+    },
+    "weathered_copper_chest_inventory_front": {
+      "textures": [
+        "textures/blocks/weathered_copper_chest_inventory_front"
+      ]
+    },
+    "weathered_copper_chest_inventory_side": {
+      "textures": [
+        "textures/blocks/weathered_copper_chest_inventory_side"
+      ]
+    },
+    "weathered_copper_chest_inventory_top": {
+      "textures": [
+        "textures/blocks/weathered_copper_chest_inventory_top"
+      ]
+    },
+    "weathered_copper_lantern": {
+      "textures": "textures/blocks/weathered_copper_lantern"
+    },
+    "weathered_lightning_rod": {
+      "textures": [
+        "textures/blocks/weathered_lightning_rod",
+        "textures/blocks/lightning_rod_powered"
+      ]
+    },
+    "wildflowers": {
+      "textures": [
+        "textures/blocks/wildflowers",
+        "textures/blocks/wildflowers_stem"
+      ]
     }
   },
   "texture_name": "atlas.terrain"

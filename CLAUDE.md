@@ -37,6 +37,8 @@ armor_stand_class.py     the armor_stand client entity
 animation_class.py       layer pose animations
 render_controller_class.py / big_render_controller.py
 manifest.py              the generated pack's manifest
+tech_pack.py             folds the TechPack submodule into a generated pack
+jsonc.py                 reads Bedrock's permissive JSON; shipped, not a tool
 version.py               reads the VERSION file
 lang_parse.py            reads lookups/langs.csv
 updater.py               lookup-table updater (disabled in this fork)
@@ -50,8 +52,11 @@ test_structures/         .mcstructure files to generate against
 docs/                    user-facing documentation
 ```
 
-`CommunityVanillaResourcePack/` and `be_tech_pack/` are git submodules and are
-reference material only. Nothing in the program reads them at runtime.
+`CommunityVanillaResourcePack/` is a git submodule and is reference material
+only; nothing in the program reads it at runtime. `be_tech_pack/` is also a
+submodule, but it is **not** only reference material any more — `tech_pack.py`
+reads it when the TechPack toggle is on, and `build.py` ships the parts a
+generated pack needs beside the executable.
 
 ---
 
@@ -163,12 +168,18 @@ crash — and why the audit in `tools/` matters.
 ### The pack icon
 
 `pack_icon.png` must be a valid PNG, square, and **256×256** — the size
-Microsoft documents for the pack selection screens. There is one per pack root;
-a subpack carries its own, nothing else should. The audit checks all of this,
-quoting the rule IDs from Microsoft's Creator Tools validation reference
-(`CPACKICON101`–`104`) so each message can be traced back to the rule it came
-from. Their severities are followed too, except that a missing icon is an error
-here rather than a warning, because `pack_icon.png` is a required pack root.
+Microsoft documents for the pack selection screens (`CPACKICON101`–`104` in the
+Creator Tools validation reference). There is one per pack root; a subpack
+carries its own, nothing else should.
+
+`tools/make_icon.py` regenerates both icons the project ships —
+`lookups/pack_icon.png` at 256×256 and `pack_icon.ico` from 16 px to 256 px —
+by rendering the isometric S cube over `background_slimelab.png`. The grid
+colour, its alpha and the S material are the constants at the top of that file.
+Nothing is stored that the script cannot rebuild.
+
+**No tool checks the icon rules.** This section used to claim the audit did;
+it never has. If it matters, the check belongs in `tools/audit_blocks.py`.
 
 ### The lookup tables
 
@@ -217,6 +228,39 @@ work is about the archive's shape:
   `uuid4` here; the accepted cost is that two people who pick the same pack name
   get the same UUID.
 - The pack version is the Structura version, from `VERSION`.
+
+### Bundling TechPack
+
+`tech_pack.py` folds the `be_tech_pack` submodule into a generated pack when the
+toggle is on — `set_tech_pack(True)`, the **Bundle TechPack** checkbox, or
+`--tech_pack`.
+
+This exists because the two projects collide head on. Both replace
+`entity/armor_stand.entity.json`, a client entity file replaces the vanilla one
+rather than merging with it, and **between two packs only the higher in the
+player's list is read at all**. Applying Structura and TechPack side by side
+does not half-work: whichever sits lower is ignored completely. There is no
+ordering that runs both, which is why bundling is the only answer and why the
+README says to disable the standalone TechPack while a bundled pack is active.
+
+The merge lives on `armorstand.merge_description`, not in `tech_pack.py`, because
+it is about the shape of a client entity file rather than about TechPack.
+Structura wins every conflict, and one of them matters: `geometry.default` has to
+stay on `geometry.armor_stand.larger_render`, or the model stops drawing the
+moment the stand leaves the screen. Script order matters too — the pose
+controllers have to run before anything that reads the pose index, and TechPack's
+`spawner_radius` entry does exactly that.
+
+Two things worth knowing:
+
+- TechPack's own `scripts.animate` asks for `controller.pose` and
+  `controller.wiggling` without declaring them in its `animations` map — the
+  drift this file warns about, in somebody else's copy. Bundled with Structura,
+  which does declare both, nothing is left dangling.
+- Both projects ship `models/entity/armor_stand.larger_render.geo.json` and both
+  declare the same geometry id. The files are currently byte-identical, which is
+  the only reason `copy_assets` can skip the collision instead of resolving it.
+  A test asserts they stay identical.
 
 ### Bedrock is case-sensitive; Windows is not
 
@@ -307,10 +351,11 @@ around your change.
 - **Re-compact JSON after writing it with `json.dumps`**, which explodes short
   numeric arrays across lines. The lookup tables are kept compact, and a
   reformatted table makes a one-value change unreviewable.
-- **The test structures are the regression suite.** `test_structures/` covers a
-  thousand distinct block ids. Generating against `All Blocks World` and reading
-  the skipped list is the fastest way to see whether a lookup change broke
-  something.
+- **The test structures are the regression suite.** `tools/coverage_report.py`
+  builds against all 108 of them and prints what `get_skipped()` reports, which
+  is the fastest way to see whether a lookup change broke something. It drives
+  the real pipeline rather than reimplementing the state translation, so the
+  answer is what a user's build would actually produce. It should print zero.
 
 ---
 
@@ -321,6 +366,9 @@ python structura.py                                    GUI
 python structura.py --structure in.mcstructure --pack_name Name    CLI
 python -m unittest discover -s tests -t .              tests
 python build.py                                        release zip in dist/
+python tools/coverage_report.py                        what the test structures drop
+python tools/audit_blocks.py                           what does not resolve
+python tools/make_icon.py                              regenerate both icons
 ```
 
 `lookups/` and `Vanilla_Resource_Pack/` are opened by relative path, so all of
