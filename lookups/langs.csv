@@ -27,7 +27,7 @@ no name tag,You need a Name Tag,Вам потрібен іменний тег,Ne
 techpack,Bundle TechPack,Вкласти TechPack,Incluir TechPack,捆绑 TechPack,test,Isama ang TechPack,Iapil ang TechPack
 settings,Settings,Налаштування,Ajustes,设置,test,Mga Setting,Mga Setting
 packicon,Pack icon,Піктограма,Icono,包图标,test,Icon ng pack,Icon sa pack
-description,Short description,Короткий опис,Descripción corta,简短描述,test,Maikling paglalarawan,Mubo nga paghulagway
+description,Description,Опис,Descripción,描述,test,Paglalarawan,Paghulagway
 description hint,"Optional, shown in game","Необов'язково, видно у грі","Opcional, visible en el juego",可选，游戏内显示,test,"Opsyonal, makikita sa laro","Opsyonal, makita sa dula"
 blocktransparency,Block Transparency,Прозорість блоків,Transparencia de bloques,方块透明度,test,Transparency ng Block,Transparency sa Block
 theme,Theme,Тема,Tema,主题,test,Tema,Tema
@@ -74,3 +74,11 @@ axis y,Y,Y,Y,Y,test,Y,Y
 axis z,Z,Z,Z,Z,test,Z,Z
 clear icon,Use the default icon,Стандартна піктограма,Usar el icono predeterminado,使用默认图标,test,Gamitin ang default na icon,Gamita ang default nga icon
 change file,Change file,Змінити файл,Cambiar archivo,更改文件,test,Palitan ang file,Ilisan ang file
+clear all,Clear all,Очистити все,Borrar todo,全部清除,test,Alisin lahat,Kuhaa tanan
+reset settings,Reset settings,Скинути налаштування,Restablecer ajustes,重置设置,test,I-reset ang mga setting,I-reset ang mga setting
+clear description,Clear the description,Очистити опис,Borrar la descripción,清除描述,test,Alisin ang paglalarawan,Kuhaa ang paghulagway
+status cleared,Cleared {},Очищено {},Borrado {},已清除 {},test,Nalinis ang {},Nalimpyohan ang {}
+status reset,Settings reset,Налаштування скинуто,Ajustes restablecidos,设置已重置,test,Na-reset ang mga setting,Na-reset ang mga setting
+list header,Blocks needed for this build,"Блоки, потрібні для цієї будівлі",Bloques necesarios para esta construcción,此建筑所需的方块,test,Mga block na kailangan para sa build na ito,Mga block nga gikinahanglan para niini nga build
+list footer,Built with,Створено за допомогою,Creado con,生成工具,test,Ginawa gamit ang,Gihimo gamit ang
+reset,Reset,Скинути,Restablecer,重置,test,I-reset,I-reset

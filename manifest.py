@@ -4,14 +4,23 @@ import uuid
 
 import version
 
-## Fixed namespace for uuid5. The header UUID is a pack's identity to Minecraft:
-## a random one on every build makes each regenerated pack a brand new pack, so
-## the old copy stays in the player's list and any world already using it keeps
-## the stale content. Deriving the UUID from the pack name instead means a
-## rebuild replaces the pack in place. The trade-off is that two people who both
-## name a pack the same thing produce the same UUID and cannot hold both at
-## once, which is the accepted cost of an updatable pack.
+## Fixed namespace, kept for derived_pack_uuids() below.
 STRUCTURA_NAMESPACE = uuid.UUID("a833ff26-366d-4a32-91b4-3b307ff291e4")
+
+## A pack's UUID is derived from everything that went into it.
+##
+## Deriving it from the pack *name* alone meant a rebuild produced an identical
+## UUID and an identical version -- the version is the Structura version -- so
+## the game refused the import as a duplicate instead of updating anything.
+## Random UUIDs fixed that but made every export a brand new pack, so rebuilds
+## piled up in the player's list.
+##
+## Hashing the content gets both: the structure files, the name, the icon, the
+## description, the transparency, the offsets and the toggles all go in. Build
+## the same pack twice and it is the same pack, with the same UUID, which is
+## honest. Change any of it and the UUID moves, so the import is an addition
+## rather than a clash.
+RANDOM_UUIDS = False
 
 ## Shown in front of the pack's own name in the player's pack list, so every
 ## pack this program builds groups together there.
@@ -37,15 +46,30 @@ PAST_AUTHORS = ((ITALIC_PURPLE, "DrAv0011"),
 DESCRIPTION_LIMIT = 25
 
 
-def pack_uuids(pack_name):
-    """The header and module UUIDs for a pack, stable across rebuilds.
+def derived_pack_uuids(pack_name):
+    """UUIDs derived from the pack name, the same for every build of it.
 
-    Derived from the name the user typed, never from the displayed name. The
-    prefix is presentation, and folding it into the UUID would have made every
-    pack built by an older Structura look like a different pack to the game.
+    Derived from the name the user typed, never from the displayed name: the
+    "Structura: " prefix is presentation, and folding it in would have made
+    every pack built by an older Structura look like a different pack.
     """
     return (str(uuid.uuid5(STRUCTURA_NAMESPACE, pack_name)),
             str(uuid.uuid5(STRUCTURA_NAMESPACE, pack_name + "/resources")))
+
+
+def content_uuids(fingerprint):
+    """UUIDs derived from everything that went into the pack."""
+    return (str(uuid.uuid5(STRUCTURA_NAMESPACE, "content:" + fingerprint)),
+            str(uuid.uuid5(STRUCTURA_NAMESPACE, "content:" + fingerprint + "/resources")))
+
+
+def pack_uuids(pack_name, fingerprint=None):
+    """The header and module UUIDs for this build of a pack."""
+    if fingerprint:
+        return content_uuids(fingerprint)
+    if RANDOM_UUIDS:
+        return (str(uuid.uuid4()), str(uuid.uuid4()))
+    return derived_pack_uuids(pack_name)
 
 
 def display_name(pack_name):
@@ -79,11 +103,12 @@ def build_description(nameTags=(), user_text="", tech_pack_version=None):
     return "\n".join(lines)
 
 
-def export(work_dir, pack_name, nameTags=(), user_text="", tech_pack_version=None):
-    ## pack_name is what the UUID is derived from; work_dir is wherever the tree
-    ## happens to be assembled
+def export(work_dir, pack_name, nameTags=(), user_text="", tech_pack_version=None,
+           fingerprint=None):
+    ## work_dir is wherever the tree happens to be assembled; the name is only
+    ## what the player reads, and the fingerprint is what identifies the pack
     tempname = pack_name.split("/")[-1]
-    header_uuid, module_uuid = pack_uuids(tempname)
+    header_uuid, module_uuid = pack_uuids(tempname, fingerprint)
     ## the generated pack carries the version of the Structura that built it, so
     ## a rebuild after an upgrade reads as an update rather than a sidegrade
     pack_version = version.as_tuple()

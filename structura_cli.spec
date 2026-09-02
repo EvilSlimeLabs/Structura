@@ -1,6 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 # Driven by build.py, which runs the tests, freezes with this spec and then zips
-# the executable.
+# the executable. structura_cli.spec beside it builds the windowless twin from
+# the same data, with the interface libraries excluded.
 #
 # The release is a **single self-contained executable**. Everything the
 # program reads -- the lookup tables, the trimmed vanilla resource pack, the
@@ -51,12 +52,7 @@ def tree(folder, into=None):
 
 datas = tree("lookups") + tree("Vanilla_Resource_Pack")
 datas += [("VERSION", ".")]
-## the interface typeface, the CJK subset and the enchanting face, with
-## the licences that have to travel with them
-if os.path.isdir("fonts"):
-    datas += tree("fonts")
-if os.path.isdir("images"):
-    datas += tree("images")
+## no window, so no fonts
 for folder in TECH_PACK_KEEP:
     source = os.path.join("be_tech_pack", folder)
     if os.path.isdir(source):
@@ -68,21 +64,15 @@ for extra in ("manifest.json", "LICENSE", "README.md"):
 
 # --- library data ----------------------------------------------------------
 
-datas += collect_data_files("customtkinter")
-hiddenimports = ["customtkinter", "darkdetect"]
+## The command line build has no window, so none of the interface libraries
+## nor the fonts they draw with are carried.
+hiddenimports = []
 
-# Dropping files onto the window is a convenience, not a requirement: if
-# tkinterdnd2 is not installed the window still opens and the add button still
-# works, so a missing package must not stop the build.
-try:
-    datas += collect_data_files("tkinterdnd2")
-    hiddenimports.append("tkinterdnd2")
-except Exception:
-    pass
+
 
 
 a = Analysis(
-    ['structura.py'],
+    ['structura_cli.py'],
     pathex=[],
     binaries=[],
     datas=datas,
@@ -90,7 +80,8 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=['customtkinter', 'tkinterdnd2', 'darkdetect',
+              'structura_gui', 'ui_fonts', 'ui_icons', 'lang_icons'],
     noarchive=False,
     optimize=0,
 )
@@ -102,7 +93,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='Structura',
+    name='Structura-cli',
     icon='pack_icon.ico',
     debug=False,
     bootloader_ignore_signals=False,
@@ -110,7 +101,7 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=False,
+    console=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,

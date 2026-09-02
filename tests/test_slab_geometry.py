@@ -16,7 +16,7 @@ class SlabGeometryTests(unittest.TestCase):
 
     def build(self, name, states, y=0):
         block = {"name": "minecraft:" + name, "states": states}
-        rot, top, variant, open_bit, data = self.processor._process_block(block)
+        rot, top, variant, open_bit, data, _hinge = self.processor._process_block(block)
         self.geo.blocks = {}
         self.geo.make_block(0, y, 0, name, rot=rot, top=top, variant=variant,
                             trap_open=open_bit, data=data)
@@ -37,10 +37,20 @@ class SlabGeometryTests(unittest.TestCase):
                 self.assertEqual([slab["size"][0], slab["size"][2]], footprint)
                 self.assertEqual(slab["size"][1], 0.5)
 
-    def test_top_half_sits_half_a_block_above_the_bottom_half(self):
+    def test_a_top_slab_finishes_flush_with_a_full_block(self):
+        """A ghost block is drawn 0.95 tall, not 1.0, so that neighbours do not
+        z-fight. A top slab placed at 0.5 therefore reached 1.0 and stood a
+        pixel proud of every full block beside it. It starts at 0.45 instead, so
+        the two finish level and the slab keeps a bottom slab's thickness."""
+        cube = self.build("stone", {}, y=2)
         top = self.build("spruce_slab", {"minecraft:vertical_half": String("top")}, y=2)
         bottom = self.build("spruce_slab", {"minecraft:vertical_half": String("bottom")}, y=2)
-        self.assertEqual(top["origin"][1] - bottom["origin"][1], 0.5)
+
+        cube_top = cube["origin"][1] + cube["size"][1]
+        slab_top = top["origin"][1] + top["size"][1]
+        self.assertAlmostEqual(slab_top, cube_top)
+        self.assertEqual(top["size"][1], bottom["size"][1])
+        self.assertGreater(top["origin"][1], bottom["origin"][1])
         self.assertEqual(top["origin"][0], bottom["origin"][0])
         self.assertEqual(top["origin"][2], bottom["origin"][2])
 

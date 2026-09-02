@@ -3,3 +3,7 @@
 -r requirements.txt
 
 pyinstaller>=6.0.0
+
+# tools/make_fonts.py subsets the CJK face and assembles the enchanting
+# one. Only needed to rebuild fonts/, not to build a release.
+fonttools>=4.50

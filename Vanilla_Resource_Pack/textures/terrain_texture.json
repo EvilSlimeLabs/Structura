@@ -5534,6 +5534,51 @@
         "textures/blocks/wildflowers",
         "textures/blocks/wildflowers_stem"
       ]
+    },
+    "eyeblossom_blooming": {
+      "textures": "textures/blocks/eyeblossom_blooming"
+    },
+    "decorated_pot_side": {
+      "textures": "textures/blocks/decorated_pot_side"
+    },
+    "copper_golem": {
+      "textures": "textures/blocks/copper_golem"
+    },
+    "oak_hanging_sign": {
+      "textures": "textures/blocks/oak_hanging_sign"
+    },
+    "spruce_hanging_sign": {
+      "textures": "textures/blocks/spruce_hanging_sign"
+    },
+    "birch_hanging_sign": {
+      "textures": "textures/blocks/birch_hanging_sign"
+    },
+    "jungle_hanging_sign": {
+      "textures": "textures/blocks/jungle_hanging_sign"
+    },
+    "acacia_hanging_sign": {
+      "textures": "textures/blocks/acacia_hanging_sign"
+    },
+    "dark_oak_hanging_sign": {
+      "textures": "textures/blocks/dark_oak_hanging_sign"
+    },
+    "crimson_hanging_sign": {
+      "textures": "textures/blocks/crimson_hanging_sign"
+    },
+    "warped_hanging_sign": {
+      "textures": "textures/blocks/warped_hanging_sign"
+    },
+    "mangrove_hanging_sign": {
+      "textures": "textures/blocks/mangrove_hanging_sign"
+    },
+    "cherry_hanging_sign": {
+      "textures": "textures/blocks/cherry_hanging_sign"
+    },
+    "bamboo_hanging_sign": {
+      "textures": "textures/blocks/bamboo_hanging_sign"
+    },
+    "pale_oak_hanging_sign": {
+      "textures": "textures/blocks/pale_oak_hanging_sign"
     }
   },
   "texture_name": "atlas.terrain"

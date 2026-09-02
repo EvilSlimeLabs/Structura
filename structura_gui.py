@@ -15,6 +15,7 @@ work can be driven from the command line or from another front end.
 """
 import os
 import queue
+import re
 import subprocess
 import sys
 import threading
@@ -24,7 +25,7 @@ from tkinter import filedialog
 import customtkinter as ctk
 import nbtlib
 import numpy
-from PIL import Image
+from PIL import Image, ImageDraw
 
 import app_settings
 import lang_icons
@@ -33,6 +34,54 @@ import manifest
 import paths
 import structura_core
 import tech_pack
+import ui_fonts
+
+## Drawn at one scale, chosen once and never changed.
+##
+## CustomTkinter otherwise makes the process per-monitor DPI aware and then
+## compensates in software: a loop polls every window's monitor, and when one
+## changes it fades the window to fifteen percent alpha, rebuilds every widget
+## at the new scale and fades it back. Dragging between monitors of different
+## scaling therefore redrew the whole window several times, which is what came
+## apart on screen.
+ctk.deactivate_automatic_dpi_awareness()
+
+
+def _fix_scale():
+    """Render at the desktop's scale, and keep that scale for good.
+
+    Leaving the process unaware of DPI altogether stops the rebuilding, but then
+    Windows magnifies a window drawn at ninety-six dots per inch, and the text
+    goes soft. Declaring it aware of the *system* scale instead means the window
+    is drawn at the desktop's real resolution -- so the text is sharp -- while a
+    monitor at a different scale is Windows' problem to magnify rather than a
+    reason to rebuild the window.
+
+    The scale is read once here rather than left to CustomTkinter, which would
+    otherwise go back to re-deriving it per monitor.
+    """
+    if not sys.platform.startswith("win"):
+        return
+    import ctypes
+    try:
+        ctypes.windll.shcore.SetProcessDpiAwareness(1)   # system DPI aware
+    except Exception:
+        pass                        # already set, or too old a Windows
+    try:
+        try:
+            dots = ctypes.windll.user32.GetDpiForSystem()
+        except AttributeError:      # before Windows 10 1607
+            screen = ctypes.windll.user32.GetDC(0)
+            dots = ctypes.windll.gdi32.GetDeviceCaps(screen, 88)  # LOGPIXELSX
+            ctypes.windll.user32.ReleaseDC(0, screen)
+        scale = max(1.0, dots / 96.0)
+        ctk.set_widget_scaling(scale)
+        ctk.set_window_scaling(scale)
+    except Exception:
+        pass
+
+
+_fix_scale()
 import ui_icons
 import version
 
@@ -71,6 +120,76 @@ GLYPH_AMBER = (200, 137, 28)
 GLYPH_MUTED = (139, 148, 163)
 
 PAD = 12
+## the two panel headings share these, so "Structures" and "Settings" sit on the
+## same line; the settings panel has a frame of its own and drifted lower
+HEADING_PAD = (14, 10)
+HEADING_HEIGHT = 26
+
+## the pack icon control: the frame is drawn into the picture rather than being
+## the widget's own border, so the cut corner can be part of the same outline
+## The window's size. It does not resize -- see the note where this is applied.
+WINDOW_WIDE = 1080
+WINDOW_TALL = 675
+
+## How wide the global coordinates button is. Sized for the longest translation
+## of its label rather than for the English one -- Ukrainian needs seventy per
+## cent more room than English, and a button sized to English clipped it.
+CORDS_WIDE = 178
+
+## The icon control's size, and the only thing that decides it. It used to be
+## measured from the pack name label and field beside it and then applied, which
+## resized the rows those widgets were in, which moved them, which meant
+## measuring again -- a settling loop that showed as a flicker every time the
+## window was resized. A number here cannot chase itself.
+ICON_SIZE = 68
+ICON_INSET = 0
+ICON_RADIUS = 11
+## The weight the drop zone's border is given. CustomTkinter turns an integer
+## border width into pixels with int(width * scaling), truncating rather than
+## rounding, so the frame here has to do the same arithmetic to come out the
+## same thickness on a scaled display.
+ICON_BORDER = 2
+
+## The drop zone's +: how big it is drawn, and the room left around it. It is
+## sized to stand as tall as the two lines of text it introduces.
+DROP_PLUS = 40
+DROP_GAP = 8
+## where the drop zone's sentence is broken, in the window's own units: two
+## lines of the English text, and two or three of a longer translation
+DROP_WRAP = 300
+
+## the language box's two fixed pieces, which the width of the box is measured
+## around: the badge that names the language and the chevron that opens it
+BADGE = 20
+CHEVRON = 12
+## the margin inside the box, at both ends
+BOX_PAD = 10
+## how far the pieces inside a selector stay clear of its outline
+BOX_INSET = 2
+## A field's rounded corner, and how far its contents stay clear of its edge.
+## The inset covers the thickest border a field is ever given -- it grows from
+## one to two while a field is showing an error -- so the text keeps the same
+## distance from the outline in both states rather than shifting when it does.
+FIELD_RADIUS = 8
+FIELD_INSET = 2
+## the edge of border colour showing around the list a selector opens, the
+## margin inside that, and the gap between rows
+LIST_RING = 2
+LIST_PAD = 4
+LIST_GAP = 1
+## The height kept for the pack name's hint. It is held open all the time, so
+## that the message appearing moves nothing below it, and the description
+## section adds no gap of its own above itself to make up for it.
+HINT_ROW = 14
+## How wide each selector is, and how tall both are. Written down rather than
+## measured from the longest choice: a measured width changes with the face the
+## language is written in, and a control that resizes when its own contents are
+## relabelled is the flicker this window had. Even numbers, because
+## CustomTkinter floors a frame's height and width to even before drawing its
+## rounded border, and the odd row left over shows as a gap in the outline.
+CHOOSER_WIDE = 178
+CHOOSER_THEME_WIDE = 132
+CHOOSER_TALL = 28
 TAG_FIELD_WIDTH = 200          # every name tag field is this wide, on every row
 STRUCTURE_TYPES = [("Minecraft structure", "*.mcstructure"), ("All files", "*.*")]
 IMAGE_TYPES = [("Images", "*.png *.jpg *.jpeg *.bmp *.gif"), ("All files", "*.*")]
@@ -88,6 +207,53 @@ NAME_TAG_TEXTURE = ("Vanilla_Resource_Pack", "textures", "items", "name_tag.png"
 _image_cache = {}
 
 
+## every font the window makes, so they can all be re-pointed at once when the
+## language changes to one the interface face does not cover
+_fonts = []
+_font_language = [None]
+
+
+def font(size=13, weight="normal"):
+    """A window font in the typeface that ships with the program.
+
+    Asking for a family Tk does not have gets silently substituted, which is how
+    the window ended up looking different on every machine; ui_fonts hands back
+    the platform default when the bundled file could not be registered, so the
+    substitution is at least a deliberate one.
+    """
+    language = _font_language[0]
+    made = ctk.CTkFont(family=ui_fonts.family(language),
+                       size=_sized(size, language), weight=weight)
+    ## the size asked for, kept so the face's own factor can be applied again
+    ## from scratch when the language changes rather than compounding
+    _fonts.append((made, size))
+    return made
+
+
+def _sized(size, language):
+    return max(8, int(round(size * ui_fonts.scale(language))))
+
+
+def restyle_fonts(language):
+    """Point every font at the face this language needs.
+
+    Chinese and Enchanting are not written in the interface face -- one has no
+    CJK glyphs, the other is a different alphabet entirely -- and Tk will not
+    fall back to a privately registered font on its own, so the whole window is
+    switched over rather than left to render boxes.
+    """
+    _font_language[0] = language
+    family = ui_fonts.family(language)
+    for made, asked in _fonts:
+        try:
+            ## size as well as family: a face wider than the interface face is
+            ## asked for smaller, and switching away from it has to put the
+            ## size back
+            made.configure(family=family, size=_sized(asked, language))
+        except Exception:
+            pass
+
+
 def load_image(path, size):
     """A CTkImage, cached: the same picture is asked for on every row."""
     key = (path, size)
@@ -101,11 +267,32 @@ def load_image(path, size):
     return _image_cache[key]
 
 
-def glyph(name, size=16, colour=GLYPH_AMBER):
-    """One of the drawn interface icons, as a CTkImage."""
-    key = ("glyph", name, size, colour)
+def mode_colour(pair, fallback=(128, 128, 128)):
+    """A (light, dark) colour pair resolved to the mode in use, as RGB.
+
+    The drawn glyphs are pictures rather than widgets, so CustomTkinter cannot
+    swap them for the theme; anything that has to match a widget's colour has to
+    ask which mode is showing and be redrawn when it changes.
+    """
+    try:
+        value = pair[1] if ctk.get_appearance_mode() == "Dark" else pair[0]
+        value = value.lstrip("#")
+        return tuple(int(value[i:i + 2], 16) for i in (0, 2, 4))
+    except Exception:
+        return fallback
+
+
+def glyph(name, size=16, colour=GLYPH_AMBER, **extra):
+    """One of the drawn interface icons, as a CTkImage.
+
+    A colour of None means the glyph keeps its own palette; corner_clear is
+    drawn in the panel and border colours rather than in one accent.
+    """
+    key = ("glyph", name, size, colour, tuple(sorted(extra.items())))
     if key not in _image_cache:
-        picture = getattr(ui_icons, name)(size * 2, colour)
+        drawer = getattr(ui_icons, name)
+        picture = (drawer(size * 2, **extra) if colour is None
+                   else drawer(size * 2, colour, **extra))
         _image_cache[key] = ctk.CTkImage(light_image=picture, dark_image=picture,
                                          size=(size, size))
     return _image_cache[key]
@@ -121,6 +308,43 @@ def open_link(url):
 
 def _icon_path(name):
     return os.path.join(os.path.dirname(os.path.abspath(__file__)), name)
+
+
+def draw_every_pixel(widget):
+    """Stop a widget rounding its own size down to an even number.
+
+    CustomTkinter floors a widget's width and height to an even number before
+    it draws its rounded rectangle, so anything that comes out an odd number of
+    pixels -- which a scaled display produces constantly -- goes unpainted along
+    its last row or column, and whatever is behind it shows through as an extra
+    pixel of edge.
+    """
+    try:
+        widget._draw_engine.set_round_to_even_numbers(False, False)
+    except Exception:
+        pass
+
+
+def centre_on(window, parent):
+    """Put a window in the middle of the one it belongs to.
+
+    Two things this has to avoid. A toplevel that has not been mapped yet
+    answers winfo_width with Tk's default 200 rather than its real size, so the
+    size it will take is asked for instead. And the result is not clamped to
+    zero: a monitor left of or above the main one starts at a negative
+    coordinate, and clamping put the window on the wrong screen.
+    """
+    try:
+        window.update_idletasks()
+        wide = max(window.winfo_reqwidth(), window.winfo_width())
+        tall = max(window.winfo_reqheight(), window.winfo_height())
+        x = parent.winfo_rootx() + (parent.winfo_width() - wide) // 2
+        y = parent.winfo_rooty() + (parent.winfo_height() - tall) // 2
+        ## through Tk's own method: CustomTkinter's geometry scales a size on
+        ## the way through, and there is nothing here to scale
+        tkinter.Toplevel.wm_geometry(window, "+%d+%d" % (x, y))
+    except Exception:
+        pass
 
 
 def apply_icon(window):
@@ -177,11 +401,12 @@ class Field(ctk.CTkFrame):
     """
 
     def __init__(self, master, textvariable, icon=None, label=None,
-                 width=None, height=32, **kwargs):
-        super().__init__(master, fg_color=FIELD, corner_radius=8,
+                 width=None, height=32, on_clear=None, **kwargs):
+        super().__init__(master, fg_color=FIELD, corner_radius=FIELD_RADIUS,
                          border_width=1, border_color=BORDER,
                          height=height, **kwargs)
         self.grid_propagate(False)
+        draw_every_pixel(self)
         if width:
             self.configure(width=width)
         self.grid_rowconfigure(0, weight=1)
@@ -191,7 +416,7 @@ class Field(ctk.CTkFrame):
         if icon is not None or label is not None:
             self.mark = ctk.CTkLabel(self, text=label or "", width=16,
                                      text_color=MUTED,
-                                     font=ctk.CTkFont(size=11, weight="bold"))
+                                     font=font(size=11, weight="bold"))
             if icon is not None:
                 self.mark.configure(image=icon, text="")
             ## the margin either side is what keeps the mark clear of the text
@@ -200,8 +425,43 @@ class Field(ctk.CTkFrame):
         self.entry = ctk.CTkEntry(self, textvariable=textvariable,
                                   border_width=0, fg_color="transparent",
                                   text_color=TEXT, height=height - 4)
-        self.entry.grid(row=0, column=1, sticky="ew",
-                        padx=(7 if self.mark else 4, 7))
+        ## Stretched to the row rather than centred in it. A CTkEntry paints
+        ## the colour it finds behind it across its whole rectangle, and centring
+        ## one that is shorter than the row leaves the leftover split unevenly --
+        ## a pixel of the field showing above the text and two below it.
+        ## remembered rather than read back: grid_info returns one number when
+        ## both sides match and a pair when they do not
+        self._text_left = 7 if self.mark else 8
+        self.entry.grid(row=0, column=1, sticky="nsew", pady=FIELD_INSET,
+                        padx=(self._text_left, 8))
+
+        ## an emptying control belongs in the field it empties, not beside it
+        self.clear_button = None
+        self.variable = textvariable
+        if on_clear is not None:
+            self.clear_button = ctk.CTkButton(
+                self, text="", width=20, height=20, corner_radius=10,
+                image=glyph("cross", 10, GLYPH_MUTED), fg_color="transparent",
+                hover_color=BORDER, command=on_clear)
+            draw_every_pixel(self.clear_button)
+            textvariable.trace_add("write", lambda *_: self._sync_clear())
+            self._sync_clear()
+
+    def _sync_clear(self):
+        """Nothing to clear when the field is empty, so nothing is offered.
+
+        The text gives up its right margin to the button when there is one, and
+        takes it back when there is not -- otherwise the emptied field's text
+        runs into the rounded corner the button was standing clear of.
+        """
+        if self.clear_button is None:
+            return
+        if self.variable.get():
+            self.clear_button.grid(row=0, column=2, padx=(0, 6))
+            self.entry.grid_configure(padx=(self._text_left, 4))
+        else:
+            self.clear_button.grid_forget()
+            self.entry.grid_configure(padx=(self._text_left, 8))
 
     def set_label(self, text):
         if self.mark is not None:
@@ -240,7 +500,7 @@ class StructureRow(ctk.CTkFrame):
             self, text="", anchor="w", height=32, corner_radius=6,
             fg_color="transparent", hover_color=FIELD, text_color=TEXT,
             image=glyph("folder", 15), compound="left",
-            font=ctk.CTkFont(size=13), command=self.change_file)
+            font=font(size=13), command=self.change_file)
         self.file_button.grid(row=0, column=0, sticky="ew", padx=(8, 6), pady=9)
 
         tag_icon = load_image(paths.data(*NAME_TAG_TEXTURE), 17)
@@ -255,7 +515,7 @@ class StructureRow(ctk.CTkFrame):
         ## live, so the optional/required state is its own label instead.
         self.tag_hint = ctk.CTkLabel(self, text="", anchor="w", width=64,
                                      text_color=MUTED,
-                                     font=ctk.CTkFont(size=11))
+                                     font=font(size=11))
         self.tag_hint.grid(row=0, column=2, sticky="w", padx=(0, 2))
 
         self.remove_button = ctk.CTkButton(
@@ -319,7 +579,7 @@ class ResultDialog(ctk.CTkToplevel):
         self.grid_columnconfigure(0, weight=1)
         self.after(220, lambda: apply_icon(self))
 
-        ctk.CTkLabel(self, text=title, font=ctk.CTkFont(size=17, weight="bold"),
+        ctk.CTkLabel(self, text=title, font=font(size=17, weight="bold"),
                      text_color=TEXT).grid(row=0, column=0, sticky="w",
                                            padx=20, pady=(18, 4))
         for i, line in enumerate(lines, start=1):
@@ -339,16 +599,18 @@ class ResultDialog(ctk.CTkToplevel):
                       corner_radius=8, fg_color=AMBER, hover_color=AMBER_HOVER,
                       text_color=ON_AMBER, command=self.destroy).pack(side="left")
 
+        ## transient ties the dialog to the window, so it can never end up
+        ## behind it -- which is what happened as a plain toplevel
+        self.transient(app)
         self.after(60, self._centre)
         self.after(120, self.grab_set)
         self.bind("<Escape>", lambda _e: self.destroy())
 
     def _centre(self):
-        self.update_idletasks()
-        x = self.app.winfo_rootx() + (self.app.winfo_width() - self.winfo_width()) // 2
-        y = self.app.winfo_rooty() + (self.app.winfo_height() - self.winfo_height()) // 3
-        self.geometry("+%d+%d" % (max(x, 0), max(y, 0)))
+        centre_on(self, self.app)
         self.lift()
+        self.attributes("-topmost", True)
+        self.after(400, lambda: self.attributes("-topmost", False))
         self.focus_force()
 
     def open_folder(self):
@@ -381,7 +643,7 @@ class AboutDialog(ctk.CTkToplevel):
             ctk.CTkLabel(self, text="", image=logo).grid(row=0, column=0, pady=(18, 4))
 
         ctk.CTkLabel(self, text="Structura %s" % version.read(),
-                     font=ctk.CTkFont(size=18, weight="bold"),
+                     font=font(size=18, weight="bold"),
                      text_color=TEXT).grid(row=1, column=0, pady=(4, 0))
         ctk.CTkLabel(self, text=app.text("about body"), text_color=MUTED,
                      wraplength=340, justify="center").grid(
@@ -389,7 +651,7 @@ class AboutDialog(ctk.CTkToplevel):
         ctk.CTkLabel(self, text="%s: DrAv0011, FondUnicycle, RavinMaddHatter"
                                 % app.text("original authors"),
                      text_color=MUTED, wraplength=340, justify="center",
-                     font=ctk.CTkFont(size=11)).grid(
+                     font=font(size=11)).grid(
             row=3, column=0, padx=22, pady=(2, 6))
 
         buttons = ctk.CTkFrame(self, fg_color="transparent")
@@ -402,17 +664,257 @@ class AboutDialog(ctk.CTkToplevel):
                       corner_radius=8, fg_color=AMBER, hover_color=AMBER_HOVER,
                       text_color=ON_AMBER, command=self.destroy).pack(side="left")
 
+        ## transient ties the dialog to the window, so it can never end up
+        ## behind it -- which is what happened as a plain toplevel
+        self.transient(app)
         self.after(60, self._centre)
         self.after(120, self.grab_set)
         self.bind("<Escape>", lambda _e: self.destroy())
 
     def _centre(self):
-        self.update_idletasks()
-        x = self.app.winfo_rootx() + (self.app.winfo_width() - self.winfo_width()) // 2
-        y = self.app.winfo_rooty() + (self.app.winfo_height() - self.winfo_height()) // 4
-        self.geometry("+%d+%d" % (max(x, 0), max(y, 0)))
+        centre_on(self, self.app)
         self.lift()
+        self.attributes("-topmost", True)
+        self.after(400, lambda: self.attributes("-topmost", False))
         self.focus_force()
+
+
+class Chooser(ctk.CTkFrame):
+    """A box showing the current choice, and the list it opens.
+
+    Both selectors on the bottom bar are this, so that they behave the same:
+    CTkOptionMenu highlights only the strip its arrow is in, draws its list with
+    a border of its own, and drops downward off the bottom of the window. It also
+    cannot show a picture, which the language list needs -- a badge belongs in
+    the control it names rather than beside it.
+
+    The box is this frame: border, fill and corner radius are its own, and the
+    badge, the text and the chevron are laid out inside it. A frame within a
+    frame put a square of the parent's colour behind the rounded box, which is
+    what showed as a ragged outline at the corners.
+    """
+
+    def __init__(self, master, app, values, command, labels=None, badges=True,
+                 width=CHOOSER_WIDE, height=CHOOSER_TALL):
+        super().__init__(master, fg_color=FIELD, corner_radius=8,
+                         border_width=1, border_color=BORDER,
+                         width=width, height=height)
+        self.app = app
+        self.values = list(values)
+        self.command = command
+        self.labels = labels or (lambda value: value)
+        self.badges = badges
+        self.popup = None
+        self.current = None
+        ## the list is drawn to this too, so the two are the same width by
+        ## construction rather than by one being measured against the other
+        self._needed = width
+
+        ## the pieces inside are laid out with grid, so it is grid propagation
+        ## that has to be stopped -- left on, the box shrinks to its contents
+        ## and stops being the width the list is drawn to
+        self.grid_propagate(False)
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
+        draw_every_pixel(self)
+
+        ## Everything inside is kept clear of the outline. A CTkLabel's
+        ## "transparent" is not transparent -- it fills its rectangle with the
+        ## colour it finds behind it rather than leaving those pixels alone --
+        ## so a label as tall as the box paints over the border along the top
+        ## and the bottom, which is what broke the outline across the middle.
+        inner = height - 2 * BOX_INSET
+
+        self.badge = None
+        if badges:
+            self.badge = ctk.CTkLabel(self, text="", width=BADGE, height=inner)
+            self.badge.grid(row=0, column=0, padx=(BOX_PAD, 0), pady=BOX_INSET)
+        self.label = ctk.CTkLabel(self, text="", anchor="w", text_color=TEXT,
+                                  height=inner, font=font(size=12))
+        self.label.grid(row=0, column=1, sticky="ew", pady=BOX_INSET,
+                        padx=(7 if badges else BOX_PAD, 0))
+        self.chevron = ctk.CTkLabel(self, text="", width=CHEVRON, height=inner,
+                                    image=glyph("chevron", CHEVRON, GLYPH_MUTED))
+        self.chevron.grid(row=0, column=2, padx=(4, BOX_PAD), pady=BOX_INSET)
+
+        ## the whole box is the control: every piece of it answers the pointer,
+        ## lights the same way and shows the same cursor, so there is no strip
+        ## of it that behaves differently from the rest
+        for part in self.parts():
+            part.configure(cursor="hand2")
+            part.bind("<Button-1>", lambda _e: self.toggle())
+            part.bind("<Enter>", lambda _e: self._hover(True))
+            part.bind("<Leave>", lambda _e: self._hover(False))
+
+    def parts(self):
+        return [part for part in (self, self.badge, self.label, self.chevron)
+                if part is not None]
+
+    def _hover(self, on):
+        self.configure(fg_color=BORDER if on else FIELD)
+
+    def badge_for(self, value, size=BADGE):
+        if not self.badges:
+            return None
+        code = lang_parse.code(value)
+        light, dark = lang_icons.pair(code, size=size)
+        return ctk.CTkImage(light_image=light, dark_image=dark, size=(size, size))
+
+    def set(self, value):
+        self.current = value
+        if self.badge is not None:
+            self.badge.configure(image=self.badge_for(value))
+        self.label.configure(text=self.labels(value))
+
+    def get(self):
+        return self.current
+
+    def configure_values(self, values):
+        self.values = list(values)
+
+    def refit(self):
+        """Relabel: the text, or the face it is drawn in, changed."""
+        if self.current is not None:
+            self.label.configure(text=self.labels(self.current))
+
+    def toggle(self):
+        if self.popup is not None and self.popup.winfo_exists():
+            self.close()
+            return
+        self.open()
+
+    def open(self):
+        self.popup = ctk.CTkToplevel(self.app)
+        self.popup.overrideredirect(True)
+        self.popup.configure(fg_color=BORDER)
+        self.popup.attributes("-topmost", True)
+        inner = ctk.CTkFrame(self.popup, fg_color=PANEL, corner_radius=8)
+        ## The window behind it is the border colour, and this is what leaves an
+        ## even edge of it showing on all four sides.
+        inner.pack(padx=LIST_RING, pady=LIST_RING, fill="both", expand=True)
+        draw_every_pixel(inner)
+
+        last = len(self.values) - 1
+        for index, value in enumerate(self.values):
+            chosen = value == self.current
+            row = ctk.CTkButton(
+                inner, text="  " + self.labels(value),
+                image=self.badge_for(value),
+                anchor="w", compound="left", height=30, corner_radius=6,
+                width=self._needed - 10, cursor="hand2",
+                fg_color=AMBER if chosen else "transparent",
+                text_color=ON_AMBER if chosen else TEXT,
+                ## the row already chosen brightens rather than darkening: the
+                ## hover every other row uses would have made it look like the
+                ## one about to be picked instead of the one already in use
+                hover_color=AMBER_HOVER if chosen else BORDER,
+                font=font(size=12),
+                command=lambda v=value: self.choose(v))
+            draw_every_pixel(row)
+            ## The ends of the list get the wider margin. A row is only as tall
+            ## as the list makes it, and the selected one is filled, so a single
+            ## pixel above the first row read as none at all beside the empty
+            ## half of the last row's box.
+            row.pack(fill="x", padx=LIST_PAD,
+                     pady=(LIST_PAD if index == 0 else LIST_GAP,
+                           LIST_PAD if index == last else LIST_GAP))
+
+        self.popup.update_idletasks()
+        ## How tall the rows need it to be, not how tall it currently is: a
+        ## toplevel that has not been mapped yet reports Tk's default 200,
+        ## which is shorter than this list and would cut the end off it.
+        tall = self.popup.winfo_reqheight()
+        wide = self.winfo_width()
+        x = self.winfo_rootx()
+        ## above the control, because it sits on the bottom bar
+        y = self.winfo_rooty() - tall - 4
+        ## Placed through Tk's own method rather than CustomTkinter's, which
+        ## multiplies a size by the window scaling on the way through and leaves
+        ## the position alone. Both figures here are already real pixels, and
+        ## the position may be negative -- a monitor left of or above the main
+        ## one starts at a negative coordinate, and clamping that to zero put
+        ## the list on the wrong screen.
+        self.placed = (wide, tall, x, y)
+        tkinter.Toplevel.wm_geometry(self.popup, "%dx%d+%d+%d" % self.placed)
+        self.chevron.configure(image=glyph("chevron", CHEVRON, GLYPH_MUTED, up=True))
+        ## Focusing the popup and closing it on FocusOut meant that clicking a
+        ## row moved focus, destroyed the popup, and threw away the click that
+        ## was about to choose. A click anywhere else in the window closes it
+        ## instead; clicks inside the popup are a different toplevel and never
+        ## reach this binding.
+        self._outside = self.app.bind("<Button-1>", lambda _e: self.close(), add="+")
+        ## A menu belongs to the window it was opened from: it goes away when
+        ## that window is no longer the one being used, and when the window is
+        ## moved or resized, since it is placed at a position on the screen
+        ## rather than inside anything.
+        self._unfocus = self.app.bind("<FocusOut>", self._maybe_close, add="+")
+        self._anchor = self._where()
+        self._moved = self.app.bind("<Configure>", self._maybe_moved, add="+")
+        self.popup.bind("<Escape>", lambda _e: self.close())
+
+    def _where(self):
+        """The window's position and size, which the list is placed against."""
+        try:
+            return (self.app.winfo_rootx(), self.app.winfo_rooty(),
+                    self.app.winfo_width(), self.app.winfo_height())
+        except Exception:
+            return None
+
+    def _maybe_moved(self, _event=None):
+        """Close if the window really moved, not merely settled.
+
+        Configure fires throughout a window's layout as well as when it is
+        dragged or resized, so the event on its own is not the question; what
+        matters is whether the window is somewhere other than where it was when
+        the list was placed against it.
+        """
+        if self._where() != self._anchor:
+            self.close()
+
+    def _maybe_close(self, _event=None):
+        """Close if the focus has left the program, not merely this widget.
+
+        FocusOut also fires when focus moves between widgets of the same window,
+        which is most of what a window does, so the answer has to come from
+        whether anything in the program still holds it. That is only settled
+        once the move has finished, hence the hop through after().
+        """
+        def settled():
+            try:
+                if self.app.focus_displayof() is None:
+                    self.close()
+            except Exception:
+                self.close()
+        try:
+            self.app.after(1, settled)
+        except Exception:
+            pass
+
+    def choose(self, value):
+        self.close()
+        self.set(value)
+        if self.command:
+            self.command(value)
+
+    def close(self):
+        for sequence, attribute in (("<Button-1>", "_outside"),
+                                    ("<FocusOut>", "_unfocus"),
+                                    ("<Configure>", "_moved")):
+            handle = getattr(self, attribute, None)
+            if handle:
+                try:
+                    self.app.unbind(sequence, handle)
+                except Exception:
+                    pass
+                setattr(self, attribute, None)
+        try:
+            self.chevron.configure(image=glyph("chevron", CHEVRON, GLYPH_MUTED))
+            self._hover(False)
+        except Exception:
+            pass
+        if self.popup is not None and self.popup.winfo_exists():
+            self.popup.destroy()
+        self.popup = None
 
 
 class App(ctk.CTk):
@@ -430,13 +932,24 @@ class App(ctk.CTk):
         ## offset fields for its own single corner, and handed back afterwards
         self.big_offset = [0, 0, 0]
         self.stashed_tags = {}
+        ## guards the offset fields against re-entering their own write trace
+        self._sanitising = False
 
+        restyle_fonts(app_settings.settings["lang"])
         ctk.set_appearance_mode(resolve_theme(app_settings.settings["theme"]))
         ctk.set_default_color_theme("blue")
 
         self.title("Structura %s" % version.read())
-        self.geometry("1080x790")
-        self.minsize(1000, 730)
+        self.geometry("%dx%d" % (WINDOW_WIDE, WINDOW_TALL))
+        ## Fixed, like everything inside it.
+        ##
+        ## CustomTkinter draws every widget on a canvas of its own and repaints
+        ## it whenever its size changes, which costs about a millisecond each.
+        ## With the widgets this window has, a single step of a resize took a
+        ## quarter of a second -- so dragging an edge crawled, whether or not
+        ## anything was being measured. An empty window of the same kind resizes
+        ## in six milliseconds; the difference is entirely the repainting.
+        self.resizable(False, False)
         self.configure(fg_color=SURFACE)
         for delay in (0, 200, 600, 1200):
             self.after(delay, lambda: apply_icon(self))
@@ -481,23 +994,40 @@ class App(ctk.CTk):
         panel.grid_rowconfigure(1, weight=1)
         panel.grid_columnconfigure(0, weight=1)
 
+        heading = ctk.CTkFrame(panel, fg_color="transparent", height=HEADING_HEIGHT)
+        heading.grid(row=0, column=0, sticky="ew", pady=HEADING_PAD)
+        heading.grid_propagate(False)
+        heading.grid_columnconfigure(0, weight=1)
         self.structures_label = ctk.CTkLabel(
-            panel, text=self.text("structures"), anchor="w", text_color=MUTED,
-            font=ctk.CTkFont(size=12, weight="bold"))
-        self.structures_label.grid(row=0, column=0, sticky="ew", padx=6, pady=(2, 8))
+            heading, text=self.text("structures"), anchor="w", text_color=MUTED,
+            font=font(size=12, weight="bold"))
+        self.structures_label.grid(row=0, column=0, sticky="ew", padx=6)
+        self.clear_all_button = ctk.CTkButton(
+            heading, text=self.text("clear all"), width=84, height=22,
+            corner_radius=11, fg_color="transparent", border_width=1,
+            border_color=BORDER, text_color=MUTED, hover_color=BORDER,
+            font=font(size=11), command=self.clear_all_structures)
+        self.clear_all_button.grid(row=0, column=1, padx=(0, 6))
 
         self.list_frame = ctk.CTkScrollableFrame(
             panel, fg_color=("#E9EBEF", "#151920"), corner_radius=10)
         self.list_frame.grid(row=1, column=0, sticky="nsew")
         self.list_frame.grid_columnconfigure(0, weight=1)
 
+        ## The + is a drawn glyph rather than a character in the text, so it can
+        ## stand at the height of both lines beside it instead of sitting on the
+        ## baseline of the first. The text is wrapped to the width the control
+        ## actually gets, which is not known until it has been laid out.
         self.drop_zone = ctk.CTkButton(
-            self.list_frame, text="+   " + self.text("dropfiles"),
+            self.list_frame, text=self.text("dropfiles"),
+            image=glyph("plus", DROP_PLUS, GLYPH_MUTED), compound="left",
             height=88, corner_radius=10, fg_color="transparent",
             border_width=2, border_color=BORDER, text_color=MUTED,
-            hover_color=PANEL, font=ctk.CTkFont(size=13),
+            hover_color=PANEL, font=font(size=15), anchor="center",
             command=self.browse_structures)
+        self.drop_zone.configure(border_spacing=DROP_GAP)
         self.drop_zone.grid(row=999, column=0, sticky="ew", padx=8, pady=8)
+        self._wrap_drop_text()
 
         if self.dnd_ready:
             for widget in (self.list_frame, self.drop_zone):
@@ -581,33 +1111,72 @@ class App(ctk.CTk):
         panel.grid_columnconfigure(0, weight=1)
         r = 0
 
+        heading = ctk.CTkFrame(panel, fg_color="transparent", height=HEADING_HEIGHT)
+        heading.grid(row=r, column=0, sticky="ew", padx=16, pady=HEADING_PAD); r += 1
+        heading.grid_propagate(False)
+        heading.grid_columnconfigure(0, weight=1)
         self.settings_label = ctk.CTkLabel(
-            panel, text=self.text("settings"), anchor="w", text_color=MUTED,
-            font=ctk.CTkFont(size=12, weight="bold"))
-        self.settings_label.grid(row=r, column=0, sticky="ew", padx=16,
-                                 pady=(14, 10)); r += 1
+            heading, text=self.text("settings"), anchor="w", text_color=MUTED,
+            font=font(size=12, weight="bold"))
+        self.settings_label.grid(row=0, column=0, sticky="ew")
+        ## the panel is already titled Settings; the button only has to say what
+        ## it does to them
+        self.reset_button = ctk.CTkButton(
+            heading, text=self.text("reset"), width=64, height=22,
+            corner_radius=11, fg_color="transparent", border_width=1,
+            border_color=BORDER, text_color=MUTED, hover_color=BORDER,
+            font=font(size=11), command=self.reset_settings)
+        self.reset_button.grid(row=0, column=1)
 
         # icon preview and pack name
         head = ctk.CTkFrame(panel, fg_color="transparent")
         head.grid(row=r, column=0, sticky="ew", padx=16); r += 1
         head.grid_columnconfigure(1, weight=1)
 
+        ## the preview sits inside a frame, and the clear control is notched
+        ## into that frame's top right corner: it overlaps the picture just
+        ## enough to be seen against it, and reads as part of the frame rather
+        ## than as something floating over the image
+        ## one control rather than a button inside a frame: the frame meant the
+        ## hover only lit the middle of it, and the outline belonged to
+        ## something the pointer was not over
+        ## A CTkButton grows to fit its content whatever width and height it is
+        ## given, so a button carrying a 76 px picture asked for 129x101 and the
+        ## control stopped being square -- which threw the click test out with
+        ## it, since a click is measured against the control's real size. The
+        ## holder is a fixed box with propagation off, and the button fills it.
+        icon_holder = self.icon_holder = ctk.CTkFrame(
+            head, fg_color="transparent", width=ICON_SIZE, height=ICON_SIZE)
+        ## no top padding: the control's top edge lines up with the pack name
+        ## label beside it
+        icon_holder.grid(row=0, column=0, rowspan=3, padx=(0, 10), pady=(0, 2),
+                         sticky="n")
+        icon_holder.grid_propagate(False)
+        icon_holder.pack_propagate(False)
+
+        ## The button draws nothing of its own: no fill, no border, no hover
+        ## tint. The picture is the whole control, and the widget is only what
+        ## answers the click -- otherwise its rounded background and the
+        ## picture's rounded shape are two curves at slightly different radii,
+        ## and one shows past the other.
         self.icon_button = ctk.CTkButton(
-            head, text="", width=64, height=64, corner_radius=10,
-            fg_color=FIELD, hover_color=BORDER, border_width=1,
-            border_color=BORDER, command=self.browse_icon)
-        self.icon_button.grid(row=0, column=0, rowspan=3, padx=(0, 10))
+            icon_holder, text="", width=ICON_SIZE, height=ICON_SIZE,
+            corner_radius=0, fg_color="transparent", hover=False,
+            border_width=0, border_spacing=0, command=self.on_icon_clicked)
+        self.icon_button.place(x=0, y=0, relwidth=1.0, relheight=1.0)
 
         ## only offered once a custom icon is chosen: there is nothing to clear
         ## before that, and an always-present button implies otherwise
-        self.icon_clear = ctk.CTkButton(
-            head, text="", width=20, height=20, corner_radius=10,
-            image=glyph("cross", 10, GLYPH_MUTED),
-            fg_color=PANEL, hover_color=BORDER, border_width=1,
-            border_color=BORDER, command=self.clear_icon)
+        ## There is no second widget over the corner. CustomTkinter paints a
+        ## "transparent" fill with the parent's colour rather than leaving it
+        ## alone, so an overlay button covered the wedge with a solid box. The
+        ## one control answers both jobs, and where the click landed decides
+        ## which it was.
+        self._icon_bound = set()
+        self._bind_icon_pointer()
 
         self.name_label = ctk.CTkLabel(head, text=self.text("packname"), anchor="w",
-                                       text_color=MUTED, font=ctk.CTkFont(size=12))
+                                       text_color=MUTED, font=font(size=12))
         self.name_label.grid(row=0, column=1, sticky="ew")
 
         self.pack_name_var = tkinter.StringVar()
@@ -615,27 +1184,42 @@ class App(ctk.CTk):
         self.pack_name_field = Field(head, self.pack_name_var, height=34)
         self.pack_name_field.grid(row=1, column=1, sticky="ew", pady=(4, 0))
 
+        ## The hint holds its row whether or not it has anything to say, at a
+        ## height of its own so the row does not change when it does. Removing
+        ## it from the layout instead made everything below jump up and down as
+        ## the pack name was typed and cleared.
         self.name_hint = ctk.CTkLabel(head, text="", anchor="w", text_color=MUTED,
-                                      font=ctk.CTkFont(size=11))
-        self.name_hint.grid(row=2, column=1, sticky="ew", pady=(2, 0))
+                                      height=HINT_ROW, font=font(size=11))
+        self.name_hint.grid(row=2, column=1, sticky="ew")
         self.refresh_icon_preview()
 
         # description
         desc = ctk.CTkFrame(panel, fg_color="transparent")
-        desc.grid(row=r, column=0, sticky="ew", padx=16, pady=(12, 0)); r += 1
-        desc.grid_columnconfigure(0, weight=1)
+        ## no gap of its own above it: the pack name's hint row is already
+        ## holding that space open, and holds it whether or not it is in use
+        desc.grid(row=r, column=0, sticky="ew", padx=16, pady=(0, 0)); r += 1
+        ## the label takes only the room its own text needs, so that "optional"
+        ## lands against it rather than adrift in the middle of the row
+        desc.grid_columnconfigure(0, weight=0)
         self.desc_label = ctk.CTkLabel(desc, text=self.text("description"),
                                        anchor="w", text_color=MUTED,
-                                       font=ctk.CTkFont(size=12))
-        self.desc_label.grid(row=0, column=0, sticky="ew")
+                                       font=font(size=12))
+        self.desc_label.grid(row=0, column=0, sticky="w")
+        ## said outright rather than left to be inferred from an empty field
+        self.desc_optional = ctk.CTkLabel(desc, text=self.text("optional"),
+                                          anchor="w", text_color=MUTED,
+                                          font=font(size=11))
+        self.desc_optional.grid(row=0, column=1, sticky="w", padx=(6, 0))
+        desc.grid_columnconfigure(1, weight=1)
         self.desc_count = ctk.CTkLabel(desc, text="", anchor="e", text_color=MUTED,
-                                       font=ctk.CTkFont(size=11))
-        self.desc_count.grid(row=0, column=1, sticky="e")
+                                       font=font(size=11))
+        self.desc_count.grid(row=0, column=2, sticky="e")
 
         self.desc_var = tkinter.StringVar()
         self.desc_var.trace_add("write", lambda *_: self.on_description_typed())
-        self.desc_field = Field(desc, self.desc_var, height=34)
-        self.desc_field.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(4, 0))
+        self.desc_field = Field(desc, self.desc_var, height=34,
+                                on_clear=self.clear_description)
+        self.desc_field.grid(row=1, column=0, columnspan=3, sticky="ew", pady=(4, 0))
         self.on_description_typed()
 
         # transparency
@@ -644,10 +1228,10 @@ class App(ctk.CTk):
         trans.grid_columnconfigure(0, weight=1)
         self.trans_label = ctk.CTkLabel(trans, text=self.text("blocktransparency"),
                                         anchor="w", text_color=MUTED,
-                                        font=ctk.CTkFont(size=12))
+                                        font=font(size=12))
         self.trans_label.grid(row=0, column=0, sticky="ew")
         self.trans_value = ctk.CTkLabel(trans, text="", anchor="e", text_color=TEXT,
-                                        font=ctk.CTkFont(size=12, weight="bold"))
+                                        font=font(size=12, weight="bold"))
         self.trans_value.grid(row=0, column=1, sticky="e")
 
         self.transparency = ctk.CTkSlider(
@@ -663,15 +1247,16 @@ class App(ctk.CTk):
         off.grid(row=r, column=0, sticky="ew", padx=16, pady=(14, 0)); r += 1
         off.grid_columnconfigure((0, 1, 2), weight=1)
         self.offset_label = ctk.CTkLabel(off, text=self.text("offset"), anchor="w",
-                                         text_color=MUTED, font=ctk.CTkFont(size=12))
-        self.offset_label.grid(row=0, column=0, columnspan=3, sticky="ew",
-                               pady=(0, 4))
+                                         text_color=MUTED, font=font(size=12))
+        self.offset_label.grid(row=0, column=0, sticky="w", pady=(0, 4))
         ## the axis letter sits inside its own field rather than floating above
         ## it, so three numbers read as three labelled boxes and not six things
         self.offset_vars, self.offset_fields = [], []
         for i, axis in enumerate("xyz"):
             var = tkinter.StringVar(value="0")
-            var.trace_add("write", lambda *_: self.on_offset_typed())
+            var.trace_add("write",
+                          lambda *_, v=var: (self._clean_offset(v),
+                                             self.on_offset_typed()))
             field = Field(off, var, label=self.text("axis %s" % axis), height=32)
             field.grid(row=1, column=i, sticky="ew", padx=(0 if i == 0 else 6, 0))
             self.offset_vars.append(var)
@@ -680,11 +1265,13 @@ class App(ctk.CTk):
         ## big build assembles several structures into one model, so its corner
         ## is the lowest world origin of all of them -- which the game already
         ## recorded inside each structure file
+        ## on the heading's own line, so turning big build mode on and off does
+        ## not push the three fields up and down the panel
         self.cords_button = ctk.CTkButton(
-            off, text=self.text("getcords"), height=30, corner_radius=8,
-            image=glyph("corner", 14), compound="left",
+            off, text=self.text("getcords"), height=22, width=CORDS_WIDE,
+            corner_radius=11, image=glyph("corner", 12), compound="left",
             fg_color="transparent", border_width=1, border_color=BORDER,
-            text_color=TEXT, hover_color=BORDER, font=ctk.CTkFont(size=12),
+            text_color=MUTED, hover_color=BORDER, font=font(size=11),
             command=self.get_global_cords)
 
         # switches
@@ -712,21 +1299,21 @@ class App(ctk.CTk):
         out.grid_columnconfigure(0, weight=1)
         self.output_label = ctk.CTkLabel(out, text=self.text("output folder"),
                                          anchor="w", text_color=MUTED,
-                                         font=ctk.CTkFont(size=12))
+                                         font=font(size=12))
         self.output_label.grid(row=0, column=0, sticky="ew")
         self.output_button = ctk.CTkButton(
             out, text="", height=32, corner_radius=8, anchor="w",
             image=glyph("folder", 15), compound="left",
             fg_color=FIELD, hover_color=BORDER, border_width=1,
             border_color=BORDER, text_color=TEXT,
-            font=ctk.CTkFont(size=11), command=self.browse_output)
+            font=font(size=11), command=self.browse_output)
         self.output_button.grid(row=1, column=0, sticky="ew", pady=(4, 0))
         self.refresh_output_button()
 
         self.make_button = ctk.CTkButton(
             panel, text=self.text("makepack"), height=46, corner_radius=10,
             fg_color=AMBER, hover_color=AMBER_HOVER, text_color=ON_AMBER,
-            font=ctk.CTkFont(size=15, weight="bold"), command=self.make_pack)
+            font=font(size=15, weight="bold"), command=self.make_pack)
         self.make_button.grid(row=r, column=0, sticky="ew", padx=16, pady=(12, 16))
 
     def _switch(self, parent, row, key, variable, command):
@@ -734,7 +1321,7 @@ class App(ctk.CTk):
         holder.grid(row=row, column=0, sticky="ew", pady=5)
         holder.grid_columnconfigure(0, weight=1)
         label = ctk.CTkLabel(holder, text=self.text(key), anchor="w",
-                             text_color=TEXT, font=ctk.CTkFont(size=13))
+                             text_color=TEXT, font=font(size=13))
         label.grid(row=0, column=0, sticky="ew")
         switch = ctk.CTkSwitch(holder, text="", variable=variable, width=46,
                                progress_color=AMBER,
@@ -754,67 +1341,84 @@ class App(ctk.CTk):
         bar.grid_columnconfigure(0, weight=1)
 
         self.status_label = ctk.CTkLabel(bar, text="", anchor="w", text_color=MUTED,
-                                         font=ctk.CTkFont(size=12))
+                                         font=font(size=12))
         self.status_label.grid(row=0, column=0, sticky="ew", padx=14, pady=10)
 
         self.help_button = ctk.CTkButton(
             bar, text="?", width=30, height=28, corner_radius=8,
             fg_color="transparent", hover_color=BORDER, text_color=MUTED,
-            font=ctk.CTkFont(size=14, weight="bold"), command=self.open_help)
+            font=font(size=14, weight="bold"), command=self.open_help)
         self.help_button.grid(row=0, column=1, padx=(4, 2), pady=8)
 
         self.about_button = ctk.CTkButton(
             bar, text="i", width=30, height=28, corner_radius=8,
             fg_color="transparent", hover_color=BORDER, text_color=MUTED,
-            font=ctk.CTkFont(size=14, weight="bold"),
+            font=font(size=14, weight="bold"),
             command=lambda: AboutDialog(self))
         self.about_button.grid(row=0, column=2, padx=(0, 6), pady=8)
 
-        self.theme_menu = ctk.CTkOptionMenu(
-            bar, width=120, height=28, corner_radius=8,
-            values=[self.text(name) for name in app_settings.THEMES],
-            fg_color=FIELD, button_color=FIELD, button_hover_color=BORDER,
-            text_color=TEXT, dropdown_fg_color=PANEL, dropdown_text_color=TEXT,
-            command=self.on_theme)
-        self.theme_menu.set(self.text(app_settings.settings["theme"]))
+        self.theme_menu = Chooser(
+            bar, self, app_settings.THEMES, self.on_theme,
+            labels=self.text, badges=False, width=CHOOSER_THEME_WIDE)
+        self.theme_menu.set(app_settings.settings["theme"])
         self.theme_menu.grid(row=0, column=3, padx=(0, 6), pady=8)
 
-        self.language_badge = ctk.CTkLabel(bar, text="")
-        self.language_badge.grid(row=0, column=4, padx=(4, 4))
-        self.language_menu = ctk.CTkOptionMenu(
-            bar, width=150, height=28, corner_radius=8,
-            values=app_settings.choices(),
-            fg_color=FIELD, button_color=FIELD, button_hover_color=BORDER,
-            text_color=TEXT, dropdown_fg_color=PANEL, dropdown_text_color=TEXT,
-            command=self.on_language)
+        self.language_menu = Chooser(bar, self, app_settings.choices(),
+                                     self.on_language)
         self.language_menu.set(app_settings.settings["lang"])
-        self.language_menu.grid(row=0, column=5, padx=(0, 12), pady=8)
-        self.refresh_language_badge()
+        self.language_menu.grid(row=0, column=4, padx=(4, 12), pady=8)
 
         self.set_status(self.text("status ready"))
 
-    def refresh_language_badge(self):
-        code = lang_parse.code(app_settings.settings["lang"])
-        light, dark = lang_icons.pair(code, size=22)
-        self.language_badge.configure(
-            image=ctk.CTkImage(light_image=light, dark_image=dark, size=(22, 22)))
-
     def refresh_icon_preview(self):
-        """The icon button shows the icon itself, not a filename."""
+        """Redraw the control: background, preview, frame, cut corner.
+
+        Built at the display's own pixel count rather than at the logical size,
+        because CustomTkinter scales a picture up to fill the widget -- a 102 px
+        drawing stretched to 127 px, which softened the frame and the cut corner
+        until they looked broken.
+        """
+        custom = self._icon_is_custom()
         try:
-            picture = Image.open(self.icon_path).convert("RGBA")
+            art = Image.open(self.icon_path).convert("RGBA")
         except Exception:
-            self.icon_button.configure(text="!", text_color=DANGER)
+            self.icon_button.configure(text="!", text_color=DANGER, image=None)
             return
+
+        edge = ICON_SIZE
+        scaling = 1.0
+        try:
+            scaling = self.icon_button._get_widget_scaling() or 1.0
+        except Exception:
+            pass
+        ## the widget's own width is the number of pixels the picture will be
+        ## painted into; rounding the logical size instead can land a pixel out
+        ## and make CustomTkinter resample a drawing that was already the right
+        ## size
+        measured = self.icon_button.winfo_width()
+        pixels = measured if measured > 16 else max(16, int(round(edge * scaling)))
+        self._icon_pixels = pixels
+
+        picture = ui_icons.icon_control(
+            pixels, radius=ICON_RADIUS * scaling, art=art,
+            background=mode_colour(FIELD), line=mode_colour(BORDER),
+            width=int(ICON_BORDER * scaling), cut=custom,
+            ## The cut corner is the panel the control sits on, showing through
+            ## where the icon's corner has been folded away, outlined in the
+            ## same border colour as the frame; the X is the muted grey every
+            ## other secondary label in the window uses. Under the pointer both
+            ## step up one place in the same palette -- border and full text --
+            ## so the corner answers the way the rest of the window does.
+            wedge=mode_colour(PANEL), mark=mode_colour(MUTED),
+            hot_wedge=mode_colour(BORDER), hot_mark=mode_colour(TEXT),
+            hot_control=getattr(self, "_icon_over", False),
+            hot_corner=custom and getattr(self, "_icon_hot", False))
+
         self.icon_button.configure(
             text="", image=ctk.CTkImage(light_image=picture, dark_image=picture,
-                                        size=(52, 52)))
-        if os.path.abspath(self.icon_path) == os.path.abspath(self.default_icon):
-            self.icon_clear.grid_forget()
-        else:
-            ## shares the preview's grid cell and, being created later, draws on
-            ## top of it -- so clearing is discoverable without costing a row
-            self.icon_clear.grid(row=0, column=0, sticky="ne")
+                                        size=(edge, edge)))
+        if getattr(self, "_icon_bound", None) is not None:
+            self._bind_icon_pointer()
 
     # --- handlers ---------------------------------------------------------
 
@@ -837,6 +1441,117 @@ class App(ctk.CTk):
         open_link(GITHUB_ISSUES)
         self.set_status(GITHUB_ISSUES)
 
+    def _bind_icon_pointer(self):
+        """Put the pointer handlers on every part of the button.
+
+        A CTkButton is a canvas with a label placed over it, and its bind()
+        passes the binding on to whichever of those exist at the time. The
+        image label is not made until an image is first configured, so a
+        binding made while the button is being built reaches only the canvas --
+        and once the picture is set, the label covers all of the control but a
+        one pixel rim, which is the only place the pointer was being seen.
+
+        Called again after every redraw, since configuring an image can make
+        the label; the set remembers what is already bound so nothing is bound
+        twice.
+        """
+        parts = (self.icon_button._canvas,
+                 getattr(self.icon_button, "_image_label", None),
+                 getattr(self.icon_button, "_text_label", None))
+        for part in parts:
+            if part is None or part in self._icon_bound:
+                continue
+            self._icon_bound.add(part)
+            part.bind("<Button-1>", self._track_icon_pointer, add="+")
+            part.bind("<Motion>", self._track_icon_pointer, add="+")
+            part.bind("<Enter>", self._track_icon_pointer, add="+")
+            part.bind("<Leave>", self._leave_icon, add="+")
+
+    def _wrap_drop_text(self):
+        """Wrap the drop zone's sentence to a fixed width.
+
+        A width in pixels, not a share of the room the control was given: the
+        control's width is not settled while the window is being laid out, so
+        wrapping to it meant rewrapping -- and resizing the + beside it -- on
+        every step of a resize, which is what the flicker was.
+        """
+        label = getattr(self.drop_zone, "_text_label", None)
+        if label is None:
+            return
+        try:
+            label.configure(
+                wraplength=int(DROP_WRAP * self._scaling()), justify="left")
+        except Exception:
+            pass
+
+    def _icon_extent(self):
+        """The control's size in real pixels, which a click is measured against."""
+        return int(round(ICON_SIZE * self._scaling()))
+
+    def _scaling(self):
+        """The display's scaling, asked of the window rather than a widget.
+
+        A widget answers only once it exists, and this is wanted while the
+        window is still being built -- asking the icon control quietly returned
+        1.0 to everything laid out before it.
+        """
+        try:
+            return ctk.ScalingTracker.get_widget_scaling(self) or 1.0
+        except Exception:
+            return 1.0
+
+    def _pointer_over_icon(self):
+        """Where the pointer is within the control, and whether it is inside.
+
+        Worked out from the pointer's position on the screen rather than from
+        an event's own coordinates, because the event may have come from the
+        canvas or from the label placed over it, and those two do not share an
+        origin -- the label sits a pixel in from the button's corner.
+        """
+        button = self.icon_button
+        try:
+            x = button.winfo_pointerx() - button.winfo_rootx()
+            y = button.winfo_pointery() - button.winfo_rooty()
+        except Exception:
+            return 0, 0, False
+        size = self._icon_extent()
+        return x, y, 0 <= x < size and 0 <= y < size
+
+    def _over_wedge(self, x, y):
+        return ui_icons.in_wedge(x, y, self._icon_extent())
+
+    def _track_icon_pointer(self, _event=None):
+        """Light the background, and the corner when the pointer is in it."""
+        x, y, inside = self._pointer_over_icon()
+        if not inside:
+            return self._leave_icon()
+        corner = self._icon_is_custom() and self._over_wedge(x, y)
+        if (corner, True) != (getattr(self, "_icon_hot", False),
+                              getattr(self, "_icon_over", False)):
+            self._icon_hot = corner
+            self._icon_over = True
+            self.refresh_icon_preview()
+
+    def _leave_icon(self, _event=None):
+        ## leaving the canvas for the label over it is not leaving the control
+        if self._pointer_over_icon()[2]:
+            return
+        if getattr(self, "_icon_hot", False) or getattr(self, "_icon_over", False):
+            self._icon_hot = False
+            self._icon_over = False
+            self.refresh_icon_preview()
+
+    def _icon_is_custom(self):
+        return os.path.abspath(self.icon_path) != os.path.abspath(self.default_icon)
+
+    def on_icon_clicked(self):
+        """The corner clears the icon; anywhere else chooses one."""
+        x, y, _inside = self._pointer_over_icon()
+        if self._icon_is_custom() and self._over_wedge(x, y):
+            self.clear_icon()
+        else:
+            self.browse_icon()
+
     def browse_icon(self):
         path = filedialog.askopenfilename(title=self.text("icon"),
                                           filetypes=IMAGE_TYPES)
@@ -845,7 +1560,51 @@ class App(ctk.CTk):
             self.refresh_icon_preview()
             self.set_status(self.text("status icon", os.path.basename(path)))
 
+    def clear_all_structures(self):
+        """Empty the list in one go rather than a row at a time."""
+        if not self.rows:
+            return
+        count = len(self.rows)
+        for row in list(self.rows):
+            row.destroy()
+        self.rows = []
+        self.selected = None
+        self.stashed_tags.clear()
+        self.load_offset_fields([0, 0, 0])
+        self.set_status(self.text("status cleared",
+                                  "%d %s" % (count, self.text("structures"))))
+        self.revalidate()
+
+    def clear_description(self):
+        self.desc_var.set("")
+        self.set_status(self.text("clear description"))
+
+    def reset_settings(self):
+        """Put the settings panel back to how it opens.
+
+        The output folder is left alone deliberately -- it is a place on the
+        user's disk they chose once, not a setting for this pack -- and so are
+        the pack name, the structure list, the theme and the language.
+        """
+        self.desc_var.set("")
+        self.transparency.set(app_settings.DEFAULT_TRANSPARENCY)
+        self.on_transparency(app_settings.DEFAULT_TRANSPARENCY)
+        self.icon_path = self.default_icon
+        self.refresh_icon_preview()
+        if self.big_build.get():
+            self.big_build.set(0)
+            self.on_big_build()
+        self.tech_pack.set(0)
+        self.block_lists.set(0)
+        self.big_offset = [0, 0, 0]
+        for row in self.rows:
+            row.offset = [0, 0, 0]
+        self.load_offset_fields([0, 0, 0])
+        self.set_status(self.text("status reset"))
+        self.revalidate()
+
     def clear_icon(self):
+        self._icon_hot = False
         self.icon_path = self.default_icon
         self.refresh_icon_preview()
         self.set_status(self.text("clear icon"))
@@ -861,6 +1620,23 @@ class App(ctk.CTk):
 
     def on_transparency(self, value):
         self.trans_value.configure(text="%d%%" % round(float(value)))
+
+    def _clean_offset(self, var):
+        """Keep an offset field to digits with at most one leading minus.
+
+        Typing a letter into a coordinate silently became a zero, so a typo
+        moved the model without saying anything. Rejecting the character as it
+        is typed is the only version of this the user can see.
+        """
+        if self._sanitising:
+            return
+        raw = var.get()
+        cleaned = re.sub(r"[^0-9-]", "", raw)
+        cleaned = ("-" if cleaned.startswith("-") else "") + cleaned.replace("-", "")
+        if cleaned != raw:
+            self._sanitising = True
+            var.set(cleaned)
+            self._sanitising = False
 
     def on_offset_typed(self):
         target = self.big_offset if self.big_build.get() else (
@@ -930,8 +1706,10 @@ class App(ctk.CTk):
                 row.set_tag_enabled(False)
             self.offset_label.configure(text=self.text("corner"))
             self.load_offset_fields(self.big_offset)
-            self.cords_button.grid(row=2, column=0, columnspan=3, sticky="ew",
-                                   pady=(8, 0))
+            ## across two of the three columns: one of them is a third of the
+            ## panel, which is narrower than this button's longest translation
+            self.cords_button.grid(row=0, column=1, columnspan=2, sticky="e",
+                                   pady=(0, 4))
         else:
             for row in self.rows:
                 row.set_tag_enabled(True)
@@ -946,19 +1724,22 @@ class App(ctk.CTk):
                 self.load_offset_fields([0, 0, 0])
         self.revalidate()
 
-    def on_theme(self, shown):
-        for name in app_settings.THEMES:
-            if self.text(name) == shown:
-                ctk.set_appearance_mode(resolve_theme(app_settings.set_theme(name)))
-                self.set_status(self.text("status theme", shown))
-                return
+    def on_theme(self, name):
+        ctk.set_appearance_mode(resolve_theme(app_settings.set_theme(name)))
+        ## the icon's frame is drawn, not styled, so it has to be redrawn to
+        ## follow the theme
+        self.refresh_icon_preview()
+        self.set_status(self.text("status theme", self.text(name)))
 
     def on_language(self, name):
         self.strings = app_settings.set_language(name)
-        ## keep the menu in step: it is already right when the user picked from
-        ## it, but not when the language is set from anywhere else
+        ## keep the control in step: it is already right when the user picked
+        ## from it, but not when the language is set from anywhere else
         self.language_menu.set(name)
-        self.refresh_language_badge()
+        restyle_fonts(name)
+        ## the box is sized from measured text, and the measurement changed
+        ## with the face
+        self.language_menu.refit()
         self.retranslate()
         self.set_status(self.text("status language", name))
 
@@ -966,7 +1747,9 @@ class App(ctk.CTk):
         """Relabel everything in place, without rebuilding the window."""
         self.structures_label.configure(text=self.text("structures"))
         self.settings_label.configure(text=self.text("settings"))
-        self.drop_zone.configure(text="+   " + self.text("dropfiles"))
+        ## the + is a glyph beside the text now, not a character in it
+        self.drop_zone.configure(text=self.text("dropfiles"))
+        self._wrap_drop_text()
         self.name_label.configure(text=self.text("packname"))
         self.desc_label.configure(text=self.text("description"))
         self.trans_label.configure(text=self.text("blocktransparency"))
@@ -976,11 +1759,13 @@ class App(ctk.CTk):
             field.set_label(self.text("axis %s" % axis))
         self.cords_button.configure(text=self.text("getcords"))
         self.output_label.configure(text=self.text("output folder"))
+        self.clear_all_button.configure(text=self.text("clear all"))
+        self.reset_button.configure(text=self.text("reset"))
+        self.desc_optional.configure(text=self.text("optional"))
         self.make_button.configure(text=self.text("makepack"))
         for switch in self.switches:
             switch.label.configure(text=self.text(switch.key))
-        self.theme_menu.configure(values=[self.text(n) for n in app_settings.THEMES])
-        self.theme_menu.set(self.text(app_settings.settings["theme"]))
+        self.theme_menu.refit()
         self.refresh_output_button()
         self.revalidate()
 
@@ -1076,6 +1861,8 @@ class App(ctk.CTk):
             "folder": folder,
             "pack_name": self.pack_name_var.get().strip(),
             "description": self.desc_var.get().strip(),
+            "list header": self.text("list header"),
+            "list footer": self.text("list footer"),
             "icon": self.icon_path,
             "alpha": app_settings.transparency_to_alpha(self.transparency.get()),
             "tech_pack": bool(self.tech_pack.get()),
@@ -1095,6 +1882,7 @@ class App(ctk.CTk):
                 os.path.join(job["folder"], job["pack_name"]))
             pack.set_opacity(job["alpha"])
             pack.set_description(job["description"])
+            pack.set_list_labels(job["list header"], job["list footer"])
             if job["icon"]:
                 pack.set_icon(job["icon"])
             if job["tech_pack"]:

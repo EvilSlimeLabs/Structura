@@ -10,6 +10,13 @@ hand, so a UI change plus one command brings the documentation back in step.
 Writes into docs/. Needs a desktop session: the window is really opened, raised
 and photographed, so this cannot run headless. The in-game screenshots beside
 these are the ones only a person in a world can take.
+
+It photographs a rectangle of the screen, which means anything that comes to the
+front during the run lands in the documentation instead of the program. Every
+grab therefore checks that the foreground window still belongs to this process
+and refuses to save if it does not -- a missing screenshot is recoverable, a
+committed picture of somebody's browser is not. Leave the machine alone while it
+runs.
 """
 import os
 import sys
@@ -31,6 +38,25 @@ SAMPLE = [("north wing", "test_structures/stoneSlabs.mcstructure"),
           ("canopy", "test_structures/tree.mcstructure")]
 
 
+def foreground_is_ours():
+    """Whether the window in front belongs to this process.
+
+    Without this the tool will happily photograph whatever the user brought to
+    the front while it was working.
+    """
+    if not sys.platform.startswith("win"):
+        return True
+    try:
+        import ctypes
+        from ctypes import wintypes
+        pid = wintypes.DWORD()
+        handle = ctypes.windll.user32.GetForegroundWindow()
+        ctypes.windll.user32.GetWindowThreadProcessId(handle, ctypes.byref(pid))
+        return pid.value == os.getpid()
+    except Exception:
+        return True
+
+
 def settle(window, seconds=1.0):
     """Pump the event loop so Tk finishes drawing before the grab."""
     end = time.time() + seconds
@@ -40,19 +66,34 @@ def settle(window, seconds=1.0):
         time.sleep(0.02)
 
 
-def shoot(window, name, chrome=36):
-    """Grab a window, including the title bar above it."""
-    window.deiconify()
-    window.lift()
-    window.attributes("-topmost", True)
-    settle(window)
-    x, y = window.winfo_rootx(), window.winfo_rooty()
-    w, h = window.winfo_width(), window.winfo_height()
-    image = ImageGrab.grab((x, y - chrome, x + w, y + h))
-    path = os.path.join(DOCS, name)
-    image.save(path)
-    print("   %-28s %dx%d" % (name, *image.size))
-    return path
+def shoot(window, name, chrome=36, attempts=4):
+    """Grab a window, including the title bar above it.
+
+    Refuses to write anything if the window is not the one in front, and tries
+    again rather than giving up on the first stolen focus.
+    """
+    for attempt in range(attempts):
+        window.deiconify()
+        window.lift()
+        window.attributes("-topmost", True)
+        window.focus_force()
+        settle(window)
+        if not foreground_is_ours():
+            print("   %-28s something else is in front, retrying" % name)
+            continue
+        x, y = window.winfo_rootx(), window.winfo_rooty()
+        w, h = window.winfo_width(), window.winfo_height()
+        image = ImageGrab.grab((x, y - chrome, x + w, y + h))
+        if not foreground_is_ours():
+            print("   %-28s focus lost mid-grab, retrying" % name)
+            continue
+        path = os.path.join(DOCS, name)
+        image.save(path)
+        print("   %-28s %dx%d" % (name, *image.size))
+        return path
+    raise SystemExit(
+        "Refusing to save %s: this window was never in front. Nothing was "
+        "written over. Leave the machine alone and run it again." % name)
 
 
 def populate(app):
@@ -61,6 +102,11 @@ def populate(app):
         app.add_structure_row(path).tag_var.set(tag)
     app.pack_name_var.set("Sorter Hall")
     app.desc_var.set("floor 3 sorter")
+    ## a custom icon, so the notched clear control is visible in the shot
+    custom = os.path.join("images", "evilslimelabs-logo3.png")
+    if os.path.isfile(custom):
+        app.icon_path = os.path.abspath(custom)
+        app.refresh_icon_preview()
     app.revalidate()
 
 

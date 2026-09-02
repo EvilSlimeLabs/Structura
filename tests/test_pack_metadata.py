@@ -15,14 +15,46 @@ class DisplayNameTests(unittest.TestCase):
         once = manifest.display_name("Sorter")
         self.assertEqual(manifest.display_name(once), once)
 
-    def test_the_uuid_ignores_the_prefix(self):
+    def test_the_derived_uuid_ignores_the_prefix(self):
         # the prefix is presentation. Folding it into the UUID would have made
-        # every pack built by an older Structura look like a different pack to
-        # the game, so an upgrade would leave the player holding two copies.
-        self.assertEqual(manifest.pack_uuids("Sorter"),
-                         manifest.pack_uuids("Sorter"))
-        self.assertNotEqual(manifest.pack_uuids("Sorter"),
-                            manifest.pack_uuids("Structura: Sorter"))
+        # every pack built by an older Structura look like a different pack.
+        self.assertEqual(manifest.derived_pack_uuids("Sorter"),
+                         manifest.derived_pack_uuids("Sorter"))
+        self.assertNotEqual(manifest.derived_pack_uuids("Sorter"),
+                            manifest.derived_pack_uuids("Structura: Sorter"))
+
+
+class PackIdentityTests(unittest.TestCase):
+    """A pack is identified by everything that went into it.
+
+    Deriving the UUID from the name alone made a rebuild an exact duplicate --
+    same UUID, same version, because the version is the Structura version -- and
+    the game refused the import. Deriving it from the content means an unchanged
+    rebuild really is the same pack, and any change is a different one.
+    """
+
+    SAMPLE = "name=Sorter|opacity=0.35|model=a1b2"
+
+    def test_the_same_content_gives_the_same_uuid(self):
+        self.assertEqual(manifest.pack_uuids("Sorter", self.SAMPLE),
+                         manifest.pack_uuids("Sorter", self.SAMPLE))
+
+    def test_any_change_to_the_content_moves_it(self):
+        base = manifest.pack_uuids("Sorter", self.SAMPLE)
+        for changed in ("name=Sorter|opacity=0.50|model=a1b2",
+                        "name=Sorter|opacity=0.35|model=c3d4",
+                        "name=Other|opacity=0.35|model=a1b2",
+                        self.SAMPLE + "|techpack=0.2.22"):
+            with self.subTest(changed=changed):
+                self.assertNotEqual(base, manifest.pack_uuids("Sorter", changed))
+
+    def test_the_name_alone_does_not_decide_it(self):
+        self.assertNotEqual(manifest.pack_uuids("Sorter", "content one"),
+                            manifest.pack_uuids("Sorter", "content two"))
+
+    def test_the_header_and_module_uuids_differ_from_each_other(self):
+        header, module = manifest.pack_uuids("Sorter", "anything")
+        self.assertNotEqual(header, module)
 
 
 class DescriptionTests(unittest.TestCase):
@@ -78,3 +110,39 @@ class ManifestFileTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FingerprintTests(unittest.TestCase):
+    """What the pack's identity is actually built from."""
+
+    def make(self, **kw):
+        import structura_core
+        pack = structura_core.structura.__new__(structura_core.structura)
+        pack.display_name = kw.get("name", "Sorter")
+        pack.description = kw.get("description", "")
+        pack.opacity = kw.get("opacity", 0.35)
+        pack.icon = kw.get("icon", "lookups/pack_icon.png")
+        pack.tech_pack = kw.get("tech_pack", False)
+        pack.big_offset = kw.get("big_offset", None)
+        pack.structure_files = kw.get("models", {
+            "": {"file": "test_structures/stoneSlabs.mcstructure",
+                 "offsets": [0, 0, 0]}})
+        return pack.fingerprint()
+
+    def test_the_same_inputs_give_the_same_fingerprint(self):
+        self.assertEqual(self.make(), self.make())
+
+    def test_every_setting_that_changes_the_pack_changes_it(self):
+        base = self.make()
+        for change in ({"name": "Other"}, {"description": "note"},
+                       {"opacity": 0.5}, {"tech_pack": True},
+                       {"big_offset": [1, 2, 3]},
+                       {"models": {"": {"file": "test_structures/rails.mcstructure",
+                                        "offsets": [0, 0, 0]}}},
+                       {"models": {"": {"file": "test_structures/stoneSlabs.mcstructure",
+                                        "offsets": [1, 0, 0]}}}):
+            with self.subTest(change=str(change)):
+                self.assertNotEqual(base, self.make(**change))
+
+    def test_a_missing_file_does_not_raise(self):
+        self.assertIn("absent", self.make(icon="nowhere/at/all.png"))

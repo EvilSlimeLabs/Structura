@@ -12,13 +12,10 @@ filename or a count substituted into them, so every transform runs over the text
 between the placeholders and never over the placeholders themselves -- otherwise
 reversing "Built {}" would produce "}{ ..." and break the substitution outright.
 
-A note on Enchanting: Minecraft's enchanting table alphabet is a *font*, not a
-set of characters. The glyphs live in the resource pack as `font/ascii_sga.png`
-and there is no Unicode block for them, so no string of characters can be the
-real thing. What is here maps Latin letters onto a consistent set of rune-like
-Unicode symbols: it reads as arcane, and it is legible-by-substitution the same
-way the real alphabet is, but it is an evocation rather than the genuine
-Standard Galactic Alphabet.
+Enchanting is the exception: it is not a text transform at all. The enchanting
+table alphabet is a *font*, and there is no Unicode block for it, so the strings
+are left in English and `ui_fonts` hands the window the rune face that
+tools/make_fonts.py builds from the resource pack's own glyph sheet.
 """
 import re
 
@@ -72,6 +69,15 @@ PIRATE = {
     "than": "than", "one": "one", "least": "least", "must": "must",
     "unique": "one of a kind", "short": "brief", "big": "grand",
     "mode": "way", "offset": "bearin'", "transparency": "ghostliness",
+    ## the labels that were coming through in plain English
+    "get": "fetch", "global": "world-wide", "cords": "bearin's",
+    "coordinates": "bearin's", "corner": "nook", "update": "refit",
+    "browse": "rummage", "advanced": "seasoned", "bundle": "lash on",
+    "system": "as she be", "light": "sunlit", "dark": "murky",
+    "added": "hoisted", "removed": "keelhauled", "cleared": "swabbed",
+    "help": "aid", "about": "concernin'", "website": "port o' call",
+    "report": "log", "issue": "trouble", "original": "first",
+    "authors": "scribes", "clear": "swab", "reset": "rig anew",
 }
 
 
@@ -103,6 +109,15 @@ LOLCAT = {
     "offset": "moovs", "transparency": "seethru", "mode": "mode",
     "unique": "wun of a kind", "least": "leest", "short": "smol",
     "big": "BIG", "must": "gotta", "in": "in", "game": "gaem",
+    ## the labels that were coming through in plain English
+    "get": "haz", "global": "big", "cords": "numberz",
+    "coordinates": "numberz", "corner": "cornr", "update": "updaet",
+    "browse": "luk", "advanced": "fancy", "bundle": "stuf in",
+    "system": "whatevr", "light": "brite", "dark": "nite",
+    "added": "gotted", "removed": "nommed", "cleared": "all gawn",
+    "help": "halp", "about": "bout", "website": "webz", "report": "tell",
+    "issue": "problum", "original": "orijinal", "authors": "peeplz",
+    "clear": "nom", "reset": "startz ovr",
 }
 
 
@@ -135,6 +150,15 @@ SHAKESPEARE = {
     "least": "least", "more": "more", "than": "than", "with": "with",
     "short": "brief", "big": "grand", "mode": "manner", "offset": "displacement",
     "transparency": "translucence", "game": "revel",
+    ## the labels that were coming through in plain English
+    "get": "fetch", "global": "worldly", "cords": "bearings",
+    "coordinates": "bearings", "corner": "nook", "update": "renew",
+    "browse": "peruse", "advanced": "learn'd", "bundle": "bind",
+    "system": "custom", "light": "fair", "dark": "sable",
+    "added": "join'd", "removed": "banish'd", "cleared": "purg'd",
+    "help": "succour", "about": "concerning", "website": "chronicle",
+    "report": "recount", "issue": "grievance", "original": "first",
+    "authors": "makers", "clear": "purge", "reset": "restore",
 }
 
 
@@ -172,21 +196,16 @@ def upside_down(text):
 
 # --- enchanting ------------------------------------------------------------
 
-## Rune-like stand-ins, one per letter, chosen to stay distinct from each other
-## at small sizes. See the note at the top of this file: the real enchanting
-## table alphabet is a font, so this evokes it rather than reproducing it.
-RUNES = {
-    "a": "ᔑ", "b": "ʖ", "c": "ᓵ", "d": "↸", "e": "ᒷ", "f": "⎓", "g": "⊣",
-    "h": "⍑", "i": "╎", "j": "⋮", "k": "ꖌ", "l": "ꖎ", "m": "ᒲ", "n": "リ",
-    "o": "𝙹", "p": "!¡", "q": "ᑑ", "r": "∷", "s": "ᓭ", "t": "ℸ", "u": "⚍",
-    "v": "⍊", "w": "∴", "x": "̇/", "y": "||", "z": "⨅",
-}
-
-
 def enchanting(text):
-    def go(chunk):
-        return "".join(RUNES.get(ch.lower(), ch) for ch in chunk)
-    return _apply(text, go)
+    """English, unchanged: the enchanting alphabet is a *font*.
+
+    This used to swap each letter for a rune-like Unicode character, which was
+    an impression of the alphabet rather than the alphabet. The glyphs now ship
+    as a real font built from the resource pack's own sheet, so the text is left
+    alone and the typeface does the work -- which is what the game does, and
+    what makes it decipherable letter by letter the way it is meant to be.
+    """
+    return text
 
 
 # --- registry --------------------------------------------------------------

@@ -32,11 +32,24 @@ class ConstructedLanguageTests(unittest.TestCase):
                 self.assertIn("{}", table[key], "%s/%s" % (name, key))
                 table[key].format("something")
 
-    def test_each_one_actually_changes_the_text(self):
+    def test_the_text_transforms_actually_change_the_text(self):
+        # Enchanting is deliberately not one of these: the enchanting alphabet
+        # is a font, so its strings stay in English and ui_fonts hands the
+        # window the rune face instead
         plain = self.english["makepack"]
         for name in lang_fun.names():
+            if name == "Enchanting":
+                continue
             self.assertNotEqual(lang_fun.translate(name, self.english)["makepack"],
                                 plain, "%s left the text alone" % name)
+
+    def test_enchanting_is_carried_by_the_font_not_by_substitution(self):
+        import ui_fonts
+        table = lang_fun.translate("Enchanting", self.english)
+        self.assertEqual(table, self.english)
+        # and the window is told to render it in the rune face
+        self.assertEqual(ui_fonts.LANGUAGE_FAMILY.get("Enchanting"),
+                         ui_fonts.SGA_FAMILY)
 
     def test_an_unknown_language_comes_back_unchanged(self):
         self.assertEqual(lang_fun.translate("Klingon", self.english), self.english)

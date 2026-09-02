@@ -1,9 +1,10 @@
 """Local release build.
 
 Runs the tests, freezes structura.py with PyInstaller using structura.spec, and
-writes the release: a **single self-contained executable**, and a zip of it for
-places that will not carry a bare .exe. Nothing has to be extracted alongside it
--- the lookup tables, the vanilla pack and the TechPack assets are all inside.
+writes the release: a **single self-contained executable**, a windowless twin of
+it for scripts, and a zip of both for places that will not carry a bare .exe.
+Nothing has to be extracted alongside either -- the lookup tables, the vanilla
+pack and the TechPack assets are all inside.
 
     python build.py                    full build
     python build.py --skip-tests       freeze and package without running tests
@@ -35,7 +36,9 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 BUILD = os.path.join(ROOT, "build")
 DIST = os.path.join(ROOT, "dist")
 SPEC = os.path.join(ROOT, "structura.spec")
+CLI_SPEC = os.path.join(ROOT, "structura_cli.spec")
 EXE_NAME = "Structura.exe" if os.name == "nt" else "Structura"
+CLI_NAME = "Structura-cli.exe" if os.name == "nt" else "Structura-cli"
 
 ## Directories the program reads at runtime. They are packed *inside*
 ## the executable -- see structura.spec -- so nothing here ships beside it any
@@ -77,10 +80,17 @@ def freeze():
         if os.path.isdir(path):
             shutil.rmtree(path)
     run([sys.executable, "-m", "PyInstaller", "--clean", "--noconfirm", SPEC],
-        "PyInstaller")
+        "PyInstaller: the window")
     exe = os.path.join(DIST, EXE_NAME)
     if not os.path.isfile(exe):
         sys.exit("Build stopped: PyInstaller produced no %s" % EXE_NAME)
+
+    ## the same pipeline with no interface, for scripts and batch jobs
+    run([sys.executable, "-m", "PyInstaller", "--noconfirm", CLI_SPEC],
+        "PyInstaller: the command line build")
+    cli = os.path.join(DIST, CLI_NAME)
+    if not os.path.isfile(cli):
+        sys.exit("Build stopped: PyInstaller produced no %s" % CLI_NAME)
     return exe
 
 
@@ -160,6 +170,9 @@ def package(exe, release_version):
     The licence travels with the binary because it has to; nothing else does.
     """
     entries = [(exe, EXE_NAME)]
+    cli = os.path.join(DIST, CLI_NAME)
+    if os.path.isfile(cli):
+        entries.append((cli, CLI_NAME))
     for name in LOOSE_FILES:
         path = os.path.join(ROOT, name)
         if os.path.isfile(path):

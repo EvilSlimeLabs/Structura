@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import shutil
@@ -16,6 +17,7 @@ import render_controller_class as rcc
 import paths
 import structure_reader
 import tech_pack
+import version
 
 debug=False
 
@@ -75,6 +77,8 @@ class structura:
         self.description=""
         self.tech_pack=False
         self._tech_pack_merged=False
+        ## only set when a big build is made; part of the fingerprint either way
+        self.big_offset=None
     def cleanup(self):
         """Drop the working tree. Safe to call twice; callers may use it in
         a finally so a failed build leaves nothing behind."""
@@ -166,31 +170,50 @@ class structura:
             self._apply_tech_pack()
             self.armorstand_entity.export(self.work_dir)## this may be in the wrong spot, but transferred from 1.5
         
+    ## What a block list says around the numbers. A front end that has
+    ## translations passes its own; the core keeps English so it is usable on
+    ## its own. The old header warned of "a known issue with variants" and said
+    ## every block was reported as Minecraft stores it -- neither is true any
+    ## more. get_block_list resolves each block, variant included, through
+    ## material_list_names.json into the name the game shows, which is why the
+    ## list reads "Copper Door" and not "copper_door".
+    LIST_HEADER = "Blocks needed for this build"
+    LIST_FOOTER = "Built with"
+
+    def set_list_labels(self, header=None, footer=None):
+        """Translated wording for the block list files, from the front end."""
+        if header:
+            self.LIST_HEADER = header
+        if footer:
+            self.LIST_FOOTER = footer
+
+    def _write_block_list(self, file_name, blocks, title=None):
+        with open(file_name, "w+", encoding="utf-8") as text_file:
+            text_file.write("{}\n".format(title or self.LIST_HEADER))
+            text_file.write("_" * 30 + "\n")
+            for name in blocks.keys():
+                commonName = name.replace("minecraft:", "")
+                text_file.write("{}: {}\n".format(commonName, blocks[name]))
+            text_file.write("_" * 30 + "\n")
+            text_file.write("{} {}\n".format(self.LIST_FOOTER,
+                                             self.get_lookup_version()))
+
     def make_nametag_block_lists(self):
         ## consider temp file
         file_names=[]
         for model_name in self.structure_files.keys():
             file_name="{}-{} block list.txt".format(self.pack_name,model_name)
             file_names.append(file_name)
-            all_blocks = self.structure_files[model_name]["block_list"]
-            with open(file_name,"w+") as text_file:
-                text_file.write("This is a list of blocks, there is a known issue with variants, all blocks are reported as minecraft stores them\n")
-                for name in all_blocks.keys():
-                    commonName = name.replace("minecraft:","")
-                    text_file.write("{}: {}\n".format(commonName,all_blocks[name]))
-
-                text_file.write("_"*10 + "\n")
-                text_file.write("Lookup version: {}\n".format(self.get_lookup_version()))
+            self._write_block_list(
+                file_name, self.structure_files[model_name]["block_list"],
+                title="{} - {}".format(self.LIST_HEADER, model_name)
+                if model_name else None)
         return file_names
     def make_big_blocklist(self):
         ## consider temp file
         file_name="{} block list.txt".format(self.pack_name)
-        with open(file_name,"w+") as text_file:
-            text_file.write("This is a list of blocks, there is a known issue with variants, all blocks are reported as minecraft stores them\n")
-            for name in self.all_blocks.keys():
-                commonName = name.replace("minecraft:","")
-                
-                text_file.write("{}: {}\n".format(commonName,self.all_blocks[name]))
+        self._write_block_list(file_name, self.all_blocks)
+        return file_name
 
     def _add_blocks_to_geo(self,struct2make,model_name,export_big=False):
         [xlen, ylen, zlen] = struct2make.get_size()
@@ -227,11 +250,12 @@ class structura:
                 variant = blockProp[2]
                 open_bit = blockProp[3]
                 data = blockProp[4]
+                hinge = blockProp[5]
                 if debug:
-                    armorstand.make_block(x, y, z, blk_name, rot = rot, top = top,variant = variant, trap_open=open_bit, data=data, big = export_big)
+                    armorstand.make_block(x, y, z, blk_name, rot = rot, top = top,variant = variant, trap_open=open_bit, data=data, hinge=hinge, big = export_big)
                 else:
                     try:
-                        armorstand.make_block(x, y, z, blk_name, rot = rot, top = top,variant = variant, trap_open=open_bit, data=data, big = export_big)
+                        armorstand.make_block(x, y, z, blk_name, rot = rot, top = top,variant = variant, trap_open=open_bit, data=data, hinge=hinge, big = export_big)
                     except Exception as e:
                         unsupported = UnsupportedBlock((x,y,z), block, variant)
                         self.unsupported_blocks.append(unsupported)
@@ -250,6 +274,38 @@ class structura:
             armorstand.export(self.work_dir)
             self.animation.export(self.work_dir)
         return struct2make.get_block_list()
+    @staticmethod
+    def _digest(path):
+        """A file's contents, as a short hex digest. Missing reads as missing."""
+        try:
+            with open(path, "rb") as handle:
+                return hashlib.sha256(handle.read()).hexdigest()[:32]
+        except OSError:
+            return "absent"
+
+    def fingerprint(self):
+        """Everything that went into this pack, as one stable string.
+
+        Two builds that would produce the same pack produce the same string, and
+        any change to a structure file or a setting changes it. That is what the
+        pack's UUID is derived from, so an unchanged rebuild is recognised as
+        the same pack and a changed one is not.
+        """
+        parts = ["name=" + self.display_name,
+                 "description=" + self.description,
+                 "opacity=%.4f" % self.opacity,
+                 "icon=" + self._digest(self.icon),
+                 "techpack=" + (tech_pack.version() if self.tech_pack else "off"),
+                 "big=" + (",".join(str(v) for v in self.big_offset)
+                           if getattr(self, "big_offset", None) else "off")]
+        for name in sorted(self.structure_files):
+            info = self.structure_files[name]
+            offsets = info.get("offsets") or [0, 0, 0]
+            parts.append("model=%s|%s|%s" % (
+                name, self._digest(info["file"]),
+                ",".join(str(v) for v in offsets)))
+        return "\n".join(parts)
+
     def compile_pack(self, overwrite=False):
         ## consider temp file
         nametags=list(self.structure_files.keys())
@@ -258,7 +314,8 @@ class structura:
         listed=[tag for tag in nametags if tag]
         manifest.export(self.work_dir,self.display_name,nameTags=listed,
                         user_text=self.description,
-                        tech_pack_version=tech_pack.version() if self.tech_pack else None)
+                        tech_pack_version=tech_pack.version() if self.tech_pack else None,
+                        fingerprint=self.fingerprint())
         copyfile(self.icon, f"{self.work_dir}/pack_icon.png")
         larger_render = paths.lookup("armor_stand.larger_render.geo.json")
         larger_render_path = f"{self.work_dir}/models/entity/armor_stand.larger_render.geo.json"
@@ -286,6 +343,7 @@ class structura:
         rot = None
         top = False
         open_bit = False
+        hinge = False
         data=0
         variant="default"
         for key in nbt_def.keys():
@@ -305,6 +363,8 @@ class structura:
                     top = bool(top_state)
             if nbt_def[key]== "open_bit" and "open_bit" in block["states"].keys():
                 open_bit = bool(block["states"][key])
+            if nbt_def[key]== "hinge" and key in block["states"].keys():
+                hinge = bool(block["states"][key])
             if nbt_def[key]== "data" and key in block["states"].keys():
                 data = int(block["states"][key])
             if key == "rail_direction" and key in block["states"].keys():
@@ -319,7 +379,7 @@ class structura:
                 if bool(block["states"]["stripped_bit"]):
                     keys+="_stripped"
                 variant = ["wood",keys]
-        return [rot, top, variant, open_bit, data]
+        return [rot, top, variant, open_bit, data, hinge]
     def get_nametags(self):
         """The name tags in this pack, in the order they were added."""
         return list(self.structure_files.keys())
@@ -361,13 +421,11 @@ class structura:
         return count
 
     def get_lookup_version(self) -> str:
+        """Which build of the lookup tables produced this pack.
+
+        The tables ship with the program, so the program's own version names
+        them. lookup_version.json only means anything once a drop has been
+        pulled from the update server, which this fork does not use -- reporting
+        its shipped contents printed a date from somebody else's release.
         """
-        Get the version from lookup_version.json.
-        :return:
-        """
-        look_up_path = paths.lookup("lookup_version.json")
-        if os.path.isfile(look_up_path):
-            with open(look_up_path) as file:
-                version_data = json.load(file)
-                return version_data["version"]
-        return "No version found"
+        return "Structura {}".format(version.read())

@@ -5149,8 +5149,8 @@
     "textures": "spruce_log_side"
   },
   "acacia_hanging_sign": {
-    "sound": "hanging_sign",
-    "textures": "acacia_sign"
+    "sound": "wood",
+    "textures": "acacia_hanging_sign"
   },
   "bamboo_block": {
     "sound": "bamboo_wood",
@@ -5184,8 +5184,8 @@
     "textures": "bamboo_fence_gate"
   },
   "bamboo_hanging_sign": {
-    "sound": "bamboo_wood_hanging_sign",
-    "textures": "bamboo_sign"
+    "sound": "wood",
+    "textures": "bamboo_hanging_sign"
   },
   "bamboo_mosaic": {
     "sound": "bamboo_wood",
@@ -5232,8 +5232,8 @@
     "textures": "bamboo_sign"
   },
   "birch_hanging_sign": {
-    "sound": "hanging_sign",
-    "textures": "birch_sign"
+    "sound": "wood",
+    "textures": "birch_hanging_sign"
   },
   "black_carpet": {
     "sound": "cloth",
@@ -5301,8 +5301,8 @@
     "textures": "cherry_planks"
   },
   "cherry_hanging_sign": {
-    "sound": "cherry_wood_hanging_sign",
-    "textures": "stripped_cherry_log_side"
+    "sound": "wood",
+    "textures": "cherry_hanging_sign"
   },
   "cherry_leaves": {
     "sound": "cherry_leaves",
@@ -5364,16 +5364,16 @@
     }
   },
   "crimson_hanging_sign": {
-    "sound": "nether_wood_hanging_sign",
-    "textures": "crimson_sign"
+    "sound": "wood",
+    "textures": "crimson_hanging_sign"
   },
   "cyan_carpet": {
     "sound": "cloth",
     "textures": "wool_colored_cyan"
   },
   "dark_oak_hanging_sign": {
-    "sound": "hanging_sign",
-    "textures": "darkoak_sign"
+    "sound": "wood",
+    "textures": "dark_oak_hanging_sign"
   },
   "dead_brain_coral": {
     "carried_textures": "dead_brain_coral",
@@ -5402,7 +5402,11 @@
   },
   "decorated_pot": {
     "sound": "decorated_pot",
-    "textures": "decorated_pot"
+    "textures": {
+      "down": "decorated_pot",
+      "up": "decorated_pot",
+      "side": "decorated_pot_side"
+    }
   },
   "fire_coral": {
     "carried_textures": "fire_coral",
@@ -5423,8 +5427,8 @@
     "textures": "horn_coral"
   },
   "jungle_hanging_sign": {
-    "sound": "hanging_sign",
-    "textures": "jungle_sign"
+    "sound": "wood",
+    "textures": "jungle_hanging_sign"
   },
   "light_blue_carpet": {
     "sound": "cloth",
@@ -5443,12 +5447,12 @@
     "textures": "wool_colored_magenta"
   },
   "mangrove_hanging_sign": {
-    "sound": "hanging_sign",
-    "textures": "mangrove_sign"
+    "sound": "wood",
+    "textures": "mangrove_hanging_sign"
   },
   "oak_hanging_sign": {
-    "sound": "hanging_sign",
-    "textures": "sign"
+    "sound": "wood",
+    "textures": "oak_hanging_sign"
   },
   "orange_carpet": {
     "sound": "cloth",
@@ -5504,8 +5508,8 @@
     }
   },
   "spruce_hanging_sign": {
-    "sound": "hanging_sign",
-    "textures": "spruce_sign"
+    "sound": "wood",
+    "textures": "spruce_hanging_sign"
   },
   "stripped_bamboo_block": {
     "sound": "bamboo_wood",
@@ -5549,8 +5553,8 @@
     "textures": "tube_coral"
   },
   "warped_hanging_sign": {
-    "sound": "nether_wood_hanging_sign",
-    "textures": "warped_sign"
+    "sound": "wood",
+    "textures": "warped_hanging_sign"
   },
   "white_carpet": {
     "sound": "cloth",
@@ -5746,9 +5750,8 @@
     "textures": "nether_brick_wall"
   },
   "open_eyeblossom": {
-    "carried_textures": "open_eyeblossom_carried",
     "sound": "eyeblossom",
-    "textures": "open_eyeblossom"
+    "textures": "eyeblossom_blooming"
   },
   "oxidized_chiseled_copper": {
     "sound": "copper",
@@ -5792,8 +5795,8 @@
     "textures": "pale_oak_planks"
   },
   "pale_oak_hanging_sign": {
-    "sound": "hanging_sign",
-    "textures": "pale_oak_planks"
+    "sound": "wood",
+    "textures": "pale_oak_hanging_sign"
   },
   "pale_oak_leaves": {
     "ambient_occlusion_exponent": 0.8,
@@ -6115,8 +6118,8 @@
     }
   },
   "copper_golem_statue": {
-    "sound": "copper_golem_statue",
-    "textures": "copper_block"
+    "sound": "copper",
+    "textures": "copper_golem"
   },
   "copper_lantern": {
     "carried_textures": "copper_lantern_carried",
@@ -6164,8 +6167,8 @@
     }
   },
   "exposed_copper_golem_statue": {
-    "sound": "copper_golem_statue",
-    "textures": "exposed_copper"
+    "sound": "copper",
+    "textures": "copper_golem"
   },
   "exposed_copper_lantern": {
     "carried_textures": "exposed_copper_lantern_carried",
@@ -6220,8 +6223,8 @@
     }
   },
   "oxidized_copper_golem_statue": {
-    "sound": "copper_golem_statue",
-    "textures": "oxidized_copper"
+    "sound": "copper",
+    "textures": "copper_golem"
   },
   "oxidized_copper_lantern": {
     "carried_textures": "oxidized_copper_lantern_carried",
@@ -6365,8 +6368,8 @@
     }
   },
   "waxed_copper_golem_statue": {
-    "sound": "copper_golem_statue",
-    "textures": "copper_block"
+    "sound": "copper",
+    "textures": "copper_golem"
   },
   "waxed_copper_lantern": {
     "carried_textures": "copper_lantern_carried",
@@ -6390,8 +6393,8 @@
     }
   },
   "waxed_exposed_copper_golem_statue": {
-    "sound": "copper_golem_statue",
-    "textures": "exposed_copper"
+    "sound": "copper",
+    "textures": "copper_golem"
   },
   "waxed_exposed_copper_lantern": {
     "carried_textures": "exposed_copper_lantern_carried",
@@ -6425,8 +6428,8 @@
     }
   },
   "waxed_oxidized_copper_golem_statue": {
-    "sound": "copper_golem_statue",
-    "textures": "oxidized_copper"
+    "sound": "copper",
+    "textures": "copper_golem"
   },
   "waxed_oxidized_copper_lantern": {
     "carried_textures": "oxidized_copper_lantern_carried",
@@ -6455,8 +6458,8 @@
     }
   },
   "waxed_weathered_copper_golem_statue": {
-    "sound": "copper_golem_statue",
-    "textures": "weathered_copper"
+    "sound": "copper",
+    "textures": "copper_golem"
   },
   "waxed_weathered_copper_lantern": {
     "carried_textures": "weathered_copper_lantern_carried",
@@ -6485,8 +6488,8 @@
     }
   },
   "weathered_copper_golem_statue": {
-    "sound": "copper_golem_statue",
-    "textures": "weathered_copper"
+    "sound": "copper",
+    "textures": "copper_golem"
   },
   "weathered_copper_lantern": {
     "carried_textures": "weathered_copper_lantern_carried",
@@ -6502,5 +6505,13 @@
     "carried_textures": "wildflowers_carried",
     "sound": "pink_petals",
     "textures": "wildflowers"
+  },
+  "iron_chain": {
+    "sound": "chain",
+    "textures": {
+      "down": "chain1",
+      "side": "chain2",
+      "up": "chain1"
+    }
   }
 }

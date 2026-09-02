@@ -1,7 +1,7 @@
 """Reads lookups/langs.csv, one column per language.
 
 The CSV's column headings are the language's own name for itself, which is what
-belongs in a language picker. Each one also carries an ISO 639-1 code, because
+belongs in a language picker. Each one also carries an ISO 639-1 or ISO 639-2 code, because
 the picker labels languages by code rather than by flag: a flag is a country and
 several countries share a language, so a flag is the wrong symbol for the job.
 """
@@ -11,7 +11,7 @@ import os
 import lang_fun
 import paths
 
-## column heading -> ISO 639-1 code. A language with no entry falls back to the
+## column heading -> ISO 639-1/639-2 code. A language with no entry falls back to the
 ## first two letters of its own name, which is wrong often enough to be worth
 ## adding a row here rather than relying on.
 CODES = {

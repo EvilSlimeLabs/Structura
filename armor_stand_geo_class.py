@@ -173,7 +173,7 @@ class armorstandgeo:
         self.geometry["bones"].append(
             {"name": layer_name, "parent": "ghost_blocks"})#, "pivot": [-8, 0, 8]})
 
-    def make_block(self, x, y, z, block_name, rot=None, top=False,data=0, trap_open=False, parent=None,variant="default", big = False):
+    def make_block(self, x, y, z, block_name, rot=None, top=False,data=0, trap_open=False, parent=None,variant="default", big = False, hinge=False):
         # make_block handles all the block processing, This function does need cleanup and probably should be broken into other helperfunctions for legibility.
         block_type = self.defs[block_name]
         if block_type!="ignore":
@@ -196,6 +196,14 @@ class armorstandgeo:
             shape_variant="default"
             if block_type == "hopper" and rot is not None and rot != 0:
                 shape_variant="side"
+            elif block_type == "door" and trap_open:
+                ## a door that is standing open is a different shape, not the
+                ## closed one turned: open_bit was being read and thrown away,
+                ## so every open door was drawn shut. Which way it swings is the
+                ## hinge, which decides which side of the frame it folds back
+                ## against -- two doors of one facing and opposite hinges open
+                ## into different blocks.
+                shape_variant = "open_hinged" if hinge else "open"
             elif block_type == "trapdoor" and trap_open:
                 shape_variant = "open"
             elif block_type == "lever" and trap_open:
@@ -433,12 +441,27 @@ class armorstandgeo:
                 if "overwrite" in self.block_uv[block_type]["default"].keys():
                     corrected_textures = self.block_uv[block_type]["default"]["overwrite"]
             
+            ## An overwrite entry names the texture a particular cube of a
+            ## particular face should use. A literal path is used as given; a
+            ## value written "@up", "@down" or "@north" means "the texture this
+            ## block already declares for that face", which is how one family
+            ## can put a different texture on each part of a multi-part model
+            ## without knowing any block's texture names. A door is the reason:
+            ## every door declares its lower half on "down" and its upper half
+            ## on "side", and the model is two stacked cubes.
+            declared = dict(texture_files)
             for side in corrected_textures.keys():
                 if len(corrected_textures[side])>index:
-                    if corrected_textures[side][index] != "default":
-                        texture_files[side]=corrected_textures[side][index]
-                        if debug:
-                            print("{}: {}".format(side,texture_files[side]))
+                    chosen = corrected_textures[side][index]
+                    if chosen == "default":
+                        continue
+                    if isinstance(chosen, str) and chosen.startswith("@"):
+                        chosen = declared.get(chosen[1:])
+                        if chosen is None:
+                            continue
+                    texture_files[side]=chosen
+                    if debug:
+                        print("{}: {}".format(side,texture_files[side]))
             for key in texture_files.keys():
                 if texture_files[key] not in self.uv_map.keys():
                     try:
