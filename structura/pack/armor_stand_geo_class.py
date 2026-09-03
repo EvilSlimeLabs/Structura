@@ -21,6 +21,23 @@ EXCLUDED_BLOCKS = ("air", "structure_block")
 ## how a shape family names its simpler form, in block_shapes and block_uv
 LOW_SUFFIX = "__low"
 
+## Marks a window into a texture, written after the texture's name as
+## "<texture>#<x>,<y>". Only the top left 16x16 of a texture becomes a tile, so
+## a block drawn from an entity sized sheet -- a hanging sign's 64x32 sheet
+## carries the bar, the chains and the board one under the other -- can reach
+## the part it needs no other way. Each window becomes a tile of its own,
+## because the atlas is keyed by the whole name.
+WINDOW_MARK = "#"
+
+
+def split_window(texture):
+    """A texture's name, and the corner of the 16x16 window to take from it."""
+    if WINDOW_MARK not in texture:
+        return texture, (0, 0)
+    name, _, corner = texture.partition(WINDOW_MARK)
+    across, _, down = corner.partition(",")
+    return name, (int(across), int(down))
+
 ## Alpha the ghost blocks are drawn at when nothing sets one. The texture's
 ## alpha channel is multiplied by this, so it is a fraction, not a percentage.
 ## It is the counterpart of settings.DEFAULT_TRANSPARENCY: a caller that sets
@@ -261,9 +278,18 @@ class ArmorStandGeo:
             ## block unrotated rather than raising. The tables are keyed by the
             ## state's value, and a family can carry a rotation state its table
             ## has no entry for.
+            ## A form may also number its rotations differently from the rest of
+            ## the family, and says so with a "<variant>:<value>" key, which is
+            ## read first. A hanging sign on a wall turns with facing_direction,
+            ## four values, while one hanging from a block turns with
+            ## ground_sign_direction, sixteen values, and 2 means something
+            ## different in each.
             rotation = None
             if block_type in self.block_rotations.keys() and rot is not None:
-                rotation = self.block_rotations[block_type].get(str(rot))
+                rotation = self.block_rotations[block_type].get(
+                    "{}:{}".format(shape_variant, rot))
+                if rotation is None:
+                    rotation = self.block_rotations[block_type].get(str(rot))
                 if rotation is None and debug:
                     print("no rotation {} for block type {}".format(rot, block_type))
             if rotation is not None:
@@ -316,7 +342,14 @@ class ArmorStandGeo:
                 
                 for each_cube in temp_block_group["cubes"]:
                     cube_is_ready = False
-                    
+
+                    ## A cube that does not turn on its own is not a rotated
+                    ## cube. The shape table gives every cube a rotation as soon
+                    ## as one of them needs one, and treating a zero as a turn
+                    ## puts each of them in a bone of its own for nothing.
+                    if ( "rotation" in each_cube.keys() ) and ( each_cube["rotation"] is not None ) and not any( each_cube["rotation"] ):
+                        del each_cube["rotation"]
+
                     isRotatedCube = ( "rotation" in each_cube.keys() ) and ( "pivot" in each_cube.keys() )
                     if( isRotatedCube and ( each_cube["rotation"] is None or len( each_cube["rotation"] ) != 3 ) ):
                         isRotatedCube = False
@@ -371,16 +404,22 @@ class ArmorStandGeo:
                 ## next each_cube
                 
                 
+                ## A cube that went into a nested group of its own is drawn
+                ## there. Leaving it in the slice as well draws it twice, once
+                ## turned and once not, which is two ghost blocks in one place.
+                kept = [each_cube for each_cube in temp_block_group["cubes"]
+                        if not each_cube.get("flag_unnest_from_group")]
+
                 if each_group["name"] in self.blocks.keys():
-                    for each_cube in temp_block_group["cubes"]:
-                        if( has_nested_rotation == 0 or ( ( "flag_unnest_from_group" not in each_cube.keys() ) and ( each_cube["flag_unnest_from_group"] != True ) ) ):
-                            #TOCONSIDER: Git rid of unnecessary deepcopies
-                            self.blocks[each_group["name"]]["cubes"].append( copy.deepcopy(each_cube) )
+                    for each_cube in kept:
+                        #TOCONSIDER: Git rid of unnecessary deepcopies
+                        self.blocks[each_group["name"]]["cubes"].append( copy.deepcopy(each_cube) )
                 else:
                     if "rotation" in each_group.keys():
                         del each_group["rotation"]
                     if "pivot" in each_group.keys():
                         del each_group["pivot"]
+                    each_group["cubes"] = kept
                     #TOCONSIDER: Git rid of unnecessary deepcopies
                     self.blocks[each_group["name"]] = copy.deepcopy( each_group )
                 
@@ -415,8 +454,10 @@ class ArmorStandGeo:
                                     {"name": "ghost_blocks",
                                      "pivot": [-8, 0, 8]}]
 
-    def extend_uv_image(self, new_image_filename):
-        # helper function that just appends to the uv array to make things
+    def extend_uv_image(self, new_image_filename, window=(0, 0)):
+        # Appends one 16x16 tile to the atlas. `window` is the corner of the
+        # region to take, in pixels; a texture larger than a tile is cropped
+        # rather than scaled, so its pixels keep their size.
 
         # Fallback to a tga
         if not os.path.isfile(new_image_filename):
@@ -424,6 +465,17 @@ class ArmorStandGeo:
 
         image = Image.open(new_image_filename).convert("RGBA")
         impt = array(image)
+        ## A window past the edge of the texture is ignored rather than filled
+        ## with the blank the tile is built on. The blocks that name one are
+        ## drawn from a sheet, and a legacy id resolving to a plain terrain tile
+        ## is better off reading the tile than reading nothing.
+        across, down = window
+        if impt.shape[0] < down + 16 or impt.shape[1] < across + 16:
+            across, down = 0, 0
+        if down:
+            impt = impt[down:, :, :]
+        if across:
+            impt = impt[:, across:, :]
         shape=list(impt.shape)
         if shape[0]>16:
             shape[0]=16
@@ -478,17 +530,23 @@ class ArmorStandGeo:
                     if chosen == "default":
                         continue
                     if isinstance(chosen, str) and chosen.startswith("@"):
-                        chosen = declared.get(chosen[1:])
-                        if chosen is None:
+                        ## a window travels with the reference, so one entry can
+                        ## say "the board half of whatever sheet this wood has"
+                        reference, mark, window = chosen.partition(WINDOW_MARK)
+                        resolved = declared.get(reference[1:])
+                        if resolved is None:
                             continue
+                        chosen = resolved + mark + window
                     texture_files[side]=chosen
                     if debug:
                         print("{}: {}".format(side,texture_files[side]))
             for key in texture_files.keys():
                 if texture_files[key] not in self.uv_map.keys():
                     try:
+                        source, window = split_window(texture_files[key])
                         self.extend_uv_image(
-                            "{}/{}.png".format(self.ref_resource_pack, texture_files[key]))
+                            "{}/{}.png".format(self.ref_resource_pack, source),
+                            window)
                         self.uv_map[texture_files[key]] = len(self.uv_map.keys())
                     except Exception as e:
                         raise RuntimeError("Failed to load texture {}".format(texture_files[key]))

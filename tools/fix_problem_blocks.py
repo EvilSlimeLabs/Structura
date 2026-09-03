@@ -2,19 +2,19 @@
 
     python tools/fix_problem_blocks.py
 
-A block made of one cube can take the six textures Bedrock declares for it and be
-right. A block made of several cannot: every cube gets the same six, so a
-grindstone's legs are painted with the wheel's texture on top and a beacon's
-glass shell, its core and its obsidian base are all painted alike.
+A block made of one cube can take the six textures Bedrock declares for it and
+be right. A block made of several cannot, because every cube gets the same six,
+so a beacon's glass shell, its core and its obsidian base are all painted alike.
 
 `block_uv.json` has an `overwrite` list for exactly this, a texture per cube per
-face, and the families here are the ones that need one. A value written `@up` or
-`@down` means
-"whatever this block declares for that face", so one entry serves every wood a
-sign comes in and every state a campfire has, without naming a single texture
-file.
+face. A value written `@up` or `@down` means "whatever this block declares for
+that face", so one entry serves every wood a block comes in and every state it
+has, without naming a single texture file.
 
-Nothing here is needed at run time; it edits the lookup tables in place.
+The families whose forms differ by how they are mounted are written by
+`tools/make_block_forms.py` instead, which owns their shapes as well as their
+textures. Nothing here is needed at run time; it edits the lookup tables in
+place.
 """
 import io
 import json
@@ -58,31 +58,6 @@ def main():
     revise("beacon", "default", all_faces(["@down", "@up", "@north"]))
     changed.append("beacon")
 
-    ## --- bell: the bell, its crown, and the beam it hangs from --------------
-    ## the beam is the wood the block declares on its east face; the crown is
-    ## the bell top
-    revise("bell", "default", all_faces(["default", "@up", "@east"]))
-    changed.append("bell")
-
-    ## --- grindstone: two legs, two pivots, the wheel ------------------------
-    ## the legs are the log the block declares on down, the pivots the texture
-    ## it declares on north, and only the wheel keeps the block's own faces
-    revise("grindstone", "default",
-           all_faces(["@down", "@down", "@north", "@north", "default"]))
-    changed.append("grindstone")
-
-    ## --- campfire: four logs, lit or out ------------------------------------
-    ## A campfire declares its lit logs on the side faces and its dead ones on
-    ## down, so the two states are the same four cubes wearing different
-    ## textures. The soul campfire is the same family and gets its own lit
-    ## texture from the same reference.
-    revise("campfire", "0", all_faces(["@north"] * 4))       # burning
-    revise("campfire", "1", all_faces(["@down"] * 4))        # extinguished
-    revise("campfire", "default", all_faces(["@north"] * 4))
-    for variant in ("0", "1"):
-        shapes["campfire"][variant] = shapes["campfire"]["default"]
-    changed.append("campfire")
-
     ## --- tripwire hook: the plate, the hook, the wire -----------------------
     revise("tripwire_hook", "default",
            all_faces(["@down", "@north", "@east"]))
@@ -99,8 +74,6 @@ def main():
 
     for family in sorted(set(changed)):
         lookup_writer.put(UV, family, uv[family], tight=True)
-        if family in ("campfire",):
-            lookup_writer.put(SHAPES, family, shapes[family])
 
     print("gave %d families a texture per cube:" % len(set(changed)))
     for family in sorted(set(changed)):

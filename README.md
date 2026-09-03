@@ -144,25 +144,10 @@ the host — and otherwise uses (and creates) one in your home directory.
 
 ### Languages
 
-Labelled by ISO code rather than a flag, because a flag is a country and a
-country is not a language.
+Supported languages include English, Español, Tagalog, Cebuano, and more.
 
-**Real:** English, Українська, Español, 简体中文, Tagalog, Cebuano.
+To contribute a translation, see the [Translation Guide](docs/TRANSLATION.md).
 
-**Not real,** and badged in their own colours so you can tell:
-
-| | |
-| --- | --- |
-| **Enchanting** | rune-like script, in the spirit of the enchanting table |
-| **Pirate Speak** | *Hoist or drop an .mcstructure scroll t' include in this haul* |
-| **LOLCAT** | *Gimme or drop an .mcstructure fiel to include in this pak* |
-| **Shakespearean** | *Prithee add or drop an .mcstructure scroll* |
-| **ɥsᴉlƃuƎ** | the whole window, upside down |
-
-![Pirate Speak](docs/window_pirate.png)
-
-The joke languages are generated from the English strings rather than stored, so
-they cover every label automatically — including any added later.
 
 ![About](docs/about.png)
 

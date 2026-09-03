@@ -96,7 +96,7 @@ tools/                   one-off and maintenance scripts, not shipped
                           sync_vanilla_pack.py, lookup_writer.py,
                           make_low_geometry.py, make_bookshelf.py,
                           make_statue_poses.py, fix_problem_blocks.py,
-                          stage_tech_pack.py)
+                          make_block_forms.py, stage_tech_pack.py)
 tests/                   unittest suite
 test_structures/         .mcstructure files to generate against
 docs/                    user-facing documentation, including Block Notes.md,
@@ -466,11 +466,31 @@ table with no entry for the value a block carries draws it unrotated, silently.
 That is what made every door face the same way. The numbering is not the same for
 every block either — see `docs/Block Notes.md`.
 
+**A form may number its rotations differently from its family.** A
+`"<variant>:<value>"` key in `block_rotation.json` is read before the plain
+value. A hanging sign carries two rotation states and only one applies: fixed to
+the block above it turns with `ground_sign_direction` in sixteen steps, and
+swinging or wall mounted it turns with `facing_direction` in four, so 2 means
+something different in each. `core._process_block` picks the state.
+
 **One texture per cube, not per block.** A block built from several cubes cannot
 use Bedrock's six face textures directly; every cube would get the same six. The
 `overwrite` entry in `block_uv.json` gives a texture per cube per face, and a
 value written `@up` or `@down` means "whatever this block declares for that
 face", which is how one entry serves every wood a sign comes in.
+
+**Only the top left 16×16 of a texture becomes a tile.** A larger one is cropped,
+never scaled, so its pixels keep their size. A block drawn from an entity sized
+sheet says which part it needs by writing `#x,y` after the texture's name, and
+the window travels with an `@` reference: `"@north#0,12"` is the board half of
+whatever sheet that wood has. Each window is a tile of its own, and one that
+falls outside the texture is ignored.
+
+**How a block is mounted is a different shape, not the same shape moved.**
+`tools/make_block_forms.py` owns `hanging_sign`, `bell`, `grindstone` and
+`campfire` in both tables, and gives each mounting its own list of cubes. It also
+gives a lit campfire its fire, which is the only thing telling it from a dead one
+and a soul campfire from an ordinary one.
 
 **Edit the tables a family at a time.** `tools/lookup_writer.py` replaces one
 family's span and leaves the rest of the file byte for byte alone. `block_uv.json`
@@ -661,6 +681,7 @@ python tools/make_fonts.py                             rebuild the bundled faces
 python tools/make_low_geometry.py                      the simplified shapes
 python tools/make_bookshelf.py                         the bookshelf's 64 states
 python tools/make_statue_poses.py                      the copper golem's poses
+python tools/make_block_forms.py                       the mounted forms, and the fire
 ```
 
 `lookups/` and `Vanilla_Resource_Pack/` are opened by relative path, so all of

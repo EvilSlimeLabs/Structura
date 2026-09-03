@@ -72,9 +72,19 @@ The numbering is not the same for every block:
 - most blocks: `0` south, `1` west, `2` north, `3` east
 - **doors**: `0` east, `1` south, `2` west, `3` north
 - **trapdoors**: `0` east, `1` west, `2` south, `3` north
-- **standing and hanging signs**: sixteen steps of 22.5°, not four
+- **standing signs, and hanging signs fixed to the block above**: sixteen steps
+  of 22.5°, not four
 
 When adding a family, give it both the numbers and the words.
+
+**A form may number its rotations differently from the rest of its family**, and
+says so with a `"<variant>:<value>"` key, which is read before the plain value.
+A hanging sign needs this because Bedrock gives it two rotation states and only
+one applies: fixed to the underside of a block it turns with
+`ground_sign_direction`, sixteen steps, and swinging from a chain or mounted on
+a wall it turns with `facing_direction`, four values, the other reading zero.
+`core.py` picks the state, `block_rotation.json` scopes the four values to the
+forms that use them, and `2` means something different in each numbering.
 
 **Which way "facing 0" actually points is not knowable from here.** The tables
 follow the convention every existing entry uses; confirm a new one in a world.
@@ -121,6 +131,21 @@ families shared by many block ids.
 - **Some are entity sheets.** `copper_golem.png` is 64×64 and `oak_hanging_sign.png`
   is 64×32 — atlases laid out for an entity model, not tiles.
 
+Only the **top left 16×16** of a texture becomes a tile; a larger one is cropped,
+never scaled, so its pixels keep their size. A block drawn from a sheet says
+which part it needs by writing a window after the texture's name:
+
+```json
+"overwrite": {"north": ["@north#0,12", "@north#4,0"]}
+```
+
+`#x,y` is the corner of the 16×16 window, in pixels, and it travels with an `@`
+reference so one entry serves every wood. Each window becomes a tile of its own,
+because the atlas is keyed by the whole name. A hanging sign reads three: the bar
+at `#4,0`, the chains at `#0,6` and the board at `#0,12`. A window that falls
+outside the texture is ignored, so a legacy id resolving to a plain terrain tile
+still reads the tile.
+
 **UV `v` grows downward.** The upper half of a tile belongs on the upper half of
 a block. A bottom slab shows the *bottom* half of its texture. Getting this
 backwards is invisible on stone and obvious on planks.
@@ -165,16 +190,32 @@ Geometry numbers and UV values can be checked here. How they look cannot.
 - **Copper golem statue poses** are built from the same three pieces moved and
   leaned, not remodelled. They are distinguishable and upright; whether each
   matches the pose the game draws is unverified. `tools/make_statue_poses.py`.
-- **Bell and grindstone mountings** move the pieces rather than remodelling
-  them. A wall-bracketed grindstone really has no legs; here they are shortened.
-- **Hanging signs** do not yet distinguish hanging from a chain, hanging from a
-  block, or bracketed to a wall. The states are read (`attached_bit`, `hanging`)
-  but there is one shape.
-- **Campfires** distinguish lit from extinguished, but the fire itself is not
-  modelled — only the four logs.
+- **Which side a wall mounting attaches to** is taken from the convention
+  `wall_sign` uses: at 0° a block faces south, so the wall is behind it at
+  `z=0`, and a bell's beam, a grindstone's legs and a hanging sign's arm all run
+  that way. If they come out of the wrong face in a world, that convention is
+  what to flip.
+- **A grindstone fixed to two walls** puts legs into both, by analogy with the
+  bell's `multiple`, which spans two walls. The state appears in no test
+  structure, so this form has never been built from a real one.
+- **The campfire's fire** is two quads crossed through the middle of the block,
+  the way vanilla draws a flame, textured from frame 0 of the flipbook. It does
+  not animate: a ghost block has no flipbook.
 - **Two block tall flowers** take the block's `down` texture on the lower half
   and `up` on the upper. Bedrock's `side` texture for these is a different
   plant's back and should never be used.
+
+The forms a block takes from how it is mounted are written by
+`tools/make_block_forms.py`, which owns the shapes and the UV windows for
+`hanging_sign`, `bell`, `grindstone` and `campfire`. Each mounting is a
+different list of cubes rather than the same list moved:
+
+| Family | The forms, and what carries the block |
+| --- | --- |
+| `bell` | `standing` a beam across two stone posts, `multiple` the beam alone between two walls, `side` half a beam out of one wall, `hanging` no beam at all |
+| `grindstone` | `standing` legs to the floor, `hanging` legs to the block above, `side` legs into the wall behind, `multiple` legs into both |
+| `hanging_sign` | `0-1` chains, `1-1` a bar under the block it is fixed to, `0-0` a bar with an arm back to the wall. Named by `attached_bit` and `hanging`, joined the way `core.py` joins shape states |
+| `campfire` | `0` four logs and the fire, `1` the logs alone |
 
 ---
 

@@ -430,6 +430,19 @@ class Structura:
         if shape_states:
             data = "-".join(value for _key, value in sorted(shape_states))
 
+        ## A block carrying two rotation states is turned by only one of them.
+        ## A hanging sign has both, and which one applies is attached_bit: a
+        ## sign fixed to the underside of a block turns in sixteen steps with
+        ## ground_sign_direction, and one swinging from a chain or hung on a
+        ## wall turns with facing_direction, the other reading zero. The
+        ## block_rotation entries for those forms scope the four values to them,
+        ## since 2 means something different in each numbering.
+        states = block["states"]
+        if ("ground_sign_direction" in states.keys()
+                and "facing_direction" in states.keys()
+                and not bool(states.get("attached_bit", 0))):
+            rot = int(states["facing_direction"])
+
         ## and what the block entity says outranks both: it is the only record
         ## of the pose a statue was placed in
         if entity:

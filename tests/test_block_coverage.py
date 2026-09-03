@@ -101,6 +101,121 @@ class BlockBuildTests(unittest.TestCase):
             self.build(name)
 
 
+class MountingTests(unittest.TestCase):
+    """A block held up four different ways is four different shapes."""
+
+    def setUp(self):
+        self.geo = asgc.ArmorStandGeo("test", offsets=[0, 0, 0])
+
+    def cubes(self, name, **kwargs):
+        """Every cube one block produces, wherever it ended up."""
+        self.geo.blocks = {}
+        self.geo.make_block(0, 0, 0, name, **kwargs)
+        found = []
+        for group in self.geo.blocks.values():
+            for cube in group.get("cubes", []):
+                found.append((tuple(cube["origin"]), tuple(cube["size"])))
+        return found
+
+    def forms(self, name, variants, **kwargs):
+        return {variant: self.cubes(name, data=variant, **kwargs)
+                for variant in variants}
+
+    def test_a_bell_is_carried_differently_by_each_mounting(self):
+        # standing has two posts and a beam, between two walls only the beam,
+        # on one wall half of it, and under a block none of it
+        forms = self.forms("bell", ("standing", "multiple", "side", "hanging"))
+        self.assertEqual([len(form) for form in forms.values()], [5, 3, 3, 3])
+        for one, other in (("standing", "multiple"), ("multiple", "side"),
+                           ("side", "hanging")):
+            self.assertNotEqual(forms[one], forms[other],
+                                "a bell %s looks like one %s" % (one, other))
+
+    def test_a_grindstone_puts_its_legs_where_it_is_fixed(self):
+        forms = self.forms("grindstone",
+                           ("standing", "hanging", "side", "multiple"))
+        for one, other in (("standing", "hanging"), ("hanging", "side"),
+                           ("side", "multiple")):
+            self.assertNotEqual(forms[one], forms[other],
+                                "a grindstone %s looks like one %s" % (one, other))
+
+    def test_a_hanging_sign_shows_how_it_is_hung(self):
+        # named by attached_bit and hanging: chains under a block, a bar when
+        # attached to it, and a bar with an arm when mounted on a wall
+        forms = self.forms("oak_hanging_sign", ("0-1", "1-1", "0-0"))
+        self.assertEqual([len(form) for form in forms.values()], [3, 4, 5])
+        self.assertNotEqual(forms["0-1"], forms["1-1"])
+        self.assertNotEqual(forms["1-1"], forms["0-0"])
+
+    def test_a_hanging_sign_reads_the_state_its_mounting_turns_with(self):
+        # Bedrock gives it both, and only one applies: a sign fixed to the
+        # block above turns in sixteen steps with ground_sign_direction, and
+        # every other mounting turns with facing_direction, which is why the
+        # two numberings cannot share a rotation entry.
+        from structura import core
+
+        wall = {"states": {"attached_bit": 0, "hanging": 0,
+                           "facing_direction": 4, "ground_sign_direction": 0}}
+        fixed = {"states": {"attached_bit": 1, "hanging": 1,
+                            "facing_direction": 0, "ground_sign_direction": 10}}
+        self.assertEqual(core.Structura._process_block(None, wall)[0], 4)
+        self.assertEqual(core.Structura._process_block(None, fixed)[0], 10)
+
+    def test_each_mounting_turns_by_its_own_numbering(self):
+        def angle(variant, rot):
+            self.geo.blocks = {}
+            self.geo.make_block(0, 0, 0, "oak_hanging_sign", rot=rot,
+                                data=variant)
+            group = list(self.geo.blocks.values())[0]
+            return group["cubes"][0]["rotation"]
+
+        # 4 is west to a wall sign and 90 degrees round to an attached one
+        self.assertEqual(angle("0-0", 4), [0, 90, 0])
+        self.assertEqual(angle("1-1", 4), [0, 90.0, 0])
+        self.assertEqual(angle("1-1", 10), [0, 225.0, 0])
+
+    def test_a_lit_campfire_is_the_one_with_a_fire_on_it(self):
+        # the logs barely differ between lit and out, so the flame is what
+        # tells them apart, and which flame tells a soul campfire from the rest
+        lit = self.cubes("campfire", data="0")
+        out = self.cubes("campfire", data="1")
+        self.assertEqual(len(lit) - len(out), 2, "the flame is two quads")
+        self.assertEqual(len(self.cubes("soul_campfire", data="0")), len(lit))
+
+    def test_a_sheet_texture_is_read_a_window_at_a_time(self):
+        # A hanging sign's texture is an entity sized sheet carrying the bar,
+        # the chains and the board one under the other, and only the top left
+        # 16x16 of a texture becomes a tile. Each part names the window it
+        # needs, and each window is a tile of its own.
+        self.assertEqual(asgc.split_window("blocks/oak"), ("blocks/oak", (0, 0)))
+        self.assertEqual(asgc.split_window("blocks/oak#4,12"),
+                         ("blocks/oak", (4, 12)))
+
+        self.cubes("oak_hanging_sign", data="0-0")
+        self.cubes("oak_hanging_sign", data="0-1")
+        windows = [name for name in self.geo.uv_map if "#" in name]
+        self.assertEqual(len(set(windows)), 3,
+                         "the board, the bar and the chains are three windows")
+        self.assertEqual(len(set(self.geo.uv_map[name] for name in windows)), 3,
+                         "each window should be a tile of its own")
+
+    def test_a_window_larger_than_its_texture_is_ignored(self):
+        # every wood has its own sheet, and a block whose texture is a plain
+        # terrain tile must not end up reading blank space past the bottom of it
+        self.geo.blocks = {}
+        self.geo.make_block(0, 0, 0, "hanging_sign", data="0-1")
+        self.assertTrue(self.geo.blocks)
+
+    def test_a_cube_that_turns_on_its_own_is_drawn_once(self):
+        # a cube carrying its own rotation goes into a nested bone, and leaving
+        # it in the slice as well draws every campfire and statue twice
+        for name, variant in (("campfire", "0"), ("copper_golem_statue", "1")):
+            plain = self.cubes(name, data=variant)
+            turned = self.cubes(name, data=variant, rot="east")
+            self.assertEqual(len(plain), len(turned),
+                             "%s gains cubes when it is turned" % name)
+
+
 
 
 class GeometryDetailTests(unittest.TestCase):
