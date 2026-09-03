@@ -199,6 +199,14 @@ Things worth knowing before changing it:
   beside the program, so they survive
   replacing the executable and work when it is run from a folder the user cannot
   write to. An older `settings.json` is read once to carry a choice over.
+- **What is remembered describes the machine or the person, not the pack.** The
+  theme, the language, the output folder, the TechPack mode and the low geometry
+  switch are stored; the pack name, description, icon, offsets and transparency
+  are not. Low geometry is stored because whether a client can afford detailed
+  ghost blocks depends on the hardware and on Vibrant Visuals, and that answer
+  does not change between structures. Every setter in `settings.py` writes the
+  file, and `tests/test_interface.py` fails when a key in `DEFAULTS` has no
+  setter it checks.
 
 ### The generated pack's name and description
 

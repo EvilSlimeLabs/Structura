@@ -71,9 +71,17 @@ def default_output_dir():
 TECH_PACK_MODES = ("none", "compatibility", "full")
 DEFAULT_TECH_PACK = "none"
 
+## Whether the most detailed blocks are drawn as a simpler shape, remembered
+## between runs. It describes the machine rather than the pack: whether this
+## player's client can afford detailed ghost blocks depends on their hardware
+## and on whether they run Vibrant Visuals, and that answer does not change
+## between structures. Full detail is the default.
+DEFAULT_LOW_GEOMETRY = False
+
 DEFAULTS = {"lang": DEFAULT_LANGUAGE,
             "theme": DEFAULT_THEME,
             "tech_pack": DEFAULT_TECH_PACK,
+            "low_geometry": DEFAULT_LOW_GEOMETRY,
             "output_dir": ""}          # empty means "use the default"
 
 settings = dict(DEFAULTS)
@@ -166,6 +174,9 @@ def load():
         settings["theme"] = DEFAULT_THEME
     if settings.get("tech_pack") not in TECH_PACK_MODES:
         settings["tech_pack"] = DEFAULT_TECH_PACK
+    ## a switch is stored as a JSON boolean, but an older file or a hand edit
+    ## may hold 0 or 1, which mean the same thing
+    settings["low_geometry"] = bool(settings.get("low_geometry"))
     if not isinstance(settings.get("output_dir"), str):
         settings["output_dir"] = ""
     save()
@@ -199,6 +210,18 @@ def set_tech_pack(mode):
     settings["tech_pack"] = mode if mode in TECH_PACK_MODES else DEFAULT_TECH_PACK
     save()
     return settings["tech_pack"]
+
+
+def low_geometry():
+    """Whether to draw the detailed blocks as simpler shapes."""
+    return bool(settings.get("low_geometry", DEFAULT_LOW_GEOMETRY))
+
+
+def set_low_geometry(enabled):
+    """Remember whether the simpler shapes are wanted."""
+    settings["low_geometry"] = bool(enabled)
+    save()
+    return settings["low_geometry"]
 
 
 def set_theme(name):

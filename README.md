@@ -98,7 +98,7 @@ That is the whole flow. Everything else is optional:
 | **Offset** | Moves the ghost model relative to the armor stand, per structure. |
 | **Big Build Mode** | For builds larger than one structure block; see below. |
 | **Make Block Lists** | Writes a text file of every block the build needs, beside the pack. |
-| **Low Geometry** | Draws the most detailed blocks as simpler shapes; see below. |
+| **Low Geometry** | Draws the most detailed blocks as simpler shapes, and is remembered; see below. |
 | **TechPack** | What to do about the Bedrock Technical Resource Pack — see below. |
 | **Output folder** | Where finished packs land. Defaults to `Structura Builds` in your Documents, and is remembered. |
 
@@ -136,7 +136,8 @@ desktop by default; light and dark are there if you would rather pin it.
 
 ![The window in light mode](docs/window_light.png)
 
-Your theme, language and output folder are remembered in a `.structura` file.
+Your theme, language, output folder, TechPack choice and Low Geometry switch are
+remembered in a `.structura` file.
 Structura looks for one **next to the executable** first — put it there and the
 program is portable, carrying its settings on a stick and touching nothing on
 the host — and otherwise uses (and creates) one in your home directory.

@@ -663,6 +663,7 @@ class SettingsFileTests(unittest.TestCase):
             "lang": ("Español", settings.set_language),
             "theme": ("dark", settings.set_theme),
             "tech_pack": ("compatibility", settings.set_tech_pack),
+            "low_geometry": (True, settings.set_low_geometry),
             "output_dir": (os.path.join(os.path.expanduser("~"), "Somewhere"),
                            settings.set_output_dir),
         }
@@ -698,6 +699,16 @@ class SettingsFileTests(unittest.TestCase):
                 setter(value)
                 self.assertEqual(self.on_disk().get(key), settings.settings[key],
                                  "%s was not written to the file" % key)
+
+    def test_the_window_opens_with_the_remembered_low_geometry(self):
+        # the switch describes the machine, so it has to survive a restart
+        settings.set_low_geometry(True)
+        app = open_window()
+        try:
+            self.assertEqual(app.low_geometry.get(), 1)
+        finally:
+            app.destroy()
+            settings.set_low_geometry(False)
 
     def test_the_file_is_never_inside_the_package(self):
         # paths.beside_executable() means the package when not frozen, which is

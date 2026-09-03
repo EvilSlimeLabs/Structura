@@ -1425,8 +1425,9 @@ class App(ctk.CTk):
         # switches
         self.big_build = tkinter.IntVar()
         self.block_lists = tkinter.IntVar()
-        ## full detail is what a pack is for; the simpler drawing is the choice
-        self.low_geometry = tkinter.IntVar(value=0)
+        ## Remembered between runs, because it describes the machine the packs
+        ## are viewed on rather than any one pack. Full detail is the default.
+        self.low_geometry = tkinter.IntVar(value=int(settings.low_geometry()))
 
         switches = ctk.CTkFrame(panel, fg_color="transparent")
         switches.grid(row=r, column=0, sticky="ew", padx=16, pady=(16, 0)); r += 1
@@ -1435,8 +1436,8 @@ class App(ctk.CTk):
         self.switches = [
             self._switch(switches, 0, "bigbuild", self.big_build, self.on_big_build),
             self._switch(switches, 1, "lists", self.block_lists, None),
-            self._switch(switches, 2, "lowgeo", self.low_geometry, None,
-                         help_key="lowgeo help"),
+            self._switch(switches, 2, "lowgeo", self.low_geometry,
+                         self.on_low_geometry, help_key="lowgeo help"),
         ]
 
         ## Three answers rather than two: leave TechPack alone, declare it so a
@@ -1791,7 +1792,7 @@ class App(ctk.CTk):
             self.on_big_build()
         self.tech_pack.set(settings.set_tech_pack("none"))
         self.block_lists.set(0)
-        self.low_geometry.set(0)
+        self.low_geometry.set(int(settings.set_low_geometry(False)))
         self.big_offset = [0, 0, 0]
         for row in self.rows:
             row.offset = [0, 0, 0]
@@ -1887,6 +1888,10 @@ class App(ctk.CTk):
             return
         settings.set_tech_pack(mode)
         self.revalidate()
+
+    def on_low_geometry(self):
+        """Remember the choice, which outlives this pack and this session."""
+        settings.set_low_geometry(bool(self.low_geometry.get()))
 
     def on_big_build(self):
         """Swap the offset fields and the name tags without losing either.
