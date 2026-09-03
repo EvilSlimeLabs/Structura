@@ -3,16 +3,19 @@
 Draws a 5x5x5 isometric cube of hologram panes with the Structura S snaking
 through it in yellow concrete, and writes both icons the project ships:
 
-    lookups/pack_icon.png   256x256, over the Slime Lab background art. This is
+    structura/lookups/pack_icon.png
+                            256x256, over the Slime Lab background art. This is
                             the icon copied into every generated pack, where it
                             sits in Minecraft's pack list as a filled tile.
-    lookups/app_icon.png    256x256 on transparency. The window's own title bar
+    structura/lookups/app_icon.png
+                            256x256 on transparency. The window's own title bar
                             icon, which is composed against the title bar rather
                             than sitting in a tile of its own.
-    pack_icon.ico           the desktop icon, 16 px through 256 px, on
+    structura/images/pack_icon.ico
+                            the desktop icon, 16 px through 256 px, on
                             transparency. A taskbar or Explorer icon is composed
                             against whatever is behind it, so it carries the
-                            iconography alone -- a baked-in background would show
+                            iconography alone. A baked-in background would show
                             as a square tile against every theme.
 
 The block faces are real textures out of Vanilla_Resource_Pack; only the panes
@@ -28,13 +31,14 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PACK = os.path.join(ROOT, "Vanilla_Resource_Pack", "textures", "blocks")
-BACKGROUND = os.path.join(ROOT, "background_slimelab.png")
-PACK_ICON = os.path.join(ROOT, "lookups", "pack_icon.png")
-APP_ICON = os.path.join(ROOT, "lookups", "app_icon.png")
-DESKTOP_ICON = os.path.join(ROOT, "pack_icon.ico")
+PACK = os.path.join(ROOT, "structura", "Vanilla_Resource_Pack",
+                    "textures", "blocks")
+BACKGROUND = os.path.join(ROOT, "art", "background_slimelab.png")
+PACK_ICON = os.path.join(ROOT, "structura", "lookups", "pack_icon.png")
+APP_ICON = os.path.join(ROOT, "structura", "lookups", "app_icon.png")
+DESKTOP_ICON = os.path.join(ROOT, "structura", "images", "pack_icon.ico")
 
-# --- the two decisions ------------------------------------------------------
+# --- the look ---------------------------------------------------------------
 GRID_RGB = (214, 236, 250)   # "ice": cyan pulled most of the way to white
 GRID_A = 92                  # rim alpha, on a single width line
 FILL_A = 5                   # interior tint, so a cell reads as filled air
@@ -164,7 +168,7 @@ def cell_sprite(faces, w, h, v):
 
     The three quads share their edges and a polygon fill includes its boundary,
     so a translucent texture drawn face by face doubles along every seam. The
-    masks are made exclusive to stop that -- but only across the faces this cube
+    masks are made exclusive to stop that, but only across the faces this cube
     actually draws, since a culled face cannot hand on its share of an edge.
     """
     out = Image.new("RGBA", (2 * w, 2 * h + v), (0, 0, 0, 0))

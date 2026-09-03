@@ -9,12 +9,12 @@ if os.path.isfile(pack_file):
     os.remove(pack_file)
 os.chdir(root)
 
-from structura_core import structura
+from structura.core import Structura
 
 opacity = 20
 offset = [0, 0, 0]
 
-structura_base = structura(pack_name)
+structura_base = Structura(pack_name)
 structura_base.set_opacity(opacity)
 
 structura_base.add_model("", structure)

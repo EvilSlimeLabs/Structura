@@ -1,22 +1,18 @@
 # -*- mode: python ; coding: utf-8 -*-
-# Driven by build.py, which runs the tests, freezes with this spec and then zips
-# the executable. structura_cli.spec beside it builds the windowless twin from
-# the same data, with the interface libraries excluded.
+# Builds the console executable, the twin of structura.spec's windowed one. It
+# carries the same data with the interface libraries excluded. Driven by
+# build.py, which runs the tests, freezes both specs and then zips the pair.
 #
-# The release is a **single self-contained executable**. Everything the
-# program reads -- the lookup tables, the trimmed vanilla resource pack, the
-# parts of the TechPack submodule a generated pack needs, the VERSION file and
-# the branding -- is packed inside it and unpacked at run time into the private
-# folder PyInstaller points sys._MEIPASS at. paths.py resolves every data read
-# through there.
+# The release is a **single self-contained executable**. Everything the program
+# reads is packed inside it: the lookup tables, the trimmed vanilla resource
+# pack, the parts of the TechPack submodule a generated pack needs,
+# pyproject.toml, which holds the version, and the branding. It is unpacked at
+# run time into the private folder PyInstaller points sys._MEIPASS at, and
+# paths.py resolves every data read through there.
 #
 # A copy of any of those directories placed *beside* the executable still wins,
-# which is what keeps the updater working: a bundle is read only, so an update
-# drop lands next to the exe and paths.py finds it first.
-#
-# Also listed here is library data the program never names itself and so cannot
-# find by path: CustomTkinter loads its colour themes and widget fonts from JSON
-# inside its own package, and tkinterdnd2 loads a compiled tkdnd library.
+# because a bundle is read only. An edited lookup table dropped next to the exe
+# takes effect without a rebuild, and paths.py finds it first.
 
 import os
 
@@ -28,12 +24,6 @@ from PyInstaller.utils.hooks import collect_data_files
 ## business in a release. Kept in step with build.py.
 SKIP_SUFFIXES = (".afphoto", ".xcf", ".psd", ".py", ".pyc")
 SKIP_NAMES = {"easyItems.txt", "Thumbs.db", ".DS_Store"}
-
-## be_tech_pack is a whole add-on repository; only the folders a generated pack
-## actually draws from are worth carrying.
-TECH_PACK_KEEP = ("animation_controllers", "animations", "entity", "materials",
-                  "models", "particles", "render_controllers", "textures")
-
 
 def tree(folder, into=None):
     """Every shippable file under `folder`, as PyInstaller (source, dest) pairs."""
@@ -50,17 +40,23 @@ def tree(folder, into=None):
     return found
 
 
-datas = tree("lookups") + tree("Vanilla_Resource_Pack")
-datas += [("VERSION", ".")]
-## no window, so no fonts
-for folder in TECH_PACK_KEEP:
-    source = os.path.join("be_tech_pack", folder)
+## Structura's data lives inside the package, which is what makes the project
+## pip installable; paths.py looks for it beside the executable, then in the
+## bundle, then in the package, so unpacking it at the bundle root works.
+## No window here, so no fonts and no pictures.
+datas = []
+for folder in ("lookups", "Vanilla_Resource_Pack"):
+    source = os.path.join("structura", folder)
     if os.path.isdir(source):
-        datas += tree(source, os.path.join("be_tech_pack", folder))
-for extra in ("manifest.json", "LICENSE", "README.md"):
-    path = os.path.join("be_tech_pack", extra)
-    if os.path.isfile(path):
-        datas += [(path, "be_tech_pack")]
+        datas += tree(source, folder)
+
+## pyproject.toml holds the version, and there is no installed distribution to
+## read it out of once this is frozen, so the file itself comes along
+datas += [("pyproject.toml", ".")]
+## TechPack's assets, staged into the package by tools/stage_tech_pack.py so
+## that a pip install carries them too. The submodule itself is not shipped.
+if os.path.isdir(os.path.join("structura", "techpack")):
+    datas += tree(os.path.join("structura", "techpack"), "techpack")
 
 # --- library data ----------------------------------------------------------
 
@@ -72,16 +68,22 @@ hiddenimports = []
 
 
 a = Analysis(
-    ['structura_cli.py'],
-    pathex=[],
+    ['structura/cli/__main__.py'],
+    ## the entry script lives inside the package it imports, so the tree
+    ## above it has to be on the path for `import cli` to resolve
+    pathex=[SPECPATH],
     binaries=[],
     datas=datas,
     hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=['customtkinter', 'tkinterdnd2', 'darkdetect',
-              'structura_gui', 'ui_fonts', 'ui_icons', 'lang_icons'],
+    ## The window and everything behind it. Nothing this entry point imports
+    ## reaches `structura.ui`, because the language tables both halves need sit
+    ## in the shared layer. This is a guard rather than a load-bearing list. If
+    ## the interface ever creeps back into the command line's imports, the build
+    ## fails here instead of quietly growing by six megabytes.
+    excludes=['customtkinter', 'tkinterdnd2', 'darkdetect', 'structura.ui'],
     noarchive=False,
     optimize=0,
 )
@@ -94,7 +96,7 @@ exe = EXE(
     a.datas,
     [],
     name='Structura-cli',
-    icon='pack_icon.ico',
+    icon='structura/images/pack_icon.ico',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

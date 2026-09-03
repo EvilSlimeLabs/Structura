@@ -2,7 +2,8 @@ import json
 import re
 import unittest
 
-import armor_stand_geo_class as asgc
+from structura import paths
+from structura.pack import armor_stand_geo_class as asgc
 
 ## Education Edition and other blocks no vanilla pack ships textures for. They
 ## are declared so a structure containing one is named rather than mysterious,
@@ -14,7 +15,8 @@ UNRESOLVABLE = re.compile(r"^(element_\d+|chemistry_table|chemical_heat"
 
 
 def load(name):
-    with open("lookups/%s.json" % name, encoding="utf-8") as f:
+    # through paths, so the suite does not depend on where it was run from
+    with open(paths.lookup(name + ".json"), encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -22,8 +24,8 @@ class LookupTableTests(unittest.TestCase):
     """The three tables that describe a block have to agree with each other.
 
     A block_definition entry naming a shape family that block_shapes does not
-    describe raises inside make_block, which _add_blocks_to_geo catches -- so a
-    disagreement here does not fail a build, it quietly empties one out of it.
+    describe raises inside make_block, which _add_blocks_to_geo catches, so a
+    disagreement here does not fail a build. It quietly empties one out of it.
     """
 
     @classmethod
@@ -58,10 +60,10 @@ class LookupTableTests(unittest.TestCase):
 
 
 class BlockBuildTests(unittest.TestCase):
-    """Blocks that used to be dropped, and the states that dropped them."""
+    """Blocks that are easy to drop, built in the states that drop them."""
 
     def setUp(self):
-        self.geo = asgc.armorstandgeo("test", offsets=[0, 0, 0])
+        self.geo = asgc.ArmorStandGeo("test", offsets=[0, 0, 0])
 
     def build(self, name, **kwargs):
         self.geo.blocks = {}
@@ -97,6 +99,166 @@ class BlockBuildTests(unittest.TestCase):
         for name in ("oak_shelf", "sulfur_spike", "copper_golem_statue",
                      "heavy_core"):
             self.build(name)
+
+
+
+
+class GeometryDetailTests(unittest.TestCase):
+    """The low geometry setting, and the simplified shapes it reaches for."""
+
+    def tables(self):
+        import json
+        from structura import paths
+        with open(paths.lookup("block_shapes.json")) as handle:
+            shapes = json.load(handle)
+        with open(paths.lookup("block_uv.json")) as handle:
+            uv = json.load(handle)
+        return shapes, uv
+
+    def test_every_simplified_shape_is_in_both_tables(self):
+        # a family described in one table and not the other silently falls back
+        # to default, which is how a half-height cube ends up wearing a
+        # full-height texture
+        from structura.pack import armor_stand_geo_class as asgc
+
+        shapes, uv = self.tables()
+        for name in shapes:
+            if name.endswith(asgc.LOW_SUFFIX):
+                self.assertIn(name, uv, "%s has a shape but no UV" % name)
+        for name in uv:
+            if name.endswith(asgc.LOW_SUFFIX):
+                self.assertIn(name, shapes, "%s has a UV but no shape" % name)
+
+    def test_a_simplified_shape_is_simpler(self):
+        from structura.pack import armor_stand_geo_class as asgc
+
+        shapes, _uv = self.tables()
+        found = 0
+        for name, body in shapes.items():
+            if not name.endswith(asgc.LOW_SUFFIX):
+                continue
+            found += 1
+            detailed = shapes[name[:-len(asgc.LOW_SUFFIX)]]["default"]["size"]
+            self.assertLess(len(body["default"]["size"]), len(detailed),
+                            "%s is no simpler than what it replaces" % name)
+        self.assertGreater(found, 0, "no simplified shapes at all")
+
+    def test_the_setting_reaches_the_geometry(self):
+        from structura.pack import armor_stand_geo_class as asgc
+
+        plain = asgc.ArmorStandGeo("t", low_geometry=True)
+        full = asgc.ArmorStandGeo("t", low_geometry=False)
+        # a family with a simpler form is swapped, one without is left alone
+        self.assertEqual(plain.simplify("bell"), "bell" + asgc.LOW_SUFFIX)
+        self.assertEqual(full.simplify("bell"), "bell")
+        self.assertEqual(plain.simplify("cube"), "cube")
+        self.assertEqual(plain.simplify("ignore"), "ignore")
+
+
+class ChiseledBookshelfTests(unittest.TestCase):
+    def test_every_arrangement_of_books_is_described(self):
+        # books_stored is a six bit number, so there are sixty-four of them
+        import json
+        from structura import paths
+        with open(paths.lookup("block_shapes.json")) as handle:
+            shapes = json.load(handle)["chiseled_bookshelf"]
+        with open(paths.lookup("block_uv.json")) as handle:
+            uv = json.load(handle)["chiseled_bookshelf"]
+        for mask in range(64):
+            self.assertIn(str(mask), shapes)
+            self.assertIn(str(mask), uv)
+            # the shelf itself, plus one panel for each book it holds
+            self.assertEqual(len(shapes[str(mask)]["size"]),
+                             1 + bin(mask).count("1"))
+
+    def test_the_front_texture_is_one_that_exists(self):
+        # blocks.json names chiseled_bookshelf_front, which no vanilla pack
+        # ships and terrain_texture.json has no entry for
+        import json
+        import os
+        from structura import paths
+        with open(paths.lookup("block_uv.json")) as handle:
+            uv = json.load(handle)["chiseled_bookshelf"]
+        for mask in ("0", "63"):
+            for texture in uv[mask]["overwrite"]["north"]:
+                self.assertTrue(
+                    os.path.isfile(os.path.join(paths.vanilla_pack(),
+                                                texture + ".png")),
+                    "%s is not in the vanilla pack" % texture)
+
+
+class LayeringTests(unittest.TestCase):
+    """The command line build has no interface in it, and must not grow one."""
+
+    def reachable(self, start):
+        """Every module in this tree that `start` can reach, directly or not."""
+        import ast
+        import io
+        import os
+
+        def imports_of(path):
+            tree = ast.parse(io.open(path, encoding="utf-8").read())
+            names = set()
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Import):
+                    names |= {a.name for a in node.names}
+                elif isinstance(node, ast.ImportFrom) and node.module:
+                    names.add(node.module)
+                    names |= {node.module + "." + a.name for a in node.names}
+            return names
+
+        def resolve(name):
+            base = name.replace(".", os.sep)
+            for candidate in (base + ".py", os.path.join(base, "__init__.py")):
+                if os.path.isfile(candidate):
+                    return candidate
+            return None
+
+        seen, queue = set(), [start]
+        while queue:
+            path = queue.pop()
+            if path in seen:
+                continue
+            seen.add(path)
+            for name in imports_of(path):
+                found = resolve(name)
+                if found and found not in seen:
+                    queue.append(found)
+        return seen
+
+    def test_the_command_line_never_reaches_the_window(self):
+        import os
+        reached = self.reachable(os.path.join("structura", "cli", "__main__.py"))
+        inside = os.path.join("structura", "ui") + os.sep
+        window = sorted(p for p in reached if p.startswith(inside))
+        self.assertEqual(window, [],
+                         "the command line build pulls in %s" % window)
+
+    def test_the_command_line_package_imports_no_interface(self):
+        import io
+        import os
+        folder = os.path.join("structura", "cli")
+        for name in sorted(os.listdir(folder)):
+            if not name.endswith(".py"):
+                continue
+            body = io.open(os.path.join(folder, name), encoding="utf-8").read()
+            where = "structura/cli/%s" % name
+            self.assertNotIn("from structura.ui import", body, where)
+            for line in body.split("\n"):
+                self.assertNotEqual(line.strip(), "from structura import ui", where)
+
+    def test_both_entry_points_share_one_argument_parser(self):
+        # a script written against one build has to run against the other
+        from structura import cli
+        first = cli.arguments.parse(["--structure", "a", "--pack_name", "b"])
+        self.assertEqual(first.tech_pack, "none")
+        self.assertFalse(first.low_geometry)
+        self.assertEqual(first.structure, "a")
+
+    def test_nothing_to_do_is_reported_rather_than_guessed(self):
+        # the entry points answer it differently, so cli.main must not decide
+        from structura import cli
+        self.assertEqual(cli.main([]), cli.NOTHING_ASKED)
 
 
 if __name__ == "__main__":

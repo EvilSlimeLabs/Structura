@@ -1,22 +1,13 @@
-# Runtime dependencies for the desktop program (structura.py).
-# Build tooling lives in requirements-build.txt.
+# Structura's dependencies are declared in pyproject.toml, which is where
+# PEP 621 says they belong. This file exists so that `pip install -r
+# requirements.txt` still does the right thing.
 #
-# tkinter ships with CPython and is not installable from PyPI. On Linux it
-# usually needs a system package such as python3-tk.
+#   pip install -e .            the library and the command line
+#   pip install -e ".[gui]"     and the desktop window
+#   pip install -e ".[dev]"     and everything needed to build a release
+#
+# tkinter is not installable from PyPI. It ships with CPython on Windows and
+# macOS; on Linux it is a system package (python3-tk on Debian and Ubuntu,
+# python3-tkinter on Fedora).
 
-nbtlib>=2.0.4,<3
-numpy>=1.24.2
-Pillow>=9.4.0
-requests>=2.32.0
-ujson>=5.10.0
-
-# The window. CustomTkinter draws the modern widgets on top of tkinter, so the
-# frozen build stays the size it was; darkdetect is what lets "system" follow
-# the desktop rather than guess.
-customtkinter>=6.0.0
-darkdetect>=0.8.0
-
-# Dropping files onto the window. Optional at runtime -- the window opens and
-# the add button works without it -- but installed by default because the drop
-# target is part of the design.
-tkinterdnd2>=0.4.0
+-e .[gui]

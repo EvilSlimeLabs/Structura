@@ -3,9 +3,7 @@ import shutil
 import tempfile
 import unittest
 
-import paths
-
-
+from structura import paths
 class ResolverTests(unittest.TestCase):
     def test_data_finds_the_lookup_tables(self):
         self.assertTrue(os.path.isfile(paths.lookup("block_definition.json")))
@@ -34,13 +32,13 @@ class WorkingDirectoryTests(unittest.TestCase):
 
     A frozen build runs from wherever the user put the executable, so every data
     read has to go through paths. Running the pipeline from an empty directory
-    is the cheapest way to catch a module that still assumes otherwise -- a
+    is the cheapest way to catch a module that still assumes otherwise: a
     missing `import paths` shows up here as the NameError it really is, rather
     than only in a release nobody has run yet.
     """
 
     def test_a_pack_builds_from_an_unrelated_working_directory(self):
-        import structura_core
+        from structura import core
         structure = os.path.abspath(
             os.path.join("test_structures", "stoneSlabs.mcstructure"))
         was = os.getcwd()
@@ -48,7 +46,7 @@ class WorkingDirectoryTests(unittest.TestCase):
         pack = None
         try:
             os.chdir(work)
-            pack = structura_core.structura(os.path.join(work, "CwdProbe"))
+            pack = core.structura(os.path.join(work, "CwdProbe"))
             pack.add_model("", structure)
             pack.set_model_offset("", [0, 0, 0])
             pack.generate_with_nametags()

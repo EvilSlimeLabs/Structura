@@ -1,9 +1,7 @@
 import unittest
 
-import lang_fun
-import lang_parse
-
-
+from structura import lang_fun
+from structura import lang_parse
 class ConstructedLanguageTests(unittest.TestCase):
     """The joke languages are generated from English, not stored.
 
@@ -44,7 +42,8 @@ class ConstructedLanguageTests(unittest.TestCase):
                                 plain, "%s left the text alone" % name)
 
     def test_enchanting_is_carried_by_the_font_not_by_substitution(self):
-        import ui_fonts
+        from structura.ui import ui_fonts
+
         table = lang_fun.translate("Enchanting", self.english)
         self.assertEqual(table, self.english)
         # and the window is told to render it in the rune face
@@ -56,7 +55,7 @@ class ConstructedLanguageTests(unittest.TestCase):
 
     def test_upside_down_reverses_the_line(self):
         # the whole line turns over, so the pieces swap ends as well as the
-        # letters -- otherwise it reads as flipped letters in English order
+        # letters. Turning only the letters reads as flipped English order.
         self.assertEqual(lang_fun.upside_down("ab"), "qɐ")
 
     def test_every_constructed_language_has_a_badge_code(self):

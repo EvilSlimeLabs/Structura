@@ -2,7 +2,7 @@ import unittest
 
 from nbtlib import Byte, String
 
-from structura_core import structura
+from structura.core import structura
 
 
 class SlabStateTests(unittest.TestCase):

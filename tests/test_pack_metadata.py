@@ -1,10 +1,9 @@
 import json
 import unittest
 
-import manifest
-import version
-
-
+from structura import paths
+from structura import version
+from structura.pack import manifest
 class DisplayNameTests(unittest.TestCase):
     """Every pack this program builds groups together in the player's list."""
 
@@ -16,8 +15,9 @@ class DisplayNameTests(unittest.TestCase):
         self.assertEqual(manifest.display_name(once), once)
 
     def test_the_derived_uuid_ignores_the_prefix(self):
-        # the prefix is presentation. Folding it into the UUID would have made
-        # every pack built by an older Structura look like a different pack.
+        # the prefix is presentation, so it stays out of the UUID: folding it
+        # in makes a pack built by a Structura without the prefix look like a
+        # different pack to the game.
         self.assertEqual(manifest.derived_pack_uuids("Sorter"),
                          manifest.derived_pack_uuids("Sorter"))
         self.assertNotEqual(manifest.derived_pack_uuids("Sorter"),
@@ -27,10 +27,10 @@ class DisplayNameTests(unittest.TestCase):
 class PackIdentityTests(unittest.TestCase):
     """A pack is identified by everything that went into it.
 
-    Deriving the UUID from the name alone made a rebuild an exact duplicate --
-    same UUID, same version, because the version is the Structura version -- and
-    the game refused the import. Deriving it from the content means an unchanged
-    rebuild really is the same pack, and any change is a different one.
+    Deriving the UUID from the content means an unchanged rebuild really is the
+    same pack and any change is a different one. The name alone cannot carry
+    that: two builds of a changed pack would share a UUID, and share a version
+    as well, because the version is the Structura version.
     """
 
     SAMPLE = "name=Sorter|opacity=0.35|model=a1b2"
@@ -108,21 +108,20 @@ class ManifestFileTests(unittest.TestCase):
             shutil.rmtree(work, ignore_errors=True)
 
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 class FingerprintTests(unittest.TestCase):
     """What the pack's identity is actually built from."""
 
     def make(self, **kw):
-        import structura_core
-        pack = structura_core.structura.__new__(structura_core.structura)
+        from structura import core
+        pack = core.structura.__new__(core.structura)
         pack.display_name = kw.get("name", "Sorter")
         pack.description = kw.get("description", "")
         pack.opacity = kw.get("opacity", 0.35)
-        pack.icon = kw.get("icon", "lookups/pack_icon.png")
+        pack.icon = kw.get("icon", paths.lookup("pack_icon.png"))
         pack.tech_pack = kw.get("tech_pack", False)
+        pack.low_geometry = kw.get("low_geometry", False)
         pack.big_offset = kw.get("big_offset", None)
         pack.structure_files = kw.get("models", {
             "": {"file": "test_structures/stoneSlabs.mcstructure",
@@ -136,6 +135,10 @@ class FingerprintTests(unittest.TestCase):
         base = self.make()
         for change in ({"name": "Other"}, {"description": "note"},
                        {"opacity": 0.5}, {"tech_pack": True},
+                       # the same structures drawn with simpler shapes are a
+                       # different pack, and must not replace the detailed one
+                       # already in the player's list
+                       {"low_geometry": True},
                        {"big_offset": [1, 2, 3]},
                        {"models": {"": {"file": "test_structures/rails.mcstructure",
                                         "offsets": [0, 0, 0]}}},
@@ -146,3 +149,53 @@ class FingerprintTests(unittest.TestCase):
 
     def test_a_missing_file_does_not_raise(self):
         self.assertIn("absent", self.make(icon="nowhere/at/all.png"))
+
+
+class VersionTests(unittest.TestCase):
+    """pyproject.toml is the only place a version is written down."""
+
+    def project(self):
+        import os
+        import tomllib
+        here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        with open(os.path.join(here, "pyproject.toml"), "rb") as handle:
+            return tomllib.load(handle)
+
+    def test_the_version_comes_from_pyproject(self):
+        self.assertEqual(version.read(), self.project()["project"]["version"])
+
+    def test_the_package_exposes_it_the_usual_way(self):
+        import structura
+        self.assertEqual(structura.__version__, version.read())
+
+    def test_it_is_written_down_exactly_once(self):
+        # a second copy is one that can disagree; version.read() is the only
+        # way anything should learn it
+        import os
+        import re
+        here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        wanted = re.compile(r"^%s$" % re.escape(version.read()))
+        found = []
+        for base, dirs, names in os.walk(os.path.join(here, "structura")):
+            dirs[:] = [d for d in dirs if d != "__pycache__"]
+            for name in names:
+                if not name.endswith(".py"):
+                    continue
+                path = os.path.join(base, name)
+                with open(path, encoding="utf-8") as handle:
+                    for line in handle:
+                        for literal in re.findall(r'"([^"]*)"|\'([^\']*)\'', line):
+                            text = literal[0] or literal[1]
+                            if wanted.match(text):
+                                found.append("%s: %s" % (name, line.strip()))
+        self.assertEqual(found, [], "the version is hardcoded somewhere")
+
+    def test_a_prerelease_suffix_cannot_break_a_manifest(self):
+        # a Bedrock manifest wants three integers and nothing else
+        self.assertEqual(len(version.as_tuple()), 3)
+        for part in version.as_tuple():
+            self.assertIsInstance(part, int)
+
+
+if __name__ == "__main__":
+    unittest.main()

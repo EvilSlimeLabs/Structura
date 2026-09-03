@@ -9,8 +9,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 os.chdir(ROOT)
 
-import structura_core
-structura_core.debug=True
+from structura import core
+core.debug=True
 files_to_conver={
         
         "":{"file":"test_structures/BigHatter/1.mcstructure",
@@ -22,7 +22,7 @@ if os.path.exists("tmp/speed.mcpack"):
 if os.path.exists("tmp/speed Nametags.txt"):
     os.remove("tmp/speed Nametags.txt")
 
-structura_base=structura_core.structura("tmp/speed")
+structura_base=core.structura("tmp/speed")
 for name_tag, info in files_to_conver.items():
     print(f'{name_tag}, {info}')
     

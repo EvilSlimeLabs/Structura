@@ -12,7 +12,7 @@ This drives the real pipeline rather than reimplementing it, so the block states
 are translated exactly as a user's build would translate them and the answer is
 whatever `get_skipped()` says. A block that fails to resolve is not an error:
 `make_block` raises, `_add_blocks_to_geo` catches it, and the block is recorded
-as unsupported -- which is why a missing lookup entry produces a quietly
+as unsupported. That is why a missing lookup entry produces a quietly
 incomplete model instead of a crash, and why this report is the only place it
 becomes visible.
 
@@ -27,9 +27,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import structura_core
-
-
+from structura import core
 def structures():
     return sorted(glob.glob(os.path.join("test_structures", "*.mcstructure")))
 
@@ -49,7 +47,7 @@ def survey(paths, quiet=True):
         pack = None
         stdout = sys.stdout
         try:
-            pack = structura_core.structura(os.path.join("coverage_probe"))
+            pack = core.structura(os.path.join("coverage_probe"))
             pack.add_model("probe", path)
             pack.set_model_offset("probe", [0, 0, 0])
             if quiet:

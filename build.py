@@ -1,37 +1,29 @@
 """Local release build.
 
-Runs the tests, freezes structura.py with PyInstaller using structura.spec, and
-writes the release: a **single self-contained executable**, a windowless twin of
+Runs the tests, freezes both entry points with PyInstaller (`structura/__main__.py`
+through structura.spec and `structura/cli/__main__.py` through structura_cli.spec)
+and writes the release: a **single self-contained executable**, a console twin of
 it for scripts, and a zip of both for places that will not carry a bare .exe.
-Nothing has to be extracted alongside either -- the lookup tables, the vanilla
-pack and the TechPack assets are all inside.
+Nothing has to be extracted alongside either. The lookup tables, the vanilla pack
+and the TechPack assets are all inside.
 
     python build.py                    full build
     python build.py --skip-tests       freeze and package without running tests
     python build.py --skip-freeze      repackage the executable already in dist/
-    python build.py --update-package   also build the lookup update package
 
-The update package is opt-in because this fork does not publish to the update
-server; the output is kept so repointing it later does not mean rewriting the
-packaging.
-
-The version comes from the VERSION file, which is packed into the executable so
+The version comes from pyproject.toml, which is packed into the executable so
 the frozen program can read it back.
 """
 import argparse
 import hashlib
-import json
 import os
 import shutil
 import subprocess
 import sys
 import zipfile
 
-import paths
-from datetime import date
-
-import version
-
+from structura import paths
+from structura import version
 ROOT = os.path.dirname(os.path.abspath(__file__))
 BUILD = os.path.join(ROOT, "build")
 DIST = os.path.join(ROOT, "dist")
@@ -40,21 +32,10 @@ CLI_SPEC = os.path.join(ROOT, "structura_cli.spec")
 EXE_NAME = "Structura.exe" if os.name == "nt" else "Structura"
 CLI_NAME = "Structura-cli.exe" if os.name == "nt" else "Structura-cli"
 
-## Directories the program reads at runtime. They are packed *inside*
-## the executable -- see structura.spec -- so nothing here ships beside it any
-## more. The list is still needed because the update package is built from it.
-DATA_DIRS = list(paths.DATA_DIRS)
+## What travels beside the executable in the release zip. Everything the
+## program reads is packed *inside* it, as structura.spec lays out, so this is
+## only the paperwork.
 LOOSE_FILES = ["LICENSE", "README.md"]
-
-## The TechPack submodule is packed into the executable by structura.spec, which
-## keeps its own list of the folders a generated pack draws from. It is
-## deliberately kept out of the update package -- the update server ships lookup
-## drops, not somebody else's resource pack.
-
-## Source art and one-off helper scripts that live in the data directories but
-## have no business in a release.
-EXCLUDE_SUFFIXES = (".afphoto", ".xcf", ".py", ".psd")
-EXCLUDE_NAMES = {"easyItems.txt", "test.py", "Thumbs.db", ".DS_Store"}
 
 
 def run(cmd, what):
@@ -75,7 +56,7 @@ def freeze():
         import PyInstaller  # noqa: F401
     except ImportError:
         sys.exit("Build stopped: PyInstaller is not installed.\n"
-                 "  python -m pip install -r requirements-build.txt")
+                 '  python -m pip install -e ".[dev]"')
     for path in (BUILD, DIST):
         if os.path.isdir(path):
             shutil.rmtree(path)
@@ -92,32 +73,6 @@ def freeze():
     if not os.path.isfile(cli):
         sys.exit("Build stopped: PyInstaller produced no %s" % CLI_NAME)
     return exe
-
-
-def should_ship(path):
-    name = os.path.basename(path)
-    if name in EXCLUDE_NAMES or name.startswith("."):
-        return False
-    return not name.endswith(EXCLUDE_SUFFIXES)
-
-
-def data_entries():
-    """(source path, archive name) for everything under the data directories."""
-    entries = []
-    skipped = 0
-    for data_dir in DATA_DIRS:
-        root_dir = os.path.join(ROOT, data_dir)
-        if not os.path.isdir(root_dir):
-            sys.exit("Build stopped: %s is missing" % data_dir)
-        for dirpath, dirnames, filenames in os.walk(root_dir):
-            dirnames[:] = [d for d in dirnames if not d.startswith(".")]
-            for filename in filenames:
-                path = os.path.join(dirpath, filename)
-                if not should_ship(path):
-                    skipped += 1
-                    continue
-                entries.append((path, os.path.relpath(path, ROOT).replace("\\", "/")))
-    return entries, skipped
 
 
 def write_zip(zip_path, entries):
@@ -137,34 +92,12 @@ def write_zip(zip_path, entries):
     return zip_path
 
 
-def stamp_lookup_version():
-    """The update server identifies a lookup drop by this string."""
-    today = date.today()
-    name = "update_package_%d-%d-%d" % (today.day, today.month, today.year)
-    path = os.path.join(ROOT, "lookups", "lookup_version.json")
-    with open(path, encoding="utf-8-sig") as f:
-        data = json.load(f)
-    data["version"] = name
-    with open(path, "w", encoding="utf-8", newline="") as f:
-        json.dump(data, f, indent=2)
-    return name
-
-
-def update_package():
-    """The lookup tables and the vanilla pack, for the update server."""
-    name = stamp_lookup_version()
-    entries, _ = data_entries()
-    path = write_zip(os.path.join(DIST, name + ".zip"), entries)
-    print("\n>> update package: %s (%d files)" % (os.path.basename(path), len(entries)))
-    return path
-
-
 def package(exe, release_version):
     """The release: the executable, and a zip of it.
 
     The executable is self-contained, so the zip exists only because some
     browsers and chat clients refuse a bare .exe download. Extracting it gives
-    you the program, not a folder you have to keep together -- which is the
+    the program itself, not a folder that has to be kept together, which is the
     whole point of the self-contained packaging.
 
     The licence travels with the binary because it has to; nothing else does.
@@ -192,13 +125,11 @@ def main():
                         help="do not run the unit tests first")
     parser.add_argument("--skip-freeze", action="store_true",
                         help="reuse the executable already in dist/")
-    parser.add_argument("--update-package", action="store_true",
-                        help="also build the lookup update package for the update server")
     args = parser.parse_args()
 
     release_version = version.read()
     if release_version == version.FALLBACK:
-        sys.exit("Build stopped: VERSION is missing or empty")
+        sys.exit("Build stopped: pyproject.toml declares no version")
     print("Structura %s" % release_version)
 
     if not args.skip_tests:
@@ -212,8 +143,6 @@ def main():
         exe = freeze()
 
     zip_path = package(exe, release_version)
-    if args.update_package:
-        update_package()
 
     digest = hashlib.sha256(open(zip_path, "rb").read()).hexdigest()
     print("\nBuilt %s" % os.path.relpath(exe, ROOT))

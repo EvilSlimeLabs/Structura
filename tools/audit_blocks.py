@@ -1,12 +1,12 @@
 """Resolve every block Structura claims to support down to a texture file.
 
     python tools/audit_blocks.py             what is broken here
-    python tools/audit_blocks.py --gaps      what the community pack has that we do not
+    python tools/audit_blocks.py --gaps      what the community pack has and this does not
     python tools/audit_blocks.py --tables    block_shapes / block_uv consistency
 
 Bedrock reports none of this. A block whose texture cannot be resolved raises
 inside `armorstandgeo.make_block`, `structura._add_blocks_to_geo` catches it,
-and the block is quietly dropped from the model into the skipped list — so a
+and the block is quietly dropped from the model into the skipped list, so a
 stale lookup table shows up as a build with holes in it, never as an error.
 """
 import argparse
@@ -17,10 +17,11 @@ import sys
 ## jsonc lives at the repository root: the generated pack reads the
 ## submodule's JSONC at runtime too, so it is shipped code, not a tool
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import jsonc
-
+from structura import jsonc
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OURS = os.path.join(ROOT, "Vanilla_Resource_Pack")
+## the data moved inside the package when the project became installable
+PACKAGE = os.path.join(ROOT, "structura")
+OURS = os.path.join(PACKAGE, "Vanilla_Resource_Pack")
 COMM = os.path.join(ROOT, "CommunityVanillaResourcePack")
 
 ## Education Edition and other blocks that no vanilla pack ships textures for.
@@ -101,7 +102,7 @@ def report_broken(defs, ours, comm):
 def report_gaps(defs, comm):
     missing = sorted({k for k in comm.blocks if k != "format_version"} - set(defs))
     print("=== IN THE COMMUNITY PACK, NOT IN block_definition.json (%d) ===" % len(missing))
-    print("   see BLOCK_COVERAGE_GAPS.md for the grouped list and what each needs\n")
+    print("   see docs/Block Notes.md for what a block needs\n")
     for block in missing:
         print("   " + block)
 
@@ -133,12 +134,12 @@ def main():
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--gaps", action="store_true",
-                        help="list blocks the community pack defines and we do not")
+                        help="list blocks the community pack defines and Structura does not")
     parser.add_argument("--tables", action="store_true",
                         help="check block_shapes against block_uv")
     args = parser.parse_args()
 
-    defs = jsonc.load(os.path.join(ROOT, "lookups/block_definition.json"))
+    defs = jsonc.load(os.path.join(PACKAGE, "lookups/block_definition.json"))
     ours = Pack(OURS)
     comm = Pack(COMM) if os.path.isdir(COMM) and os.path.isfile(os.path.join(COMM, "blocks.json")) else None
 
@@ -150,8 +151,8 @@ def main():
         return
     if args.tables:
         report_tables(defs,
-                      jsonc.load(os.path.join(ROOT, "lookups/block_shapes.json")),
-                      jsonc.load(os.path.join(ROOT, "lookups/block_uv.json")))
+                      jsonc.load(os.path.join(PACKAGE, "lookups/block_shapes.json")),
+                      jsonc.load(os.path.join(PACKAGE, "lookups/block_uv.json")))
         return
 
     unresolved = report_broken(defs, ours, comm)

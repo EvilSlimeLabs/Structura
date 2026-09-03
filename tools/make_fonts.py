@@ -4,8 +4,8 @@ Two of them cannot simply be copied in.
 
 **The CJK face.** Noto Sans SC is 17 MB because it carries every character in
 Simplified Chinese. The window needs the few hundred that appear in its own
-translations, so it is subset down to exactly those -- a hundredth of the size,
-for a file that renders every string the program can display. Re-run this after
+translations, so it is subset down to exactly those, a hundredth of the size for
+a file that renders every string the program can display. Re-run this after
 adding or changing a Chinese translation, or the new characters will be missing.
 
 **The enchanting face.** Minecraft's enchanting table script is a font, not a
@@ -27,7 +27,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FONTS = os.path.join(ROOT, "fonts")
+FONTS = os.path.join(ROOT, "structura", "fonts")
 LANGS = os.path.join(ROOT, "lookups", "langs.csv")
 SGA_SHEET = os.path.join(ROOT, "CommunityVanillaResourcePack", "font", "ascii_sga.png")
 
@@ -175,8 +175,8 @@ def build_sga(sheet_path):
 
     ## An advance per glyph, measured from the ink. Every cell is eight pixels
     ## across and no rune is wider than five, so a cell-wide advance spaced the
-    ## runes almost twice as far apart as the letters of any other language --
-    ## which is what pushed the interface's own labels past their controls.
+    ## runes almost twice as far apart as the letters of any other language,
+    ## which pushes the interface's own labels past their controls.
     metrics = {name: (int((width + SGA_LETTER_GAP) * scale), 0)
                for name, width in ink.items()}
     metrics[".notdef"] = (int((SGA_SPACE + SGA_LETTER_GAP) * scale), 0)
@@ -184,8 +184,9 @@ def build_sga(sheet_path):
     builder.setupHorizontalMetrics(metrics)
     builder.setupHorizontalHeader(ascent=int(upem * 0.8), descent=-int(upem * 0.2))
     ## Windows refuses to register a font that is missing the full name or the
-    ## unique identifier, and refuses it silently -- AddFontResourceEx simply
-    ## returns zero -- so every record GDI looks for is filled in here.
+    ## unique identifier, and refuses it silently, because AddFontResourceEx
+    ## returns zero and says no more. Every record GDI looks for is filled in
+    ## here.
     builder.setupNameTable({
         "familyName": SGA_FAMILY,
         "styleName": "Regular",

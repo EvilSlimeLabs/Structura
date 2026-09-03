@@ -1,0 +1,565 @@
+try:
+    import ujson as json
+except ImportError:
+    print("using built in json, but that is much slower, consider installing ujson")
+    import json
+from PIL import Image
+from numpy import array, ones, uint8, zeros
+from operator import add
+import copy
+import os
+import time
+
+from structura import paths
+debug = False##used in API test to force errors and break error handler, should remain false.
+
+## Blocks that never become geometry. structura_core needs the same list in the
+## namespaced form the structure files store it, so it derives it from here
+## rather than keeping a second copy.
+EXCLUDED_BLOCKS = ("air", "structure_block")
+
+## how a shape family names its simpler form, in block_shapes and block_uv
+LOW_SUFFIX = "__low"
+
+## Alpha the ghost blocks are drawn at when nothing sets one. The texture's
+## alpha channel is multiplied by this, so it is a fraction, not a percentage.
+## It is the counterpart of settings.DEFAULT_TRANSPARENCY: a caller that sets
+## nothing has to get the same ghost block the slider's default gives, and a
+## test asserts the two stay in step.
+DEFAULT_ALPHA = 0.35
+
+class ArmorStandGeo:
+    def __init__(self, name, alpha = DEFAULT_ALPHA,offsets=None, size=[64, 64, 64], ref_pack=None, low_geometry=False):
+        self.ref_resource_pack = ref_pack or paths.vanilla_pack()
+        ## Each of these tables maps a block to a property that the structure
+        ## file leaves hidden, implied, or otherwise unclear.
+        with open("{}/blocks.json".format(self.ref_resource_pack)) as f:
+            ## defines a block from its NBT name, and gives sides against textures
+            self.blocks_def = json.load(f)
+        with open("{}/textures/terrain_texture.json".format(self.ref_resource_pack)) as f:
+            ##maps textures names to texture files.
+            self.terrain_texture = json.load(f)
+        with open(paths.lookup("block_rotation.json")) as f:
+            ## rotation per state, per shape family. A block whose state has no
+            ## entry is left unrotated, and reports it when debug is on.
+            self.block_rotations = json.load(f)
+        with open(paths.lookup("variants.json")) as f:
+            ## maps a variant state's value to an index into a terrain_texture
+            ## list. log2 index 2, for instance, means a wood type the block's
+            ## own states never name.
+            self.block_variants = json.load(f)
+        with open(paths.lookup("block_definition.json")) as f:
+            self.defs = json.load(f)
+        with open(paths.lookup("block_shapes.json")) as f:
+            self.block_shapes = json.load(f)
+        with open(paths.lookup("block_uv.json")) as f:
+            self.block_uv = json.load(f)
+        ## A shape family may declare a simpler form of itself, named with this
+        ## suffix. When the simpler drawing is asked for, that form is used
+        ## instead; a family that does not declare one is drawn as it always is,
+        ## which is why most blocks look identical either way.
+        self.low_geometry = bool(low_geometry)
+        self.name = name.replace(" ","_").lower()
+        self.stand = {}
+        ## a copy, because the half-block shift below is applied in place and
+        ## the caller keeps using the list it passed in
+        self.offsets = [0, 0, 0] if offsets is None else list(offsets)
+        self.offsets[0] += 0.5
+        self.offsets[2] -= 0.5
+        self.alpha=alpha
+        self.texture_list = []
+        self.geometry = {}
+        self.stand_init()
+        self.uv_map = {}
+        self.blocks = {}
+        self.size = size
+        self.bones = []
+        self.errors={}
+        self.layers=[]
+        self.uv_array = None
+        self.pre_gen_blocks={}
+        self.excluded = EXCLUDED_BLOCKS
+
+    def export(self, pack_folder):
+        start = time.time()
+        ## This exporter just packs up the armorstand json files and dumps them where it should go. as well as exports the UV file
+        self.add_blocks_to_bones()
+        self.geometry["description"]["texture_height"] = len(
+            self.uv_map.keys())
+        self.stand["minecraft:geometry"] = [self.geometry] ## this is insuring the geometries are imported, there is an implied reference other places.
+        path_to_geo = "{}/models/entity/armor_stand.ghost_blocks_{}.geo.json".format(
+            pack_folder,self.name)
+        os.makedirs(os.path.dirname(path_to_geo), exist_ok=True)
+        i=0
+        
+        for index in range(len(self.stand["minecraft:geometry"][0]["bones"])):
+            if "name" not in self.stand["minecraft:geometry"][0]["bones"][index].keys():
+                self.stand["minecraft:geometry"][0]["bones"][index]["name"]="empty_row+{}".format(i)
+                self.stand["minecraft:geometry"][0]["bones"][index]["parent"]="ghost_blocks"
+                self.stand["minecraft:geometry"][0]["bones"][index]["pivot"]=[0.5,0.5,0.5]
+                i+=1
+        start=time.time()
+        with open(path_to_geo, "w+") as json_file:
+            json.dump(self.stand, json_file)
+        texture_name = "{}/textures/entity/ghost_blocks_{}.png".format(
+            pack_folder,self.name)
+        os.makedirs(os.path.dirname(texture_name), exist_ok=True)
+        self.save_uv(texture_name)
+        
+    def export_big(self, pack_folder):
+        ## This exporter just packs up the armorstand json files and dumps them where it should go. as well as exports the UV file
+        self.stand["minecraft:geometry"] = []
+        size=list(map(int,self.size))
+        #offset=[-size[0]//2,0,-size[2]//2]
+        geometries={}
+        geometries["default"]={}
+        geometries["default"]["description"]={}
+        geometries["default"]["description"]["identifier"] = "geometry.armor_stand.default"
+        geometries["default"]["description"]["texture_width"] = 1
+        geometries["default"]["description"]["texture_height"] = 1
+        geometries["default"]["description"]["visible_bounds_width"] = 5120
+        geometries["default"]["description"]["visible_bounds_height"] = 5120
+        geometries["default"]["description"]["visible_bounds_offset"] = [0, 1.5, 0]     
+        geometries["default"]["bones"]=[{"name":"ghost_blocks","pivot": [-8, 0, 8],"origin":[0,0,0]}]
+        default_geo=[{"size": size,
+                        "uv": {
+                                "north": {"uv": [0, 0], "uv_size": [1, 1]},
+                                "east": {"uv": [0, 0], "uv_size": [1, 1]},
+                                "south": {"uv": [0, 0], "uv_size": [1, 1]},
+                                "west": {"uv": [0, 0], "uv_size": [1, 1]},
+                                "up": {"uv": [1, 1], "uv_size": [-1, -1]},
+                                "down": {"uv": [1, 1], "uv_size": [-1, -1]}
+                        }},
+                     {
+                        "size": size,
+                        "uv": {
+                                "north": {"uv": [0, 3], "uv_size": [1, -1]},
+                                "east": {"uv": [0, 3], "uv_size": [1, -1]},
+                                "south": {"uv": [0, 3], "uv_size": [1, -1]},
+                                "west": {"uv": [0, 3], "uv_size": [1, -1]},
+                                "up": {"uv": [0, 1], "uv_size": [1, -1]},
+                                "down": {"uv": [0, 3], "uv_size": [1, -1]}
+                        }}]
+        geometries["default"]["bones"][0]["cubes"]=default_geo
+        for i in range(len(self.layers)):
+            layer_name=self.layers[i]
+            geometries[layer_name] = {}
+            geometries[layer_name]["description"] = {}
+            geometries[layer_name]["description"]["identifier"] = "geometry.armor_stand.ghost_blocks_{}".format(i)
+            geometries[layer_name]["description"]["texture_width"] = 1
+            geometries[layer_name]["description"]["texture_height"] = len(self.uv_map.keys())
+            geometries[layer_name]["description"]["visible_bounds_width"] = 5120
+            geometries[layer_name]["description"]["visible_bounds_height"] = 5120
+            geometries[layer_name]["description"]["visible_bounds_offset"] = [0, 1.5, 0]
+            geometries[layer_name]["bones"]=[{"name": "ghost_blocks","pivot": [0, 0, 0]},## I am not sure this should be this value for pivot
+                                             {"name": layer_name,"parent": "ghost_blocks","pivot": [0, 0, 0]}]## I am not sure this should be this value for pivot
+        
+        for key in self.blocks.keys():
+            layer_name = self.blocks[key]["parent"]
+            if layer_name in geometries.keys():
+                geometries[layer_name]["bones"].append(self.blocks[key])
+        self.stand["minecraft:geometry"].append(geometries["default"])
+        for layer_name in self.layers:
+            self.stand["minecraft:geometry"].append(geometries[layer_name])
+            
+        path_to_geo = "{}/models/entity/armor_stand.ghost_blocks_{}.geo.json".format(pack_folder,self.name)
+        os.makedirs(os.path.dirname(path_to_geo), exist_ok=True)            
+        with open(path_to_geo, "w+") as json_file:
+            json.dump(self.stand, json_file, indent=2)
+        
+        
+        ## Every layer gets its own texture file even though they are identical:
+        ## make_big_model declares one texture short name per layer on the armor
+        ## stand entity, and a declared texture that resolves to nothing is a
+        ## content-log error.
+        for i in range(len(self.layers)):
+            texture_name = "{}/textures/entity/ghost_blocks_{}.png".format(pack_folder,i)
+            os.makedirs(os.path.dirname(texture_name), exist_ok=True)
+            self.save_uv(texture_name)
+
+    
+    def simplify(self, block_type):
+        """The family to draw this block with, given the detail asked for."""
+        if not self.low_geometry or block_type == "ignore":
+            return block_type
+        plain = block_type + LOW_SUFFIX
+        ## both tables have to describe it, or the shape and the UV window
+        ## would be read from different families
+        if plain in self.block_shapes and plain in self.block_uv:
+            return plain
+        return block_type
+
+    def make_layer(self, y):
+        # Adds a layer bone for the animation controller to name later. The pose
+        # animations move these bones, which is how the build steps through.
+        layer_name = "layer_{}".format(y)
+        self.geometry["bones"].append(
+            {"name": layer_name, "parent": "ghost_blocks"})#, "pivot": [-8, 0, 8]})
+
+    def make_block(self, x, y, z, block_name, rot=None, top=False,data=0, trap_open=False, parent=None,variant="default", big = False, hinge=False):
+        # Resolves one block through the lookup tables and appends its cubes to
+        # the slice bone: shape family, then variant, then rotation, then the
+        # UV window each face reads from the texture sheet.
+        block_type = self.simplify(self.defs[block_name])
+        if block_type!="ignore":
+            slice_name = "slice_{}".format(y)
+            ghost_block_coordinates = "block_{}_{}_{}".format(x, y, z)
+            temp_block_group = {}
+            temp_block_group["name"] = slice_name
+            
+            layer_name = "layer_{}".format(y % (12))
+            if layer_name not in self.layers:
+                self.layers.append(layer_name)
+            
+            temp_block_group["parent"] = layer_name
+            
+            ## Settle on one variant name, then read both tables with it. The
+            ## shape and the UV window describe the same cubes, so reading them
+            ## with different names is how a half-height cube ends up wearing a
+            ## full-height texture.
+            shape_variant="default"
+            if block_type == "hopper" and rot is not None and rot != 0:
+                shape_variant="side"
+            elif block_type == "door" and trap_open:
+                ## A door standing open is a different shape, not the closed one
+                ## turned. Which way it swings is the hinge, which decides the
+                ## side of the frame it folds back against, so two doors of one
+                ## facing and opposite hinges open into different blocks.
+                shape_variant = "open_hinged" if hinge else "open"
+            elif block_type == "trapdoor" and trap_open:
+                shape_variant = "open"
+            elif block_type == "lever" and trap_open:
+                shape_variant = "on"
+            elif top:
+                shape_variant = "top"
+
+            ## a numeric state - snow depth, repeater delay, sea pickle count -
+            ## names its own variant and outranks the flags above
+            if str(data) in self.block_shapes[block_type] or str(data) in self.block_uv[block_type]:
+                shape_variant = str(data)
+
+            ## A shape family that does not describe this variant falls back to
+            ## its default rather than raising, which would drop the block into
+            ## the skipped list. A double slab carries a vertical_half state it
+            ## does not use.
+            if shape_variant not in self.block_shapes[block_type]:
+                shape_variant = "default"
+
+            if data!=0 and debug:
+                print(data)
+
+            block_shapes = self.block_shapes[block_type][shape_variant]
+            block_uv = self.block_uv[block_type].get(shape_variant,
+                                                     self.block_uv[block_type]["default"])
+
+            temp_block_group["pivot"] = [ block_shapes["center"][0] - (x + self.offsets[0]) \
+                                        , block_shapes["center"][1] +  y + self.offsets[1]  \
+                                        , block_shapes["center"][2] +  z + self.offsets[2] ]
+            #temp_block_group["inflate"] = -0.03
+
+            ## A rotation table that does not describe this state leaves the
+            ## block unrotated rather than raising. The tables are keyed by the
+            ## state's value, and a family can carry a rotation state its table
+            ## has no entry for.
+            rotation = None
+            if block_type in self.block_rotations.keys() and rot is not None:
+                rotation = self.block_rotations[block_type].get(str(rot))
+                if rotation is None and debug:
+                    print("no rotation {} for block type {}".format(rot, block_type))
+            if rotation is not None:
+                temp_block_group["rotation"] = copy.deepcopy(rotation)
+                if big:
+                    temp_block_group["rotation"][1] += 180
+            elif debug:
+                print("no rotation for block type {} found".format(block_type))
+            temp_block_group["cubes"] = []
+            uv_idx = 0
+            
+            
+            for i in range(len(block_shapes["size"])):
+                uv = self.block_name_to_uv(block_name,variant=variant,shape_variant=shape_variant,index=i)
+                block={}
+                if len(block_uv["uv_sizes"]["up"])>i:
+                    uv_idx=i
+                xoff = 0
+                yoff = 0
+                zoff = 0
+                if "offsets" in block_shapes.keys():
+                    xoff = block_shapes["offsets"][i][0]
+                    yoff = block_shapes["offsets"][i][1]
+                    zoff = block_shapes["offsets"][i][2]
+                block["origin"] = [-1*(x + self.offsets[0]) + xoff, y + yoff + self.offsets[1], z + zoff + self.offsets[2]]
+                block["size"] = block_shapes["size"][i]
+
+                if "rotation" in block_shapes.keys():
+                    block["rotation"] = block_shapes["rotation"][i]
+                    
+
+                block_uv_faces=dict(uv)
+                for dir in ["up", "down", "east", "west", "north", "south"]:
+                    block_uv_faces[dir]["uv"][0] += block_uv["offset"][dir][uv_idx][0]
+                    block_uv_faces[dir]["uv"][1] += block_uv["offset"][dir][uv_idx][1]
+                    block_uv_faces[dir]["uv_size"] = block_uv["uv_sizes"][dir][uv_idx]
+                
+                block["uv"] = block_uv_faces
+                temp_block_group["cubes"].append(block)
+
+            for each_group in [ temp_block_group ]:
+                has_nested_rotation = 0
+                copied_groups = []
+
+                is_rotated_group = ( "rotation" in each_group.keys() ) and ( "pivot" in each_group.keys() )
+                if( is_rotated_group and ( each_group["rotation"] is None or len( each_group["rotation"] ) != 3 ) ):
+                    is_rotated_group = False
+                if( is_rotated_group and ( each_group["pivot"]    is None or len( each_group["pivot"] ) != 3 ) ):
+                    is_rotated_group = False
+                
+                for each_cube in temp_block_group["cubes"]:
+                    cube_is_ready = False
+                    
+                    isRotatedCube = ( "rotation" in each_cube.keys() ) and ( "pivot" in each_cube.keys() )
+                    if( isRotatedCube and ( each_cube["rotation"] is None or len( each_cube["rotation"] ) != 3 ) ):
+                        isRotatedCube = False
+                    if( isRotatedCube and ( each_cube["pivot"]    is None or len( each_cube["pivot"] ) != 3 ) ):
+                        isRotatedCube = False
+                    
+                    isOnlyRotatedCube = ( "rotation" in each_cube.keys() )
+                    if( isOnlyRotatedCube and ( each_cube["rotation"] is None or len( each_cube["rotation"] ) != 3 ) ):
+                        isOnlyRotatedCube = False
+                    
+                    if( isOnlyRotatedCube ):
+                        ## A cube with a "rotation" and no "pivot" rotates around
+                        ## its own centre, so state that centre outright. See the
+                        ## geometry 1.16.0 schema reference:
+                        ## https://learn.microsoft.com/en-us/minecraft/creator/reference/content/schemasreference/schemas/minecraftschema_geometry_1.16.0
+                        each_cube["pivot"] = [ each_cube["origin"][0] + each_cube["size"][0] / 2.0 \
+                                            , each_cube["origin"][1] + each_cube["size"][1] / 2.0 \
+                                            , each_cube["origin"][2] + each_cube["size"][2] / 2.0 ]
+                        isRotatedCube = True
+                    
+                    
+                    if( not(isRotatedCube) and is_rotated_group ):
+                        ## Apply group's "rotation" and "pivot" to cube
+                        each_cube["rotation"] = [ each_group["rotation"][0], each_group["rotation"][1], each_group["rotation"][2] ]
+                        each_cube["pivot"]    = [ each_group["pivot"   ][0], each_group["pivot"   ][1], each_group["pivot"   ][2] ]
+                    #elif( not(is_rotated_group) and isRotatedCube ):
+                        ## Keep existing cube "rotation" and "pivot"
+                    elif( is_rotated_group and isRotatedCube and  each_cube["pivot"] == each_group["pivot"] ):
+                        ## Same "pivot" point...  Matrix-Sum cube and group "rotation" value arrays
+                        each_cube["rotation"] = [ each_group["rotation"][0] + each_cube["rotation"][0], each_group["rotation"][1] + each_cube["rotation"][1], each_group["rotation"][2] + each_cube["rotation"][2] ]
+                    elif( is_rotated_group and isRotatedCube ):
+                        ## Cube and group rotate around different pivots, so the
+                        ## two cannot be summed. The cube goes into a nested
+                        ## group of its own instead, and the engine composes
+                        ## them. TODO: compose the two rotations here.
+                        has_nested_rotation += 1
+                        newGroup =  { "parent": each_group["name"], "name": each_group["name"] + "___" + ghost_block_coordinates + "___" + str(has_nested_rotation) }
+                        
+                        for primitiveKey in [ "mirror", "inflate", "debug", "render_group_id", "binding" ]:
+                            if primitiveKey in each_group.keys():
+                                newGroup[primitiveKey] = each_group[primitiveKey]
+                        
+                        for objectKey in [ "pivot", "rotation", "locators", "poly_mesh", "texture_meshes" ]:
+                            if objectKey in each_group.keys():
+                                newGroup[objectKey] = copy.deepcopy( each_group[objectKey] )
+                        
+                        newGroup["cubes"] = []
+                        newGroup["cubes"].append( copy.deepcopy( each_cube ) )
+                        copied_groups.append( newGroup )
+                        each_cube["flag_unnest_from_group"] = True
+                
+                ## next each_cube
+                
+                
+                if each_group["name"] in self.blocks.keys():
+                    for each_cube in temp_block_group["cubes"]:
+                        if( has_nested_rotation == 0 or ( ( "flag_unnest_from_group" not in each_cube.keys() ) and ( each_cube["flag_unnest_from_group"] != True ) ) ):
+                            #TOCONSIDER: Git rid of unnecessary deepcopies
+                            self.blocks[each_group["name"]]["cubes"].append( copy.deepcopy(each_cube) )
+                else:
+                    if "rotation" in each_group.keys():
+                        del each_group["rotation"]
+                    if "pivot" in each_group.keys():
+                        del each_group["pivot"]
+                    #TOCONSIDER: Git rid of unnecessary deepcopies
+                    self.blocks[each_group["name"]] = copy.deepcopy( each_group )
+                
+                for newChildGroup in copied_groups:
+                    #TOCONSIDER: Git rid of unnecessary deepcopies
+                    self.blocks[newChildGroup["name"]] = copy.deepcopy( newChildGroup )
+            
+
+    def save_uv(self, name):
+        # writes the assembled UV sheet to the given path
+        if self.uv_array is None:
+            print("No Blocks Were found")
+        else:
+            im = Image.fromarray(self.uv_array)
+            im.save(name)
+
+    def stand_init(self):
+        # helper function to initialize the dictionary that will be exported as the json object
+        self.stand["format_version"] = "1.16.0"
+        self.geometry["description"] = {
+            "identifier": "geometry.armor_stand.ghost_blocks_{}".format(self.name)}
+        self.geometry["description"]["texture_width"] = 1
+        self.geometry["description"]["visible_bounds_offset"] = [
+            0.0, 1.5, 0.0]
+        # Changed render distance of the block geometry
+        self.geometry["description"]["visible_bounds_width"] = 5120
+        # Changed render distance of the block geometry
+        self.geometry["description"]["visible_bounds_height"] = 5120
+        self.geometry["bones"] = []
+        self.stand["minecraft:geometry"] = [self.geometry]
+        self.geometry["bones"] = [
+                                    {"name": "ghost_blocks",
+                                     "pivot": [-8, 0, 8]}]
+
+    def extend_uv_image(self, new_image_filename):
+        # helper function that just appends to the uv array to make things
+
+        # Fallback to a tga
+        if not os.path.isfile(new_image_filename):
+            new_image_filename = new_image_filename.split(".")[0] + ".tga"
+
+        image = Image.open(new_image_filename).convert("RGBA")
+        impt = array(image)
+        shape=list(impt.shape)
+        if shape[0]>16:
+            shape[0]=16
+            impt=impt[0:16,:,:]
+        if shape[1]>16:
+            shape[1]=16
+            impt=impt[:,0:16,:]
+        image_array = ones([16, 16, 4],uint8)*255
+        image_array[0:shape[0], 0:shape[1], 0:impt.shape[2]] = impt
+        image_array[:, :, 3] = image_array[:, :, 3] * self.alpha
+        if type(self.uv_array) is type(None):
+            self.uv_array = image_array
+        else:
+            startshape = list(self.uv_array.shape)
+            endshape = startshape.copy()
+            endshape[0] += image_array.shape[0]
+            temp_new = zeros(endshape, uint8)
+            temp_new[0:startshape[0], :, :] = self.uv_array
+            temp_new[startshape[0]:, :, :] = image_array
+            self.uv_array = temp_new
+
+    def block_name_to_uv(self, block_name, variant = "",shape_variant="default",index=0,data=0):
+        
+        # helper function maps the section of the uv file to the side of the block
+        temp_uv = {}
+        if block_name not in self.excluded:  # if you dont want a block to be rendered, exclude the UV
+
+            block_type = self.defs[block_name]
+            
+            texture_files = self.get_block_texture_paths(block_name, variant = variant)
+
+            corrected_textures={}
+            if shape_variant in self.block_uv[block_type].keys():
+                if "overwrite" in self.block_uv[block_type][shape_variant].keys():
+                    corrected_textures = self.block_uv[block_type][shape_variant]["overwrite"]
+            else:
+                if "overwrite" in self.block_uv[block_type]["default"].keys():
+                    corrected_textures = self.block_uv[block_type]["default"]["overwrite"]
+            
+            ## An overwrite entry names the texture a particular cube of a
+            ## particular face should use. A literal path is used as given. A
+            ## value written "@up", "@down" or "@north" means "the texture this
+            ## block already declares for that face", which is how one family can
+            ## put a different texture on each part of a multi-part model without
+            ## naming any block's textures. A door is the clearest case: every
+            ## door declares its lower half on "down" and its upper half on
+            ## "side", and the model is two stacked cubes.
+            declared = dict(texture_files)
+            for side in corrected_textures.keys():
+                if len(corrected_textures[side])>index:
+                    chosen = corrected_textures[side][index]
+                    if chosen == "default":
+                        continue
+                    if isinstance(chosen, str) and chosen.startswith("@"):
+                        chosen = declared.get(chosen[1:])
+                        if chosen is None:
+                            continue
+                    texture_files[side]=chosen
+                    if debug:
+                        print("{}: {}".format(side,texture_files[side]))
+            for key in texture_files.keys():
+                if texture_files[key] not in self.uv_map.keys():
+                    try:
+                        self.extend_uv_image(
+                            "{}/{}.png".format(self.ref_resource_pack, texture_files[key]))
+                        self.uv_map[texture_files[key]] = len(self.uv_map.keys())
+                    except Exception as e:
+                        raise RuntimeError("Failed to load texture {}".format(texture_files[key]))
+                temp_uv[key] = {
+                    "uv": [0, self.uv_map[texture_files[key]]], "uv_size": [1, 1]}
+
+        return temp_uv
+
+    def add_blocks_to_bones(self):
+        # Moves every collected block group into the geometry's bone list. Called
+        # during the writing step, once every block has been made.
+        for key in self.blocks.keys():
+            ## TODO: merge the groups belonging to one slice into a single bone
+            self.geometry["bones"].append(self.blocks[key])
+
+    def get_block_texture_paths(self, blockName, variant = ""):
+        # helper function for getting the texture locations from the vanilla files.
+        texture_layout = self.blocks_def[blockName]["textures"]
+        texturedata = self.terrain_texture["texture_data"]
+        textures = {}
+
+        if type(texture_layout) is dict:
+            if "side" in texture_layout.keys():
+                textures["east"] = texture_layout["side"]
+                textures["west"] = texture_layout["side"]
+                textures["north"] = texture_layout["side"]
+                textures["south"] = texture_layout["side"]
+            if "east" in texture_layout.keys():
+                textures["east"] = texture_layout["east"]
+            if "west" in texture_layout.keys():
+                textures["west"] = texture_layout["west"]
+            if "north" in texture_layout.keys():
+                textures["north"] = texture_layout["north"]
+            if "south" in texture_layout.keys():
+                textures["south"] = texture_layout["south"]
+            if "down" in texture_layout.keys():
+                textures["down"] = texture_layout["down"]
+            if "up" in texture_layout.keys():
+                textures["up"] = texture_layout["up"]
+        elif type(texture_layout) is str:
+            textures["east"] = texture_layout
+            textures["west"] = texture_layout
+            textures["north"] = texture_layout
+            textures["south"] = texture_layout
+            textures["up"] = texture_layout
+            textures["down"] = texture_layout
+        for key in textures.keys():
+            
+            if type(texturedata[textures[key]]["textures"]) is str:
+                textures[key] = texturedata[textures[key]]["textures"]
+            elif type(texturedata[textures[key]]["textures"]) is list:
+                index=0
+                if variant[0] in self.block_variants.keys():
+                    ## A table is keyed by strings. A state that names a number
+                    ## arrives as an nbtlib Int, whose str() is "Int(0)" rather
+                    ## than "0", so it is converted rather than printed.
+                    choices = self.block_variants[variant[0]]
+                    index = choices.get(variant[1])
+                    if index is None:
+                        try:
+                            index = choices.get(str(int(variant[1])))
+                        except (TypeError, ValueError):
+                            index = choices.get(str(variant[1]))
+                    if index is None:
+                        raise KeyError(variant[1])
+                if debug:
+                    print(index)
+                    print(key)
+                    print(texturedata[textures[key]]["textures"])
+                    print(texturedata[textures[key]]["textures"][index])
+                textures[key] = texturedata[textures[key]]["textures"][index]
+
+            
+        return textures

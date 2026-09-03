@@ -2,8 +2,8 @@ import unittest
 
 from nbtlib import Byte, String
 
-import armor_stand_geo_class as asgc
-from structura_core import structura
+from structura.pack import armor_stand_geo_class as asgc
+from structura.core import structura
 
 
 class SlabGeometryTests(unittest.TestCase):
@@ -12,7 +12,7 @@ class SlabGeometryTests(unittest.TestCase):
 
     def setUp(self):
         self.processor = structura.__new__(structura)
-        self.geo = asgc.armorstandgeo("test", alpha=1.0, size=[1, 4, 1], offsets=[0, 0, 0])
+        self.geo = asgc.ArmorStandGeo("test", alpha=1.0, size=[1, 4, 1], offsets=[0, 0, 0])
 
     def build(self, name, states, y=0):
         block = {"name": "minecraft:" + name, "states": states}

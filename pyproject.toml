@@ -1,0 +1,82 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "structura"
+version = "3.0.0"
+description = "Turn a .mcstructure file into a Minecraft Bedrock resource pack of semi-transparent ghost blocks."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+# tomllib, which structura.version reads this file with, is stdlib from 3.11
+requires-python = ">=3.11"
+authors = [{ name = "EvilSlimeLabs" }]
+maintainers = [{ name = "EvilSlimeLabs" }]
+keywords = ["minecraft", "bedrock", "mcstructure", "resource-pack", "litematica"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Win32 (MS Windows)",
+    "Environment :: X11 Applications",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Games/Entertainment",
+    "Topic :: Multimedia :: Graphics :: 3D Modeling",
+]
+
+# What building a pack needs. The window needs more; see the `gui` extra.
+dependencies = [
+    "nbtlib>=2.0.4,<3",
+    "numpy>=1.24.2",
+    "Pillow>=9.4.0",
+    "ujson>=5.10.0",
+]
+
+[project.optional-dependencies]
+# The desktop window. Tkinter itself is not installable from PyPI -- it ships
+# with CPython on Windows and macOS, and needs a system package on Linux
+# (python3-tk on Debian, python3-tkinter on Fedora).
+gui = [
+    "customtkinter>=6.0.0",
+    "darkdetect>=0.8.0",
+    "tkinterdnd2>=0.4.0",
+]
+# Freezing the release, and the scripts in tools/ that regenerate the bundled
+# fonts and icons.
+dev = [
+    "structura[gui]",
+    "pyinstaller>=6.6",
+    "fonttools>=4.53",
+]
+
+[project.urls]
+Homepage = "https://github.com/EvilSlimeLabs/Structura"
+Issues = "https://github.com/EvilSlimeLabs/Structura/issues"
+
+[project.scripts]
+# the command line, on any platform with Python 3.11 or newer
+structura-cli = "structura.cli:console_entry"
+
+[project.gui-scripts]
+# the window. gui-scripts rather than scripts so Windows does not open a
+# console behind it.
+structura = "structura.app:window_entry"
+
+[tool.setuptools.packages.find]
+include = ["structura*"]
+
+[tool.setuptools.package-data]
+# The lookup tables, the trimmed vanilla pack, the bundled faces and the two
+# pictures the program opens. These live inside the package precisely so that
+# an install carries them.
+structura = [
+    "lookups/**",
+    "Vanilla_Resource_Pack/**",
+    "fonts/**",
+    "images/**",
+    # TechPack's assets, staged from the submodule by
+    # tools/stage_tech_pack.py so that an install can offer the setting
+    "techpack/**",
+]

@@ -1,8 +1,8 @@
 """Regenerate the window screenshots used by the README.
 
 Screenshots of a program's own interface go stale the moment the interface
-changes, and a stale screenshot is worse than none -- it teaches a layout that
-is not there any more. These are taken from the running window instead of by
+changes, and a stale screenshot is worse than none: it teaches a layout that is
+not there any more. These are taken from the running window instead of by
 hand, so a UI change plus one command brings the documentation back in step.
 
     python tools/make_screenshots.py
@@ -14,7 +14,7 @@ these are the ones only a person in a world can take.
 It photographs a rectangle of the screen, which means anything that comes to the
 front during the run lands in the documentation instead of the program. Every
 grab therefore checks that the foreground window still belongs to this process
-and refuses to save if it does not -- a missing screenshot is recoverable, a
+and refuses to save if it does not. A missing screenshot is recoverable; a
 committed picture of somebody's browser is not. Leave the machine alone while it
 runs.
 """
@@ -27,8 +27,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import customtkinter as ctk
 from PIL import ImageGrab
 
-import app_settings
-import structura_gui
+from structura import settings
+from structura.ui import structura_gui
 
 DOCS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs")
 
@@ -116,7 +116,7 @@ def main():
     app = structura_gui.App()
     ## the documentation is in English whatever the machine taking it is set to,
     ## and the setting is put back afterwards
-    was = app_settings.settings["lang"]
+    was = settings.settings["lang"]
     app.on_language("English")
     populate(app)
     settle(app, 0.8)

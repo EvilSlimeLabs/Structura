@@ -2,10 +2,8 @@ import os
 import re
 import unittest
 
-import app_settings
-import lang_parse
-
-
+from structura import settings
+from structura import lang_parse
 def open_window():
     """A fresh App, or a skip when there is no display to put one on.
 
@@ -14,7 +12,8 @@ def open_window():
     process finds the first one's images and cannot use them. Tests get a clean
     slate rather than the leftovers of whichever test ran first.
     """
-    import structura_gui
+    from structura.ui import structura_gui
+
     structura_gui._image_cache.clear()
     del structura_gui._fonts[:]
     try:
@@ -35,40 +34,42 @@ class TransparencyTests(unittest.TestCase):
     """The slider is transparency; everything downstream wants alpha."""
 
     def test_the_ends_of_the_slider(self):
-        self.assertEqual(app_settings.transparency_to_alpha(0), 1.0)
-        self.assertAlmostEqual(app_settings.transparency_to_alpha(100), 0.0)
+        self.assertEqual(settings.transparency_to_alpha(0), 1.0)
+        self.assertAlmostEqual(settings.transparency_to_alpha(100), 0.0)
 
     def test_the_default_is_the_same_number_everywhere(self):
         # the window, the CLI's --opacity and the core's own default all have to
         # land on the same ghost block, or a pack built one way looks different
         # from the same pack built another
-        import armor_stand_geo_class as asgc
-        alpha = app_settings.transparency_to_alpha(app_settings.DEFAULT_TRANSPARENCY)
+        from structura.pack import armor_stand_geo_class as asgc
+
+        alpha = settings.transparency_to_alpha(settings.DEFAULT_TRANSPARENCY)
         self.assertAlmostEqual(alpha, asgc.DEFAULT_ALPHA)
-        self.assertAlmostEqual(app_settings.DEFAULT_OPACITY / 100, alpha)
+        self.assertAlmostEqual(settings.DEFAULT_OPACITY / 100, alpha)
 
     def test_the_slider_never_reaches_fully_invisible(self):
-        self.assertLess(app_settings.MAX_TRANSPARENCY, 100)
+        self.assertLess(settings.MAX_TRANSPARENCY, 100)
 
 
 class LanguageTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        app_settings.langs = app_settings.read_languages()
+        settings.langs = settings.read_languages()
 
     def test_every_language_has_a_code_for_its_badge(self):
         # the picker labels languages by code, not by flag: a flag is a country,
         # and several countries share a language. Two letters where ISO 639-1
-        # has one, three where it does not -- Cebuano, and the constructed
+        # has one, three where it does not: Cebuano, and the constructed
         # languages, which are not real languages and have no code at all.
-        for name in app_settings.langs:
+        for name in settings.langs:
             code = lang_parse.code(name)
             self.assertRegex(code, r"^[a-z]{2,3}$", "%s has no usable code" % name)
 
     def test_every_language_has_colours_and_they_differ_by_language(self):
-        import lang_icons
+        from structura.ui import lang_icons
+
         seen = {}
-        for name in app_settings.choices():
+        for name in settings.choices():
             code = lang_parse.code(name)
             palette = lang_icons.colour(code)
             self.assertTrue(1 <= len(palette) <= 3,
@@ -80,19 +81,21 @@ class LanguageTests(unittest.TestCase):
         self.assertGreater(len(set(map(str, seen.values()))), len(seen) // 2)
 
     def test_the_constructed_languages_are_listed_and_come_last(self):
-        offered = app_settings.choices()
+        offered = settings.choices()
         fake = [n for n in offered if lang_parse.constructed(n)]
         self.assertTrue(fake)
         # they sit together at the end, so nobody hunting a real language has
         # to scroll past them
         self.assertEqual(offered[-len(fake):], fake)
-        import lang_icons
+        from structura.ui import lang_icons
+
         for name in fake:
             self.assertIn(lang_parse.code(name), lang_icons.colours(),
                           "%s has no entry in the colour table" % name)
 
     def test_an_unlisted_language_falls_back_to_the_default_colour(self):
-        import lang_icons
+        from structura.ui import lang_icons
+
         table = lang_icons.colours()
         self.assertIn(lang_icons.DEFAULT_KEY, table)
         expected = [tuple(int(c.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
@@ -100,18 +103,18 @@ class LanguageTests(unittest.TestCase):
         self.assertEqual(lang_icons.colour("zzz"), expected)
 
     def test_english_fills_gaps_in_another_language(self):
-        strings = app_settings.language("Español")
-        english = app_settings.langs["English"]
+        strings = settings.language("Español")
+        english = settings.langs["English"]
         self.assertEqual(set(strings), set(english))
         self.assertTrue(all(strings.values()))
 
     def test_the_placeholder_column_is_not_offered(self):
-        self.assertNotIn("Test", app_settings.choices())
-        self.assertIn("English", app_settings.choices())
+        self.assertNotIn("Test", settings.choices())
+        self.assertIn("English", settings.choices())
 
     def test_an_unknown_language_falls_back_rather_than_raising(self):
-        strings = app_settings.language("Klingon")
-        self.assertEqual(strings, app_settings.langs["English"])
+        strings = settings.language("Klingon")
+        self.assertEqual(strings, settings.langs["English"])
 
 
 class StringCoverageTests(unittest.TestCase):
@@ -122,13 +125,14 @@ class StringCoverageTests(unittest.TestCase):
     """
 
     def test_every_key_the_window_uses_is_in_langs_csv(self):
-        with open("structura_gui.py", encoding="utf-8") as f:
+        with open(os.path.join("structura", "ui", "structura_gui.py"),
+                  encoding="utf-8") as f:
             source = f.read()
         keys = set(re.findall(r'(?:self\.)?text\(\s*"([^"]+)"', source))
         keys |= set(re.findall(r'app\.text\(\s*"([^"]+)"', source))
         english = lang_parse.parse()["English"]
         # themes are looked up by their stored name
-        keys |= set(app_settings.THEMES)
+        keys |= set(settings.THEMES)
         # a key built by interpolation cannot be read out of the source; the
         # concrete forms are asserted separately below
         keys = {k for k in keys if "%" not in k}
@@ -150,12 +154,13 @@ class StringCoverageTests(unittest.TestCase):
 
 class ThemeTests(unittest.TestCase):
     def test_system_is_the_default_and_dark_is_the_fallback(self):
-        self.assertEqual(app_settings.DEFAULT_THEME, "system")
-        self.assertEqual(app_settings.FALLBACK_THEME, "dark")
-        self.assertIn(app_settings.FALLBACK_THEME, app_settings.THEMES)
+        self.assertEqual(settings.DEFAULT_THEME, "system")
+        self.assertEqual(settings.FALLBACK_THEME, "dark")
+        self.assertIn(settings.FALLBACK_THEME, settings.THEMES)
 
     def test_an_undetectable_desktop_resolves_to_dark(self):
-        import structura_gui
+        from structura.ui import structura_gui
+
         real = structura_gui.darkdetect
         try:
             structura_gui.darkdetect = None
@@ -165,8 +170,6 @@ class ThemeTests(unittest.TestCase):
             structura_gui.darkdetect = real
 
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 class FontTests(unittest.TestCase):
@@ -174,7 +177,8 @@ class FontTests(unittest.TestCase):
 
     def test_the_bundled_files_are_present_with_their_licences(self):
         import os
-        import ui_fonts
+        from structura.ui import ui_fonts
+
         for name in ui_fonts.FILES:
             self.assertTrue(os.path.isfile(ui_fonts.path(name)), name)
         for licence in ("LICENSE.txt", "NotoSansSC-LICENSE.txt"):
@@ -182,7 +186,7 @@ class FontTests(unittest.TestCase):
                             "%s must travel with the fonts" % licence)
 
     def test_a_language_whose_script_is_not_covered_gets_its_own_face(self):
-        import ui_fonts
+        from structura.ui import ui_fonts
         # Source Sans Pro has no CJK glyphs and is not the enchanting alphabet,
         # and Tk will not fall back to a privately registered font by itself
         self.assertNotEqual(ui_fonts.family("简体中文"), ui_fonts.family("English"))
@@ -195,9 +199,9 @@ class IconControlTests(unittest.TestCase):
 
     def test_nothing_is_drawn_outside_the_frame(self):
         # the background and the preview are masked to the frame's own outline,
-        # and the outline is cut out of that same mask -- so no part of the
+        # and the outline is cut out of that same mask, so no part of the
         # control may have any opacity where the mask has none
-        import ui_icons
+        from structura.ui import ui_icons
         from PIL import Image
         size, radius, width = 128, 14, 2
         art = Image.new("RGBA", (64, 64), (255, 255, 255, 255))
@@ -219,7 +223,8 @@ class IconControlTests(unittest.TestCase):
         # the cut is drawn small on purpose, which makes it a small target, so
         # the clickable corner is pushed out past it. Whatever else it does, it
         # has to accept every point the wedge is actually drawn over.
-        import ui_icons
+        from structura.ui import ui_icons
+
         size = 128
         top, side = ui_icons.WEDGE_TOP, ui_icons.WEDGE_SIDE
         for i in range(1, 10):
@@ -231,7 +236,8 @@ class IconControlTests(unittest.TestCase):
                         "the drawn wedge is not clickable at %.2f,%.2f" % (fx, fy))
 
     def test_the_clickable_corner_stays_in_its_corner(self):
-        import ui_icons
+        from structura.ui import ui_icons
+
         size = 128
         for x, y in ((size // 2, size // 2), (4, 4), (4, size - 4),
                      (size - 4, size - 4), (size // 2, size - 4)):
@@ -242,7 +248,7 @@ class IconControlTests(unittest.TestCase):
         # a CTkButton is a canvas with a label over it, and the label is not
         # made until an image is configured. Binding while the button is being
         # built therefore reaches only the canvas, and the label then covers all
-        # but a one pixel rim -- which is the whole control, unclickable.
+        # but a one pixel rim, leaving the whole control unclickable.
         app = open_window()
         try:
             app.update_idletasks()
@@ -269,16 +275,17 @@ class RuneFaceTests(unittest.TestCase):
 
     def face(self):
         from fontTools.ttLib import TTFont
-        path = os.path.join("fonts", "StructuraEnchanting.ttf")
+        from structura import paths
+        path = paths.data("fonts", "StructuraEnchanting.ttf")
         if not os.path.isfile(path):
             raise unittest.SkipTest("the rune face is not built")
         return TTFont(path)
 
     def test_the_runes_are_not_a_full_em_apart(self):
         # every glyph is drawn in a cell eight pixels across and no rune fills
-        # more than five of them, so an advance of one cell -- which is what a
-        # cell-sized em works out to -- spaces them almost twice as far apart as
-        # the letters of any other language, and the window's labels overflow
+        # more than five of them. An advance of one cell, which is what a
+        # cell-sized em works out to, spaces them almost twice as far apart as
+        # the letters of any other language, and the window's labels overflow.
         font = self.face()
         upem = font["head"].unitsPerEm
         widths = [font["hmtx"][name][0] for name in font.getGlyphOrder()
@@ -296,7 +303,8 @@ class RuneFaceTests(unittest.TestCase):
         self.assertGreater(len(widths), 1, "every glyph has the same advance")
 
     def test_the_face_is_asked_for_smaller_than_the_interface_face(self):
-        import ui_fonts
+        from structura.ui import ui_fonts
+
         self.assertLess(ui_fonts.scale("Enchanting"), 1.0)
         self.assertEqual(ui_fonts.scale("English"), 1.0)
 
@@ -357,9 +365,10 @@ class LanguageMenuTests(unittest.TestCase):
     def test_the_window_is_drawn_at_one_scale(self):
         # CustomTkinter otherwise makes the process per-monitor DPI aware and
         # rebuilds every widget at a new scale when a window changes monitor,
-        # fading it out and back while it does -- which came apart on screen
+        # fading it out and back while it does, which does not survive a drag
+        # between monitors intact
         import customtkinter
-        import structura_gui                                    # noqa: F401
+        from structura.ui import structura_gui                            # noqa: F401
         self.assertTrue(
             customtkinter.ScalingTracker.deactivate_automatic_dpi_awareness,
             "importing the window should have turned off automatic rescaling")
@@ -367,7 +376,7 @@ class LanguageMenuTests(unittest.TestCase):
     def test_the_selectors_draw_their_whole_border(self):
         # CustomTkinter floors a frame's width and height to an even number
         # before drawing its rounded border, so a box that comes out an odd
-        # number of pixels -- which a scaled display will produce -- loses its
+        # number of pixels, which a scaled display will produce, loses its
         # bottom row and the outline looks broken along that edge
         app = open_window()
         try:
@@ -400,11 +409,12 @@ class LanguageMenuTests(unittest.TestCase):
     def test_the_selectors_are_wide_enough_for_every_language(self):
         # the boxes are a fixed width now, so nothing measures whether the
         # longest label still fits inside one
-        import structura_gui
+        from structura.ui import structura_gui
+
         app = open_window()
         try:
             app.update_idletasks()
-            for language in app_settings.choices():
+            for language in settings.choices():
                 app.on_language(language)
                 app.update_idletasks()
                 for menu in (app.theme_menu, app.language_menu):
@@ -466,7 +476,8 @@ class LanguageMenuTests(unittest.TestCase):
             # read from how the rows were packed rather than from where they
             # landed: an unmapped toplevel has not laid its children out, and
             # mapping one needs the program to be the one in use
-            import structura_gui
+            from structura.ui import structura_gui
+
             rows = menu.popup.winfo_children()[0].winfo_children()
             first = rows[0].pack_info()["pady"]
             last = rows[-1].pack_info()["pady"]
@@ -485,8 +496,8 @@ class LanguageMenuTests(unittest.TestCase):
     def test_the_window_does_not_resize(self):
         # CustomTkinter repaints every widget's own canvas when its size
         # changes, about a millisecond each, so a single step of a resize cost
-        # a quarter of a second with the widgets this window has -- an empty
-        # window of the same kind manages six milliseconds
+        # a quarter of a second with the widgets this window has, against six
+        # milliseconds for an empty window of the same kind
         app = open_window()
         try:
             self.assertEqual(app.resizable(), (0, 0))
@@ -514,10 +525,11 @@ class LanguageMenuTests(unittest.TestCase):
 
     def test_the_border_around_a_list_is_even_on_all_four_sides(self):
         # the window behind the list is the border colour, and the list is
-        # inset from it by the same amount all round -- but a frame whose
-        # height comes out odd goes unpainted along its last row, and the
+        # inset from it by the same amount all round. A frame whose height
+        # comes out odd goes unpainted along its last row, and the
         # colour behind shows through as an extra pixel at the bottom
-        import structura_gui
+        from structura.ui import structura_gui
+
         app = open_window()
         try:
             app.update_idletasks()
@@ -541,12 +553,13 @@ class ConstructedLanguageTests(unittest.TestCase):
     """The joke languages have to actually say something different."""
 
     ## a proper name and the three axis letters, which stay as they are
-    LEFT_ALONE = {"title", "axis x", "axis y", "axis z"}
+    ## two proper names and the three axis letters, which stay as they are
+    LEFT_ALONE = {"title", "techpack", "axis x", "axis y", "axis z"}
 
     def test_every_label_is_transformed(self):
-        import lang_fun
-        app_settings.langs = app_settings.read_languages()
-        english = app_settings.langs["English"]
+        from structura import lang_fun
+        settings.langs = settings.read_languages()
+        english = settings.langs["English"]
         for name, transform in (("pirate", lang_fun.pirate),
                                 ("lolcat", lang_fun.lolcat),
                                 ("shakespeare", lang_fun.shakespeare)):
@@ -560,7 +573,7 @@ class ConstructedLanguageTests(unittest.TestCase):
     def test_a_placeholder_survives_every_transform(self):
         # the transforms run only between the {} markers; a mangled placeholder
         # raises on the next .format()
-        import lang_fun
+        from structura import lang_fun
         sample = {"line": "Added {} to the pack"}
         for name in lang_fun.names():
             spoken = lang_fun.translate(name, sample)["line"]
@@ -578,7 +591,7 @@ class CoordinatesButtonTests(unittest.TestCase):
             app.on_big_build()
             app.update_idletasks()
             button = app.cords_button
-            for language in app_settings.choices():
+            for language in settings.choices():
                 app.on_language(language)
                 app.update_idletasks()
                 self.assertGreaterEqual(
@@ -592,8 +605,8 @@ class CoordinatesButtonTests(unittest.TestCase):
 class FieldTests(unittest.TestCase):
     def test_a_field_shows_the_same_margin_above_and_below_its_text(self):
         # a CTkEntry paints the colour behind it across its whole rectangle, so
-        # one centred in a taller row splits the leftover unevenly -- a pixel of
-        # field above the text and two below it
+        # one centred in a taller row splits the leftover unevenly, leaving a
+        # pixel of field above the text and two below it
         app = open_window()
         try:
             app.update_idletasks()
@@ -618,7 +631,8 @@ class FieldTests(unittest.TestCase):
     def test_the_text_clears_the_thickest_border_a_field_can_have(self):
         # the border grows from one to two while a field is showing an error,
         # and the text must not shift or be painted over when it does
-        import structura_gui
+        from structura.ui import structura_gui
+
         app = open_window()
         try:
             app.update_idletasks()
@@ -631,3 +645,163 @@ class FieldTests(unittest.TestCase):
                 field._apply_widget_scaling(structura_gui.FIELD_INSET))
         finally:
             app.destroy()
+
+
+class SettingsFileTests(unittest.TestCase):
+    """Everything the settings file holds is written back when it changes.
+
+    A setting that is remembered in memory and not on disk looks like it worked
+    until the program is next opened, which is the kind of bug nobody reports
+    because it is easy to believe you imagined it.
+    """
+
+    ## every key in the file, with a value different from the default and the
+    ## call that is supposed to persist it. A key with no entry here fails the
+    ## first test rather than being quietly untested.
+    def changes(self):
+        return {
+            "lang": ("Español", settings.set_language),
+            "theme": ("dark", settings.set_theme),
+            "tech_pack": ("compatibility", settings.set_tech_pack),
+            "output_dir": (os.path.join(os.path.expanduser("~"), "Somewhere"),
+                           settings.set_output_dir),
+        }
+
+    def setUp(self):
+        import json
+        import shutil
+        import tempfile
+
+        self.folder = tempfile.mkdtemp()
+        self.path = os.path.join(self.folder, ".structura")
+        self._real = settings.settings_file
+        settings.settings_file = lambda: self.path
+        self.addCleanup(setattr, settings, "settings_file", self._real)
+        self.addCleanup(shutil.rmtree, self.folder, True)
+        self._stored = dict(settings.settings)
+        self.addCleanup(settings.settings.update, self._stored)
+        settings.load()
+        self.json = json
+
+    def on_disk(self):
+        if not os.path.isfile(self.path):
+            return {}
+        with open(self.path, encoding="utf-8-sig") as handle:
+            return self.json.load(handle)
+
+    def test_every_key_in_the_file_has_a_setter_that_is_checked(self):
+        self.assertEqual(sorted(self.changes()), sorted(settings.DEFAULTS))
+
+    def test_changing_a_setting_writes_it_back(self):
+        for key, (value, setter) in sorted(self.changes().items()):
+            with self.subTest(setting=key):
+                setter(value)
+                self.assertEqual(self.on_disk().get(key), settings.settings[key],
+                                 "%s was not written to the file" % key)
+
+    def test_the_file_is_never_inside_the_package(self):
+        # paths.beside_executable() means the package when not frozen, which is
+        # right for reading data and wrong for the user's own settings:
+        # site-packages is shared and not theirs to write to
+        from structura import paths
+
+        settings.settings_file = self._real
+        self.assertNotIn(os.path.dirname(os.path.abspath(paths.__file__)),
+                         settings.settings_file())
+
+
+
+class HelpMarkTests(unittest.TestCase):
+    """The ? beside a setting, and the tip it shows."""
+
+    def marks(self, app):
+        found = [(sw.key, sw.label, sw.mark) for sw in app.switches if sw.mark]
+        found.append(("techpack", app.tech_label, app.tech_mark))
+        return found
+
+    def test_the_mark_sits_against_its_label_not_the_control(self):
+        # the ? belongs to the words, so its column must not be the stretchy
+        # one: a stretchy column carries it across the row to the switch
+        app = open_window()
+        try:
+            settle(app)
+            for key, label, mark in self.marks(app):
+                gap = mark.winfo_x() - (label.winfo_x() + label.winfo_width())
+                self.assertGreaterEqual(gap, 0, "%s: the ? overlaps its label" % key)
+                self.assertLess(gap, 20,
+                                "%s: the ? is %d px from its label" % (key, gap))
+        finally:
+            app.destroy()
+
+    def test_the_tip_survives_the_window_merely_laying_itself_out(self):
+        # Configure fires throughout a layout, so binding it directly made the
+        # tip vanish the instant it appeared
+        app = open_window()
+        try:
+            settle(app)
+            tip = app.tech_mark.tip
+            tip.show()
+            settle(app)
+            self.assertIsNotNone(tip.window, "the tip dismissed itself")
+            tip.hide()
+        finally:
+            app.destroy()
+
+    def test_every_way_out_puts_the_tip_away(self):
+        app = open_window()
+        try:
+            settle(app)
+            tip = app.tech_mark.tip
+
+            class Elsewhere(object):
+                widget = app.make_button
+
+            for name, dismiss in (("a click elsewhere",
+                                   lambda: tip.elsewhere(Elsewhere())),
+                                  ("leaving the mark", tip.leave),
+                                  ("the window moving", tip.moved)):
+                tip.show()
+                settle(app, 2)
+                self.assertIsNotNone(tip.window)
+                if name == "the window moving":
+                    tip._anchor = (-1, -1, -1, -1)
+                dismiss()
+                self.assertIsNone(tip.window, "%s left it up" % name)
+                self.assertEqual(tip._watching, [],
+                                 "%s left handlers bound" % name)
+        finally:
+            app.destroy()
+
+    def test_a_click_on_the_mark_itself_keeps_it(self):
+        app = open_window()
+        try:
+            settle(app)
+            tip = app.tech_mark.tip
+            tip.show()
+            settle(app, 2)
+
+            class OnTheMark(object):
+                widget = app.tech_mark
+
+            tip.elsewhere(OnTheMark())
+            self.assertIsNotNone(tip.window)
+            tip.hide()
+        finally:
+            app.destroy()
+
+    def test_showing_twice_does_not_stack_handlers(self):
+        app = open_window()
+        try:
+            settle(app)
+            tip = app.tech_mark.tip
+            tip.show()
+            tip.show()
+            settle(app, 2)
+            self.assertEqual(len(tip._watching), 3)
+            tip.hide()
+            self.assertEqual(tip._watching, [])
+        finally:
+            app.destroy()
+
+if __name__ == "__main__":
+    unittest.main()

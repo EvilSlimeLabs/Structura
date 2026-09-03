@@ -1,49 +1,166 @@
-# How to edit blocks for Structura
-This page covers the process of editing a block to add support. This is broken into sections of adding support for rotation, changing the shape of a block, and editing the textures for the block. This was added in Structura 1.3.
-## find the block common name
-Blocks that contain the same type but different names are linked in the file lookups/block_definitions.json. This allows several blocks to use the same type of rotations, block shape, and texture layout. These are strings, the entry name is as minecraft calls it internally, the value is a string that can be whatever the writer wants it to be. however this needs to match exactly the entries in the other files.
+# Editing blocks
 
-## block roations 
-The most common edit required is the rotation definition. The block rotation is contained in lookups/block_rotation.json. To support a common group of blocks you add an entry to the block_rotations.json matching the common name from the block_definitions.json. This entry must contain a dictionary with a key for each rotation state. All keys are strings in this document. The rotation states must contain a list of 3 numbers that denote the rotations around the X, Y, Z respectively.
-### Example:
+The reference for the five lookup tables a block is described by. For the
+knowledge that is not obvious from the formats — why a door faced the wrong way,
+which textures are lists, where a copper golem keeps its pose — read
+[Block Notes](Block%20Notes.md) instead.
+
+Every table is keyed by a **shape family** rather than by a block id, so the
+hundred kinds of stair share one description.
+
+| File | Keyed by | Says |
+| --- | --- | --- |
+| `block_definition.json` | block id | which family draws it |
+| `block_rotation.json` | family | how each rotation state turns it |
+| `block_shapes.json` | family, then variant | the cubes |
+| `block_uv.json` | family, then variant | the texture window per cube per face |
+| `nbt_defs.json` | block state name | what that state means |
+| `variants.json` | state name | which entry of a texture list a value picks |
+
+`block_shapes.json` and `block_uv.json` **must agree**. A variant in one and not
+the other silently falls back to `default`, which is how a half-height cube ends
+up wearing a full-height texture.
+
+---
+
+## block_definition.json
+
+`"minecraft:oak_door": "door"`. A block with no entry is skipped and reported,
+not drawn. The family name is yours to choose; it only has to match the other
+tables.
+
+`"ignore"` draws nothing, for blocks that should not appear at all.
+
+---
+
+## block_rotation.json
+
+A family maps each rotation state to a turn about X, Y and Z in degrees.
+
 ```json
-"repeater": {
-        "0": [0,180,0],
-        "1": [0,-90,0],
-        "2": [0,0,0],
-        "3": [0,90,0]
-    },
+"repeater": {"0": [0, 180, 0], "1": [0, -90, 0],
+             "2": [0, 0, 0], "3": [0, 90, 0]}
 ```
-## Block Shapes
-The second most frequently edited item is the lookups/block_shapes.json. This file defines the physical dimensions of the block as well as where it is located internally if needed. Again this is based upon "Common names" to prevent duplicated code. Common names can be looked up in the block_definitions.json file. each common name contains a dictionary, where each entry is a block state if needed, and each block state is a dictionary of sizes, and block centers. The block center is where the rotation is applied from the rotations function.
-### Block states
- Block additions are supported in the python code. This needs to be moved out to become data driven, however this work has not been completed yet.
 
-Each block state must have a dictionary containing a size entry and a center entry. it may also contain an "offsets" entry
-### size
-Each size entry must be an array of arrays, Each sub array must contain 3 numbers representing the X, Y, Z dimensions of the component in question. The units are in percentage of full blocks, Each size entry must have at least 1 set of dimensions, but may optionally have many more cubes as the maker desires.
-### Center
-Each block state must contain 1 center definition, this is a array of 3 numbers. these number define where in the X, Y, Z that the rotation will be applied.
-### Offsets (optional)
-Each offset entry must be an array of arrays, each sub array must have 3 numbers to represent an X, Y, Z offset in percentage of a full block. There must be 1 entry here for each size in the size entry
-### Example
+Keys are strings. **Give both the numbers and the compass words** — Bedrock uses
+a numeric `direction` on some blocks and a `minecraft:cardinal_direction` string
+on others, and a value the table has no key for is drawn unrotated with no
+warning. The numbering differs between blocks; see
+[Block Notes](Block%20Notes.md).
+
+---
+
+## block_shapes.json
+
+A family holds one entry per variant, and always a `default`.
+
 ```json
-"repeater":{"default":{
-				"size":[[1,0.125,1],[0.1875,0.4375,0.1875],[0.1875,0.4375,0.1875]],"offsets":[[0,0,0],[0.4125,0,0.7125],[0.4125,0,0.4875]],"center":[0.5,0.5,0.5]},
-				"0":{"size":[[1,0.125,1],[0.1875,0.4375,0.1875],[0.1875,0.4375,0.1875]],"offsets":[[0,0,0],[0.4125,0,0.7125],[0.4125,0,0.4875]],"center":[0.5,0.5,0.5]},
-				"1":{"size":[[1,0.125,1],[0.1875,0.4375,0.1875],[0.1875,0.4375,0.1875]],"offsets":[[0,0,0],[0.4125,0,0.7125],[0.4125,0,0.375]],"center":[0.5,0.5,0.5]},
-				"2":{"size":[[1,0.125,1],[0.1875,0.4375,0.1875],[0.1875,0.4375,0.1875]],"offsets":[[0,0,0],[0.4125,0,0.7125],[0.4125,0,0.25]],"center":[0.5,0.5,0.5]},
-				"3":{"size":[[1,0.125,1],[0.1875,0.4375,0.1875],[0.1875,0.4375,0.1875]],"offsets":[[0,0,0],[0.4125,0,0.7125],[0.4125,0,0.125]],"center":[0.5,0.5,0.5]}},
+"heavy_core": {"default": {"size": [[0.5, 0.5, 0.5]],
+                           "offsets": [[0.25, 0, 0.25]],
+                           "center": [0.5, 0.25, 0.5]}}
 ```
-## Block UV definitions
-For a small portion of blocks the UV definitions must be changed. To do this you must change the common name entry in lookups/block_uv.json. Like the shape file, this is a dictionary of block states. if there is not a block state to represent the one in the file a default block state is chosen.
-### block states 
- Block additions are supported in the python code. This needs to be moved out to become data drive, however this work has not been completed yet.
 
-Each block state must have a dictionary containing a uv_sizes entry and a offset entry. it may also contain an "overwrite" entry.
-### uv_sizes
-UV sizes must contain 6 entries, one for each directions ("up", "down", "north", "south", "east", "west"). These must contain a UV for each shape defined in the size in the block_shapes.json. Each direction must contain an array of arrays. The sub array needs to have 2 numbers, the size in the X, and Y. The size is the percentage of the texture size. 
-### offset
-Offset must contain 6 entries, one for each directions ("up", "down", "north", "south", "east", "west"). These must contain a Offset for each shape defined in the size in the block_shapes.json. Each direction must contain an array of arrays. The sub array needs to have 2 numbers, the Offset in the X, and Y. The Offset is the percentage of the texture size. Offsets start in the upper left hand corner.
-## overwrite (optional)
-If you need to select the texture directly, this is the mechanism for that. overwrite must contain 6 entries, one for each directions ("up", "down", "north", "south", "east", "west"). These must contain a overwrite for each shape defined in the size in the block_shapes.json. Each direction must contain an array. The  array needs to have a string for each texture. Default can be used if you want it to use the default for 1 or more of the sides.
+| Key | | |
+| --- | --- | --- |
+| `size` | required | one `[x, y, z]` per cube, as a fraction of a block |
+| `offsets` | optional | one `[x, y, z]` per cube; where each starts. Omitted means the origin |
+| `rotation` | optional | one `[x, y, z]` per cube, in degrees, turning that cube alone |
+| `center` | required | the point the family's own rotation is applied about |
+
+A variant name comes from the block's states — see `nbt_defs.json` below. The
+names `top`, `open`, `open_hinged` and `side` are used by the code itself for
+upper halves, open doors and trapdoors, and side-fed hoppers.
+
+---
+
+## block_uv.json
+
+The same variants, describing where on the texture each cube's faces are cut
+from. All six directions must be present, and each must have one entry per cube.
+
+```json
+"heavy_core": {"default": {
+    "uv_sizes": {"up": [[0.5, 0.5]], "down": [[0.5, 0.5]], "north": [[0.5, 0.5]],
+                 "south": [[0.5, 0.5]], "east": [[0.5, 0.5]], "west": [[0.5, 0.5]]},
+    "offset":   {"up": [[0.25, 0.25]], "down": [[0.25, 0.25]], "north": [[0.25, 0.5]],
+                 "south": [[0.25, 0.5]], "east": [[0.25, 0.5]], "west": [[0.25, 0.5]]}}}
+```
+
+- `uv_sizes` — how much of the tile that face takes, as a fraction
+- `offset` — where on the tile it starts, from the **upper left**
+
+**V grows downward.** A block sitting on the floor of its cell takes the lower
+part of the tile, so its `v` offset is one minus the top of the box.
+
+### overwrite
+
+Optional, and the only way to give the parts of a multi-cube block different
+textures. Without it every cube gets the block's same six faces.
+
+```json
+"overwrite": {"up": ["@down", "@up", "@north"], "north": ["@down", "@up", "@north"]}
+```
+
+One entry per cube, per face:
+
+- a literal path such as `textures/blocks/obsidian` is used as given
+- `"default"` leaves that cube's face alone
+- `"@up"`, `"@down"`, `"@north"` … mean **whatever this block declares for that
+  face**
+
+Prefer the `@` form. It survives a family gaining variants and works for a family
+shared by many block ids — one entry serves every wood a sign comes in.
+
+---
+
+## nbt_defs.json
+
+What a block state means. A state that is not listed is ignored entirely, which
+is the usual reason a block looks the same however it is placed.
+
+| Value | Effect |
+| --- | --- |
+| `rot` | picks a rotation from `block_rotation.json` |
+| `variant` | picks an entry from a texture **list**, through `variants.json` |
+| `top` | selects the `top` shape variant |
+| `data` | the state's **number** names the shape variant |
+| `shape` | the state's **value** names the shape variant |
+| `open_bit`, `hinge` | door and trapdoor flags |
+
+`data` is for numbers and `shape` for words. Several `shape` states on one block
+are joined with `-` in the order the state names sort, so `attached_bit` before
+`hanging` gives `"0-1"`.
+
+---
+
+## variants.json
+
+For textures that are declared as a list. Maps a state's value to the index that
+picks one.
+
+```json
+"rehydration_level": {"0": 0, "1": 1, "2": 2, "3": 3}
+```
+
+Keys are strings even when the state is a number.
+
+---
+
+## Working on the tables
+
+- Keep them compact. `json.dumps` explodes short numeric arrays across a line
+  each, which turns a one-value change into an unreviewable diff.
+  `tools/lookup_writer.py` replaces one family's span and leaves the rest of the
+  file byte for byte alone.
+- Be sparing with cubes. Since Vibrant Visuals arrived, the cost of drawing a
+  bone rose sharply, and every ghost block is one. A family carrying three or
+  more cubes should have a simplified form; `tools/make_low_geometry.py`
+  generates them, and wants re-running after a detailed shape changes.
+- Check your work:
+
+```bash
+python tools/coverage_report.py     what the bundled structures drop
+python tools/audit_blocks.py        every declared block resolved to a texture
+```
+
+Both should report nothing.

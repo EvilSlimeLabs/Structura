@@ -12,13 +12,13 @@ classifies every differing texture before it moves anything.
 
 A texture is KEPT when any of these holds:
 
-  * the community ships it greyscale and ours is not — vanilla tints those at
-    runtime from the biome colormap, and a ghost block cannot run the colormap,
-    so Structura bakes the tint in
-  * ours is more opaque — some textures were made solid on purpose so the ghost
-    survives the alpha pass that the transparency slider applies
-  * a commit outside the bulk vanilla imports touched it — somebody edited it by
-    hand and git remembers why
+  * the community ships it greyscale and this pack's copy is not. Vanilla tints
+    those at runtime from the biome colormap, and a ghost block cannot run the
+    colormap, so Structura bakes the tint in
+  * this pack's copy is more opaque. Some textures are solid on purpose so the
+    ghost survives the alpha pass that the transparency slider applies
+  * a commit outside the bulk vanilla imports touched it, meaning somebody
+    edited it by hand and git remembers why
 
 Everything else that differs in pixels is stale vanilla art and is safe to take.
 Textures whose pixels match and differ only in PNG encoding are left alone; there
@@ -31,13 +31,12 @@ import shutil
 import subprocess
 import sys
 
-## jsonc lives at the repository root: the generated pack reads the
-## submodule's JSONC at runtime too, so it is shipped code, not a tool
+## jsonc lives in the package rather than here: the program reads Bedrock's
+## permissive JSON at runtime too, so it is shipped code, not a tool
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import jsonc
-
+from structura import jsonc
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OURS = os.path.join(ROOT, "Vanilla_Resource_Pack")
+OURS = os.path.join(ROOT, "structura", "Vanilla_Resource_Pack")
 COMM = os.path.join(ROOT, "CommunityVanillaResourcePack")
 OUR_BLOCKS = os.path.join(OURS, "textures", "blocks")
 COMM_BLOCKS = os.path.join(COMM, "textures", "blocks")
@@ -48,7 +47,7 @@ COMM_BLOCKS = os.path.join(COMM, "textures", "blocks")
 BULK_IMPORT_COMMITS = {"37129f1", "a2c33d7", "47ffecd", "634b9cb"}
 
 ## Textures the greyscale and opacity tests do not catch but which are still
-## ours to keep.
+## deliberate edits to keep.
 ALWAYS_KEEP = {
     "grass_side.png", "grass_side_snowed.png", "grass_top.png", "none.png",
 }
@@ -129,7 +128,7 @@ def classify_textures():
                                % (a[..., 3].mean(), b[..., 3].mean()))
         else:
             reasons.append("dimensions differ (%s vs %s)" % (a.shape[1::-1], b.shape[1::-1]))
-            ## a frame-count change is a vanilla flipbook update, not our edit
+            ## a frame-count change is a vanilla flipbook update, not a hand edit
             reasons = []
         for commit, subject in hand_edit_commits(rel, subjects):
             reasons.append("hand edited in %s (%s)" % (commit, subject[:44]))
@@ -140,7 +139,7 @@ def classify_textures():
 
 
 def missing_textures():
-    """Textures the community pack has and we do not, excluding RTX companions."""
+    """Textures the community pack has and this one does not, RTX aside."""
     ours, theirs = relpaths(OUR_BLOCKS), relpaths(COMM_BLOCKS)
     return sorted(r for r in theirs
                   if r not in ours and not r.endswith(SKIP_SUFFIXES))
