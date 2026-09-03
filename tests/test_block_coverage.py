@@ -199,6 +199,26 @@ class MountingTests(unittest.TestCase):
         self.assertEqual(len(set(self.geo.uv_map[name] for name in windows)), 3,
                          "each window should be a tile of its own")
 
+    def test_a_shelf_shows_a_different_face_on_each_side(self):
+        # its texture is a sheet: the front with three compartments painted in,
+        # the solid back beside it, and planks for the ends. Taking the whole
+        # tile puts the compartments on all six faces.
+        self.geo.blocks = {}
+        self.geo.make_block(0, 0, 0, "oak_shelf", rot="south")
+        cube = list(self.geo.blocks.values())[0]["cubes"][0]
+        # a face's v runs from the top of the tile it reads, so the whole part
+        # of it names the tile and the fraction is the window within it
+        tiles = {face: int(cube["uv"][face]["uv"][1])
+                 for face in ("north", "south", "east", "west", "up", "down")}
+        self.assertNotEqual(tiles["north"], tiles["south"],
+                            "the back of a shelf is not its front")
+        self.assertEqual(len(set(tiles.values())), 4,
+                         "front, back, planks along the top and bottom, ends")
+        self.assertEqual(tiles["up"], tiles["down"], "both planks, one tile")
+        self.assertEqual(tiles["east"], tiles["west"], "both ends, one tile")
+        self.assertEqual(cube["size"], [1.0, 1.0, 0.5],
+                         "a shelf is a full block wide and tall, half deep")
+
     def test_a_window_larger_than_its_texture_is_ignored(self):
         # every wood has its own sheet, and a block whose texture is a plain
         # terrain tile must not end up reading blank space past the bottom of it

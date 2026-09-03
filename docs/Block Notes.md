@@ -216,6 +216,20 @@ different list of cubes rather than the same list moved:
 | `grindstone` | `standing` legs to the floor, `hanging` legs to the block above, `side` legs into the wall behind, `multiple` legs into both |
 | `hanging_sign` | `0-1` chains, `1-1` a bar under the block it is fixed to, `0-0` a bar with an arm back to the wall. Named by `attached_bit` and `hanging`, joined the way `core.py` joins shape states |
 | `campfire` | `0` four logs and the fire, `1` the logs alone |
+| `shelf` | one box, 16 wide by 16 tall by 8 deep, with a different picture on each face |
+
+**A shelf is a box against the wall behind it.** Its texture is a 32×32 sheet
+holding four different things: the front with three compartments painted into
+it, the solid back beside it, and plain planks across the bottom half for the
+top, the bottom and the two ends. Those regions are exactly the unwrap of a
+16×16×8 box, which is what a shelf is, and vanilla paints the compartments
+rather than cutting them, which is why the front carries their shading. Taking
+the whole tile puts the compartments on all six faces.
+
+It fills the back half of its block, `z` 0 to 8, the way a wall sign sits at `z`
+0 to 2. Its `powered_shelf_type` state, which says where a shelf sits in a row
+of them, is not read: the ends are painted on, and only the value 0 appears in
+any test structure.
 
 ---
 

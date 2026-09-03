@@ -19,6 +19,10 @@ form gets two crossed quads of the flame texture. That is also what tells a soul
 campfire from an ordinary one, because `@up` resolves to whichever fire the
 block declares.
 
+The shelf is here for the other reason a block cannot be read off a terrain
+tile: its texture is a sheet with a different picture for each face, and taking
+the whole of it paints the front's compartments onto all six.
+
 The families here own their entries in `lookups/block_shapes.json` and
 `lookups/block_uv.json` outright: re-running this replaces them. Nothing here is
 needed at run time. Re-run `tools/make_low_geometry.py` afterwards, or the
@@ -68,6 +72,12 @@ class Cube:
         self.window = window or {}
         self.rotation = rotation
 
+    def paint(self, face):
+        """The texture this face takes, which may differ from face to face."""
+        if isinstance(self.texture, dict):
+            return self.texture[face]
+        return self.texture
+
     def shape(self):
         return [px(n) for n in self.size], [px(n) for n in self.at]
 
@@ -99,7 +109,7 @@ def build(cubes, center=(8, 8, 8)):
             offset, window = cube.uv(face)
             uv["offset"][face].append(offset)
             uv["uv_sizes"][face].append(window)
-            uv["overwrite"][face].append(cube.texture)
+            uv["overwrite"][face].append(cube.paint(face))
     if any(cube.rotation for cube in cubes):
         shape["rotation"] = [list(cube.rotation or (0, 0, 0)) for cube in cubes]
     shape["center"] = [px(n) for n in center]
@@ -254,6 +264,35 @@ CAMPFIRES = {
 }
 
 
+# --- shelves ----------------------------------------------------------------
+#
+# A shelf's texture is a 32x32 sheet holding the four different things its faces
+# show: the front, with three compartments painted into it, top left; the solid
+# back beside it; and plain planks across the bottom half for the top, the
+# bottom and the two ends. The regions are exactly the unwrap of a box 16 wide,
+# 16 tall and 8 deep, which is what a shelf is. Vanilla paints the compartments
+# rather than cutting them, which is why the front carries their shading.
+#
+# It hangs on the wall behind it, so it fills the back half of its block: at no
+# rotation that is z 0 to 8, the same way a wall sign sits at z 0 to 2.
+SHELF_FRONT = "@north#0,0"
+SHELF_BACK = "@north#16,0"
+SHELF_FLAT = "@north#0,16"      # the top and the bottom, one above the other
+SHELF_END = "@north#16,16"      # the two ends, side by side
+
+shelf = Cube((16, 16, 8), (0, 0, 0), texture={
+    "south": SHELF_FRONT, "north": SHELF_BACK,
+    "up": SHELF_FLAT, "down": SHELF_FLAT,
+    "east": SHELF_END, "west": SHELF_END}, window={
+    "south": (0, 0, 16, 16), "north": (0, 0, 16, 16),
+    ## the flat tile holds the top over the bottom, and the end tile holds one
+    ## end beside the other, so each face takes half of the tile it reads
+    "up": (0, 0, 16, 8), "down": (0, 8, 16, 8),
+    "east": (0, 0, 8, 16), "west": (8, 0, 8, 16)})
+
+SHELVES = {"default": [shelf]}
+
+
 def main():
     print("writing the mounted forms")
     write("hanging_sign", HANGING_SIGNS)
@@ -262,6 +301,7 @@ def main():
     ## of the block, which is where its entry has always put the pivot
     write("grindstone", GRINDSTONES, center=(8, 7.04, 8))
     write("campfire", CAMPFIRES, center=(8, 4, 8))
+    write("shelf", SHELVES)
 
     ## the bell's own faces belong on the bell, not the beam's planks and not
     ## the posts' stone, so its side faces are pinned to bell_side

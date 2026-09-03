@@ -487,10 +487,16 @@ whatever sheet that wood has. Each window is a tile of its own, and one that
 falls outside the texture is ignored.
 
 **How a block is mounted is a different shape, not the same shape moved.**
-`tools/make_block_forms.py` owns `hanging_sign`, `bell`, `grindstone` and
-`campfire` in both tables, and gives each mounting its own list of cubes. It also
+`tools/make_block_forms.py` owns `hanging_sign`, `bell`, `grindstone`, `campfire`
+and `shelf` in both tables, and gives each mounting its own list of cubes. It also
 gives a lit campfire its fire, which is the only thing telling it from a dead one
-and a soul campfire from an ordinary one.
+and a soul campfire from an ordinary one, and gives a shelf a different picture
+on each face, since its sheet holds four.
+
+**A wall mounting sits at z 0.** `wall_sign` is the family to copy: its board is
+at `z` 0 to 2, so the wall is the block behind it and the face looks along +z,
+which is where the rotation tables put south. A bell's beam, a grindstone's legs,
+a hanging sign's arm and a shelf's whole body all run that way.
 
 **Edit the tables a family at a time.** `tools/lookup_writer.py` replaces one
 family's span and leaves the rest of the file byte for byte alone. `block_uv.json`
