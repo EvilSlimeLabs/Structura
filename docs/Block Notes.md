@@ -204,6 +204,20 @@ Geometry numbers and UV values can be checked here. How they look cannot.
 - **Two block tall flowers** take the block's `down` texture on the lower half
   and `up` on the upper. Bedrock's `side` texture for these is a different
   plant's back and should never be used.
+- **A banner is drawn undyed, without its patterns.** Vanilla tints one white
+  sheet at run time and lays the patterns over it, and a ghost block can do
+  neither: the colour and the patterns are in the block entity, and the textures
+  to draw them with would have to be built.
+- **A conduit is drawn closed.** Bedrock gives the block no state for being
+  active, because whether it is depends on the frame of prismarine around it at
+  run time, so a structure file cannot say. The open form is written and
+  reachable if a state ever appears.
+- **A player head, a dragon head and a piglin head are still skipped.** A player
+  head wears whatever skin the player has, and neither of the other two has a
+  sheet in the pack this reads.
+- **The compost heights, the egg positions and the cocoa sizes** are plausible
+  rather than measured from the game. The counts and the stages are right; where
+  exactly each egg sits in its clutch is not knowable from here.
 
 The forms a block takes from how it is mounted are written by
 `tools/make_block_forms.py`, which owns the shapes and the UV windows for
@@ -217,6 +231,33 @@ different list of cubes rather than the same list moved:
 | `hanging_sign` | `0-1` chains, `1-1` a bar under the block it is fixed to, `0-0` a bar with an arm back to the wall. Named by `attached_bit` and `hanging`, joined the way `core.py` joins shape states |
 | `campfire` | `0` four logs and the fire, `1` the logs alone |
 | `shelf` | one box, 16 wide by 16 tall by 8 deep, with a different picture on each face |
+
+Three more scripts write the families whose form follows a state:
+
+| Script | What it owns |
+| --- | --- |
+| `tools/make_growth_forms.py` | the crops, sweet berry bushes, cocoa, turtle eggs, composters, seagrass and coral fans |
+| `tools/make_furniture_forms.py` | beds, lecterns, enchanting tables, conduits, daylight detectors, spore blossoms |
+| `tools/make_head_forms.py` | the mob heads |
+| `tools/make_container_forms.py` | shulker boxes and banners |
+
+**A stage is a family, not a variant of `cross_texture`.** Wheat has eight
+textures, one per step of `growth`, and every crop, berry bush and cocoa pod has
+its own. They cannot be variants of the shared plant family, because a variant
+named "3" there would answer for every cross shaped block in the game that
+happened to be in state 3. Each is a family of its own, and its stage textures
+are named as literal paths: `terrain_texture.json` has no entry for
+`wheat_stage_0`, which is a file in the pack that nothing points at.
+
+**A state that indexes a texture list has to be in `variants.json`.** Without an
+entry the index is zero, so every one of them draws the first texture in the
+list, silently: that is what made every two-high plant a sunflower, every short
+fern a tuft of grass, and every mushroom block wear the inside face.
+
+**A head is an entity sheet.** So is a shulker box, a banner and a hanging sign.
+Those sheets live in `textures/entity/` and are copied out of the community
+submodule, because the trimmed pack carries only terrain tiles. Each face names
+the 16×16 window it reads.
 
 **A shelf is a box against the wall behind it.** Its texture is a 32×32 sheet
 holding four different things: the front with three compartments painted into

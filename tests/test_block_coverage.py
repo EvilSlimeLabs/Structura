@@ -182,6 +182,39 @@ class MountingTests(unittest.TestCase):
         self.assertEqual(len(lit) - len(out), 2, "the flame is two quads")
         self.assertEqual(len(self.cubes("soul_campfire", data="0")), len(lit))
 
+    def test_an_open_door_is_drawn_by_its_lower_block_alone(self):
+        # the lower block of a door draws both halves and the upper draws
+        # nothing, but the open forms used to be settled first, so an open door
+        # was drawn twice, once by each of its blocks, in the same place
+        for hinge in (False, True):
+            self.assertEqual(len(self.cubes("iron_door", rot=1, top=True,
+                                            trap_open=True, hinge=hinge)), 1)
+        self.assertEqual(len(self.cubes("iron_door", rot=1, top=True)), 1)
+        self.assertEqual(len(self.cubes("iron_door", rot=1, trap_open=True)), 2)
+
+    def test_a_crop_wears_the_texture_of_the_stage_it_is_at(self):
+        # eight stages of wheat, and a lookup naming only the last of them
+        # draws a field of seedlings as a field ready to harvest
+        seen = []
+        for stage in range(8):
+            self.geo.blocks = {}
+            self.geo.uv_map = {}
+            self.geo.uv_array = None
+            self.geo.make_block(0, 0, 0, "wheat", data=stage)
+            seen.append(sorted(self.geo.uv_map)[0])
+        self.assertEqual(len(set(seen)), 8, "every stage is its own texture")
+        self.assertIn("wheat_stage_0", seen[0])
+        self.assertIn("wheat_stage_7", seen[7])
+
+    def test_a_head_is_drawn_rather_than_ignored(self):
+        # a head was `ignore`, so every skull in a build was silently missing
+        for name in ("skeleton_skull", "wither_skeleton_skull", "zombie_head",
+                     "creeper_head"):
+            self.assertEqual(len(self.cubes(name, rot=1)), 1, name)
+        floor = self.cubes("skeleton_skull", rot=1)
+        wall = self.cubes("skeleton_skull", rot=3)
+        self.assertNotEqual(floor, wall, "a wall head hangs where it is fixed")
+
     def test_a_sheet_texture_is_read_a_window_at_a_time(self):
         # A hanging sign's texture is an entity sized sheet carrying the bar,
         # the chains and the board one under the other, and only the top left

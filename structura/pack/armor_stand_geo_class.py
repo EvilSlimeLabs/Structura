@@ -241,6 +241,17 @@ class ArmorStandGeo:
             shape_variant="default"
             if block_type == "hopper" and rot is not None and rot != 0:
                 shape_variant="side"
+            elif block_type.startswith("skull") and rot is not None and str(rot) != "1":
+                ## A head reads facing_direction, where 1 is the floor and 2 to
+                ## 5 name the wall it hangs on. The mounting is the shape as
+                ## well as the turn, and the state carries both.
+                shape_variant = "wall"
+            elif block_type == "door" and top:
+                ## The lower block of a door draws both of its halves, so the
+                ## upper one draws nothing at all. That has to be settled before
+                ## the open forms below, or an open door is drawn twice: once by
+                ## each of its blocks, in the same place.
+                shape_variant = "top"
             elif block_type == "door" and trap_open:
                 ## A door standing open is a different shape, not the closed one
                 ## turned. Which way it swings is the hinge, which decides the
@@ -621,12 +632,14 @@ class ArmorStandGeo:
                             index = choices.get(str(variant[1]))
                     if index is None:
                         raise KeyError(variant[1])
-                if debug:
-                    print(index)
-                    print(key)
-                    print(texturedata[textures[key]]["textures"])
-                    print(texturedata[textures[key]]["textures"][index])
-                textures[key] = texturedata[textures[key]]["textures"][index]
+                ## One variant index reads every face, and the faces do not
+                ## have to name lists of the same length: a double plant's
+                ## sides name two textures, the sunflower's front and back,
+                ## while its halves name six, one per plant. A face with no
+                ## entry that far along takes its last one rather than dropping
+                ## the block.
+                choices_for_face = texturedata[textures[key]]["textures"]
+                textures[key] = choices_for_face[min(index, len(choices_for_face) - 1)]
 
             
         return textures

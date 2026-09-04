@@ -97,7 +97,9 @@ tools/                   one-off and maintenance scripts, not shipped
                           sync_vanilla_pack.py, lookup_writer.py,
                           make_low_geometry.py, make_bookshelf.py,
                           make_statue_poses.py, fix_problem_blocks.py,
-                          make_block_forms.py, stage_tech_pack.py,
+                          make_block_forms.py, make_growth_forms.py,
+                          make_furniture_forms.py, make_head_forms.py,
+                          make_container_forms.py, stage_tech_pack.py,
                           lang_fun.py, make_special_languages.py)
 tests/                   unittest suite
 test_structures/         .mcstructure files to generate against
@@ -735,6 +737,10 @@ python tools/make_bookshelf.py                         the bookshelf's 64 states
 python tools/make_statue_poses.py                      the copper golem's poses
 python tools/make_special_languages.py                    the five generated languages
 python tools/make_block_forms.py                       the mounted forms, and the fire
+python tools/make_growth_forms.py                      crops, eggs, compost, coral
+python tools/make_furniture_forms.py                   beds, lecterns, conduits
+python tools/make_head_forms.py                        the mob heads
+python tools/make_container_forms.py                   shulker boxes and banners
 ```
 
 `lookups/` and `Vanilla_Resource_Pack/` are opened by relative path, so all of
