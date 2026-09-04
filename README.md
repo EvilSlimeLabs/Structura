@@ -144,9 +144,14 @@ the host — and otherwise uses (and creates) one in your home directory.
 
 ### Languages
 
-Supported languages include English, Español, Tagalog, Cebuano, and more.
+English, Українська, Español, 简体中文, Tagalog and Cebuano, plus five that are
+not serious about it: Pirate Speak, LOLCAT, Shakespearean, upside-down English
+and the enchanting table alphabet.
 
-To contribute a translation, see the [Translation Guide](docs/TRANSLATION.md).
+Each is labelled by its language code rather than a flag, because a flag is a
+country and several countries share a language. Adding one is a file named for
+its locale, the way Minecraft names its own, and nothing else: see the
+[Translation Guide](docs/TRANSLATION.md).
 
 
 ![About](docs/about.png)

@@ -56,42 +56,51 @@ class LanguageTests(unittest.TestCase):
     def setUpClass(cls):
         settings.langs = settings.read_languages()
 
-    def test_every_language_has_a_code_for_its_badge(self):
-        # the picker labels languages by code, not by flag: a flag is a country,
-        # and several countries share a language. Two letters where ISO 639-1
-        # has one, three where it does not: Cebuano, and the constructed
-        # languages, which are not real languages and have no code at all.
-        for name in settings.langs:
-            code = lang_parse.code(name)
-            self.assertRegex(code, r"^[a-z]{2,3}$", "%s has no usable code" % name)
+    def test_a_language_is_named_by_its_locale(self):
+        # named the way Minecraft names its own, a language and a region. The
+        # language part is ISO 639-1 where it has one and 639-2 where it does
+        # not, which is ceb for Cebuano; the special languages take Minecraft's own
+        # codes, which is why four of them are English underneath.
+        for locale in settings.langs:
+            self.assertRegex(locale, r"^[a-z]{2,3}_[A-Za-z]{2,3}$",
+                             "%s is not a locale" % locale)
+
+    def test_every_language_says_what_it_is_called(self):
+        # the name is in the file, in the language itself, so a new column is a
+        # whole language and nothing about it lives anywhere else
+        for code in settings.choices():
+            name = settings.language_name(code)
+            self.assertTrue(name and name != code,
+                            "%s does not name itself" % code)
+
+    def test_a_language_remembered_by_name_still_resolves(self):
+        # Structura stored the name rather than the code until 3.0
+        self.assertEqual(settings.language_code("Español"), "es_ES")
+        self.assertEqual(settings.language_code("LOLCAT"), "lol_US")
+        self.assertIsNone(settings.language_code("Klingon"))
 
     def test_every_language_has_colours_and_they_differ_by_language(self):
         from structura.ui import lang_icons
 
         seen = {}
-        for name in settings.choices():
-            code = lang_parse.code(name)
+        for code in settings.choices():
             palette = lang_icons.colour(code)
             self.assertTrue(1 <= len(palette) <= 3,
-                            "%s has %d colours" % (name, len(palette)))
+                            "%s has %d colours" % (code, len(palette)))
             for rgb in palette:
                 self.assertEqual(len(rgb), 3)
-            seen[name] = palette
+            seen[code] = palette
         # a badge that looks like every other badge is not identifying anything
         self.assertGreater(len(set(map(str, seen.values()))), len(seen) // 2)
 
-    def test_the_constructed_languages_are_listed_and_come_last(self):
+    def test_english_comes_first_and_the_rest_are_in_name_order(self):
+        # English is the source the rest are translated from and the fallback
+        # for anything missing, so it leads; everything else is alphabetical by
+        # its own name, wherever a language file turns up
         offered = settings.choices()
-        fake = [n for n in offered if lang_parse.constructed(n)]
-        self.assertTrue(fake)
-        # they sit together at the end, so nobody hunting a real language has
-        # to scroll past them
-        self.assertEqual(offered[-len(fake):], fake)
-        from structura.ui import lang_icons
-
-        for name in fake:
-            self.assertIn(lang_parse.code(name), lang_icons.colours(),
-                          "%s has no entry in the colour table" % name)
+        self.assertEqual(offered[0], "en_US")
+        names = [settings.language_name(code).casefold() for code in offered[1:]]
+        self.assertEqual(names, sorted(names))
 
     def test_an_unlisted_language_falls_back_to_the_default_colour(self):
         from structura.ui import lang_icons
@@ -103,18 +112,18 @@ class LanguageTests(unittest.TestCase):
         self.assertEqual(lang_icons.colour("zzz"), expected)
 
     def test_english_fills_gaps_in_another_language(self):
-        strings = settings.language("Español")
-        english = settings.langs["English"]
+        strings = settings.language("es_ES")
+        english = settings.langs["en_US"]
         self.assertEqual(set(strings), set(english))
         self.assertTrue(all(strings.values()))
 
     def test_the_placeholder_column_is_not_offered(self):
-        self.assertNotIn("Test", settings.choices())
-        self.assertIn("English", settings.choices())
+        self.assertNotIn("xx_XX", settings.choices())
+        self.assertIn("en_US", settings.choices())
 
     def test_an_unknown_language_falls_back_rather_than_raising(self):
-        strings = settings.language("Klingon")
-        self.assertEqual(strings, settings.langs["English"])
+        strings = settings.language("tlh")
+        self.assertEqual(strings, settings.langs["en_US"])
 
 
 class StringCoverageTests(unittest.TestCase):
@@ -124,13 +133,13 @@ class StringCoverageTests(unittest.TestCase):
     and nothing else would complain about it.
     """
 
-    def test_every_key_the_window_uses_is_in_langs_csv(self):
+    def test_every_key_the_window_uses_is_translated(self):
         with open(os.path.join("structura", "ui", "structura_gui.py"),
                   encoding="utf-8") as f:
             source = f.read()
         keys = set(re.findall(r'(?:self\.)?text\(\s*"([^"]+)"', source))
         keys |= set(re.findall(r'app\.text\(\s*"([^"]+)"', source))
-        english = lang_parse.parse()["English"]
+        english = lang_parse.parse()["en_US"]
         # themes are looked up by their stored name
         keys |= set(settings.THEMES)
         # a key built by interpolation cannot be read out of the source; the
@@ -140,16 +149,9 @@ class StringCoverageTests(unittest.TestCase):
         self.assertEqual(missing, [], "strings used by the window but not translated")
 
     def test_the_interpolated_keys_exist_in_every_form(self):
-        english = lang_parse.parse()["English"]
+        english = lang_parse.parse()["en_US"]
         for axis in "xyz":
             self.assertIn("axis %s" % axis, english)
-
-    def test_no_language_column_is_missing_rows(self):
-        table = lang_parse.parse()
-        english = set(table["English"])
-        for name, strings in table.items():
-            self.assertEqual(set(strings), english,
-                             "%s has a different set of rows" % name)
 
 
 class ThemeTests(unittest.TestCase):
@@ -189,9 +191,9 @@ class FontTests(unittest.TestCase):
         from structura.ui import ui_fonts
         # Source Sans Pro has no CJK glyphs and is not the enchanting alphabet,
         # and Tk will not fall back to a privately registered font by itself
-        self.assertNotEqual(ui_fonts.family("简体中文"), ui_fonts.family("English"))
-        self.assertNotEqual(ui_fonts.family("Enchanting"), ui_fonts.family("English"))
-        self.assertEqual(ui_fonts.family("Pirate Speak"), ui_fonts.family("English"))
+        self.assertNotEqual(ui_fonts.family("zh_CN"), ui_fonts.family("en_US"))
+        self.assertNotEqual(ui_fonts.family("en_SGA"), ui_fonts.family("en_US"))
+        self.assertEqual(ui_fonts.family("en_PT"), ui_fonts.family("en_US"))
 
 
 class IconControlTests(unittest.TestCase):
@@ -305,8 +307,8 @@ class RuneFaceTests(unittest.TestCase):
     def test_the_face_is_asked_for_smaller_than_the_interface_face(self):
         from structura.ui import ui_fonts
 
-        self.assertLess(ui_fonts.scale("Enchanting"), 1.0)
-        self.assertEqual(ui_fonts.scale("English"), 1.0)
+        self.assertLess(ui_fonts.scale("en_SGA"), 1.0)
+        self.assertEqual(ui_fonts.scale("en_US"), 1.0)
 
 
 class LanguageMenuTests(unittest.TestCase):
@@ -549,38 +551,6 @@ class LanguageMenuTests(unittest.TestCase):
             app.destroy()
 
 
-class ConstructedLanguageTests(unittest.TestCase):
-    """The joke languages have to actually say something different."""
-
-    ## a proper name and the three axis letters, which stay as they are
-    ## two proper names and the three axis letters, which stay as they are
-    LEFT_ALONE = {"title", "techpack", "axis x", "axis y", "axis z"}
-
-    def test_every_label_is_transformed(self):
-        from structura import lang_fun
-        settings.langs = settings.read_languages()
-        english = settings.langs["English"]
-        for name, transform in (("pirate", lang_fun.pirate),
-                                ("lolcat", lang_fun.lolcat),
-                                ("shakespeare", lang_fun.shakespeare)):
-            untouched = sorted(key for key, value in english.items()
-                               if value and transform(value) == value
-                               and key not in self.LEFT_ALONE)
-            self.assertEqual(untouched, [],
-                             "%s leaves these in plain English: %s"
-                             % (name, untouched))
-
-    def test_a_placeholder_survives_every_transform(self):
-        # the transforms run only between the {} markers; a mangled placeholder
-        # raises on the next .format()
-        from structura import lang_fun
-        sample = {"line": "Added {} to the pack"}
-        for name in lang_fun.names():
-            spoken = lang_fun.translate(name, sample)["line"]
-            self.assertIn("{}", spoken, "%s lost its placeholder" % name)
-            spoken.format("a thing")
-
-
 class CoordinatesButtonTests(unittest.TestCase):
     def test_it_is_wide_enough_in_every_language(self):
         # Ukrainian needs seventy per cent more room than English, and the
@@ -660,7 +630,7 @@ class SettingsFileTests(unittest.TestCase):
     ## first test rather than being quietly untested.
     def changes(self):
         return {
-            "lang": ("Español", settings.set_language),
+            "lang": ("es_ES", settings.set_language),
             "theme": ("dark", settings.set_theme),
             "tech_pack": ("compatibility", settings.set_tech_pack),
             "low_geometry": (True, settings.set_low_geometry),
@@ -699,6 +669,57 @@ class SettingsFileTests(unittest.TestCase):
                 setter(value)
                 self.assertEqual(self.on_disk().get(key), settings.settings[key],
                                  "%s was not written to the file" % key)
+
+    def first_launch(self, desktop):
+        """Load with nothing remembered, pretending the desktop says this."""
+        from structura import system_locale
+
+        if os.path.isfile(self.path):
+            os.remove(self.path)
+        ## a machine that once ran 1.7 has a settings.json of its own, which is
+        ## the migration path rather than a first launch
+        real_legacy = settings.LEGACY_SETTINGS_FILE
+        real_read = system_locale.read
+        settings.LEGACY_SETTINGS_FILE = os.path.join(self.folder, "nothing.json")
+        system_locale.read = lambda: desktop
+        try:
+            settings.load()
+            return settings.settings["lang"]
+        finally:
+            settings.LEGACY_SETTINGS_FILE = real_legacy
+            system_locale.read = real_read
+
+    def test_the_first_launch_starts_in_the_desktops_language(self):
+        # nobody should have to find the picker to read the window in their own
+        # language, and the machine already knows the answer
+        self.assertEqual(self.first_launch("uk_UA"), "uk_UA")
+        self.assertEqual(self.first_launch("ceb_PH"), "ceb_PH")
+        # a region with no file of its own falls back to the language
+        self.assertEqual(self.first_launch("es_MX"), "es_ES")
+        self.assertEqual(self.first_launch("zh_TW"), "zh_CN")
+        # and a language with no file at all reads English
+        self.assertEqual(self.first_launch("fr_FR"), "en_US")
+        self.assertEqual(self.first_launch("en_GB"), "en_US")
+        self.assertEqual(self.first_launch(None), "en_US")
+        # the placeholder is never chosen for anybody
+        self.assertEqual(self.first_launch("xx_XX"), "en_US")
+
+    def test_a_remembered_language_outlives_the_desktops(self):
+        from structura import system_locale
+
+        settings.set_language("en_US")
+        real = system_locale.read
+        system_locale.read = lambda: "uk_UA"
+        try:
+            settings.load()
+        finally:
+            system_locale.read = real
+        self.assertEqual(settings.settings["lang"], "en_US")
+
+    def test_the_guess_is_written_down_so_it_is_made_once(self):
+        # a person who then picks English on a Spanish machine keeps English
+        self.first_launch("uk_UA")
+        self.assertEqual(self.on_disk().get("lang"), "uk_UA")
 
     def test_the_window_opens_with_the_remembered_low_geometry(self):
         # the switch describes the machine, so it has to survive a restart

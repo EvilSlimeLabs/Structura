@@ -20,7 +20,6 @@ by substitution, the way the alphabet is meant to be.
 Needs fonttools, and for the CJK subset a copy of Noto Sans SC to subset from.
 """
 import argparse
-import csv
 import os
 import sys
 
@@ -28,7 +27,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FONTS = os.path.join(ROOT, "structura", "fonts")
-LANGS = os.path.join(ROOT, "lookups", "langs.csv")
+LANGS = os.path.join(ROOT, "structura", "lookups", "lang")
 SGA_SHEET = os.path.join(ROOT, "CommunityVanillaResourcePack", "font", "ascii_sga.png")
 
 CJK_OUT = "NotoSansSC-Structura.ttf"
@@ -39,10 +38,12 @@ SGA_FAMILY = "Structura Enchanting"
 def used_characters():
     """Every character the window can display, from every translation."""
     chars = set(" 0123456789.,:;!?()[]{}/\\-_+=%#@&*'\"|<>~")
-    with open(LANGS, encoding="utf-8-sig", newline="") as f:
-        for row in csv.reader(f):
-            for cell in row:
-                chars.update(cell)
+    for name in sorted(os.listdir(LANGS)):
+        if not name.endswith(".lang"):
+            continue
+        with open(os.path.join(LANGS, name), encoding="utf-8-sig") as f:
+            for line in f:
+                chars.update(line)
     ## the pack name, description and file names are the user's own text and
     ## cannot be known here; Latin and the digits above cover the common case
     for start, end in ((0x20, 0x7F),):

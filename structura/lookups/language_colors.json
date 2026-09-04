@@ -2,26 +2,22 @@
   "default": [
     "#E2A834"
   ],
-  "sga": [
+  "en_SGA": [
     "#7C5AC4",
     "#2B1B4A"
   ],
-  "arr": [
+  "en_PT": [
     "#1B1B1B",
     "#B03A2E",
     "#1B1B1B"
   ],
-  "cat": [
+  "lol_US": [
     "#E25C9E",
     "#FFD166"
   ],
-  "wil": [
+  "en_WS": [
     "#3E6CBE",
     "#D9C89E"
-  ],
-  "uen": [
-    "#2EA89E",
-    "#123B39"
   ],
   "ceb": [
     "#0038A8",

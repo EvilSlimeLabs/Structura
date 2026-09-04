@@ -56,8 +56,8 @@ structura/               everything importable, and everything it reads
   app.py                   the dual use decision, so __init__ stays clean
   core.py                  the pipeline: structure in, pack folder out
   settings.py              settings, and the strings both sides label things with
-  lang_parse.py            reads lookups/langs.csv
-  lang_fun.py              the constructed languages, generated from English
+  lang_parse.py            reads lookups/lang/, one file per language
+  system_locale.py         what language the desktop is set to, for a first launch
   paths.py                 where data lives, in a checkout and inside the bundle
   version.py               reads the version out of pyproject.toml
   jsonc.py                 reads Bedrock's permissive JSON; shipped, not a tool
@@ -84,6 +84,7 @@ structura/               everything importable, and everything it reads
     lang_icons.py            the language picker's code badges
 
   lookups/                 the lookup tables this project owns
+    lang/                    one .lang file per language, named for its locale
   Vanilla_Resource_Pack/   trimmed vanilla pack textures are read from
   fonts/                   the three bundled faces, with their licences
   images/                  the two pictures the running program opens
@@ -96,7 +97,8 @@ tools/                   one-off and maintenance scripts, not shipped
                           sync_vanilla_pack.py, lookup_writer.py,
                           make_low_geometry.py, make_bookshelf.py,
                           make_statue_poses.py, fix_problem_blocks.py,
-                          make_block_forms.py, stage_tech_pack.py)
+                          make_block_forms.py, stage_tech_pack.py,
+                          lang_fun.py, make_special_languages.py)
 tests/                   unittest suite
 test_structures/         .mcstructure files to generate against
 docs/                    user-facing documentation, including Block Notes.md,
@@ -207,6 +209,12 @@ Things worth knowing before changing it:
   does not change between structures. Every setter in `settings.py` writes the
   file, and `tests/test_interface.py` fails when a key in `DEFAULTS` has no
   setter it checks.
+- **The first launch starts in the desktop's language.** With no language
+  remembered, `system_locale.read()` asks the machine and `settings.match_locale`
+  turns the answer into one of the files: that locale, then any file for the
+  language, then English. It happens once, because the guess is written to the
+  file like any other choice, so somebody who then picks English on a Spanish
+  machine keeps English.
 
 ### The generated pack's name and description
 
@@ -260,14 +268,47 @@ the NameError it is, rather than only in a release nobody has run yet.
 
 ## Languages
 
-`lookups/langs.csv` holds the real ones, one column per language. The
-constructed ones -- Enchanting, Pirate Speak, LOLCAT, Shakespearean and
-upside-down English -- are **not** in the CSV: `ui/lang_fun.py` generates them from
-the English column when the table is loaded. Sixty-odd strings times five joke
-languages is three hundred cells nobody would keep in step; generated, they cover
-whatever label is added next for free.
+**One file per language, in `lookups/lang/`.** `<locale>.lang`, one `key=value`
+per line, UTF-8, `#` for a comment. Adding a language is adding a file and, if
+its *language* has no colour yet, a line in `lookups/language_colors.json`.
+Nothing lists the languages: `lang_parse.parse()` reads the folder.
 
-Two things to keep in mind when touching `ui/lang_fun.py`:
+**A language is named by its locale everywhere**, the way Minecraft names its
+own: a language and a region, `en_US`, `es_MX`, `zh_CN`. The language part is
+ISO 639-1 where there is one and ISO 639-2 where there is not, which is `ceb`
+for Cebuano. The locale is the file's name, the key every table is read with,
+the value the picker carries, and what `.structura` remembers, and **nothing
+inside the file repeats it** -- a locale written in two places is one that can
+disagree with itself.
+
+**The language part is what a locale falls back to.** `ui_fonts` and
+`lang_icons` ask for the locale and then for its language, so `zh_TW` is drawn
+in the same face and the same colours as `zh_CN` without either being listed.
+That is what makes adding Mexican Spanish beside Spain's a matter of adding a
+file. `lang_parse.language_of` is the split.
+
+**Two lines describe the language rather than label anything.** `language name`
+is its own name for itself, which the picker shows and sorts by. `language
+badge` is the letters on its badge, for the languages where the language part is
+not the thing to show: `en_PT` reads PT, because Pirate Speak reading EN says
+nothing. `lang_parse.META` names both, and the tests that compare one language
+against another leave them out. Neither is the `language` line, which is the
+word "language" translated, for the label beside the picker.
+
+The picker leads with English, because it is the source the rest are translated
+from, and then goes alphabetically by name. The special languages sit among the
+real ones; nothing keeps them apart.
+
+**The special languages are files too, and generated.**
+`tools/make_special_languages.py` writes them from `en_US.lang` using the transforms
+in `tools/lang_fun.py`, at the locales Minecraft itself uses: `en_PT` Pirate
+Speak, `lol_US` LOLCAT, `en_WS` Shakespearean, `en_UD` upside-down English, and
+`en_SGA` for Enchanting, which Minecraft has no language for because it is a
+font. Sixty-odd strings times five is three hundred lines nobody would keep in
+step. **Re-run it after changing an English string**; `tests/test_languages.py`
+fails when they have drifted.
+
+Two things to keep in mind when touching `tools/lang_fun.py`:
 
 - **Format placeholders are protected.** The transforms run only over the text
   between `{}` markers. Reversing "Built {}" without that protection produces
@@ -275,12 +316,17 @@ Two things to keep in mind when touching `ui/lang_fun.py`:
 - **Enchanting is an evocation, not the real alphabet.** Minecraft's enchanting
   table script is a *font* -- the glyphs are in the resource pack as
   `font/ascii_sga.png` and there is no Unicode block for them -- so no string of
-  characters can be the genuine article. Making it real would mean building a
-  font from that sheet and loading it privately at run time.
+  characters can be the genuine article. It is generated as English unchanged and
+  drawn in the rune face `tools/make_fonts.py` builds from that sheet.
 
-Badges are drawn by `ui/lang_icons.py`: two or three letters, amber for real
-languages and a distinct hue per constructed one, so the picker shows at a glance
-which entries are a joke.
+Badges are drawn by `ui/lang_icons.py`, coloured by
+`lookups/language_colors.json`, which carries an entry for nearly every ISO code
+and one per special language, so every entry in the picker is told apart by its
+colours. **One badge is borrowed:** upside-down English wears the English badge
+flipped top to bottom, letters and all, which turns the slant of the bands over
+as well as the text. `lang_icons.UPSIDE_DOWN` is the only entry of its kind.
+
+`docs/TRANSLATION.md` is what a translator reads; keep it in step with the files.
 
 ---
 
@@ -447,7 +493,7 @@ detailed shape**, or the simple form is still the old one's outline.
 | `lookups/nbt_defs.json` | block state name → what it means (`rot`, `top`, `variant`, `data`, `shape`, `open_bit`, `hinge`) |
 | `lookups/variants.json` | variant state value → index into a terrain_texture list |
 | `lookups/material_list_names.json` | block id → the name shown in the block list |
-| `lookups/langs.csv` | UI strings, one column per language |
+| `lookups/lang/<locale>.lang` | UI strings, one file per language, named for its locale |
 
 `block_shapes.json` and `block_uv.json` must agree. A variant that exists in one
 and not the other silently falls back to `default`, which is how a snow layer
@@ -687,6 +733,7 @@ python tools/make_fonts.py                             rebuild the bundled faces
 python tools/make_low_geometry.py                      the simplified shapes
 python tools/make_bookshelf.py                         the bookshelf's 64 states
 python tools/make_statue_poses.py                      the copper golem's poses
+python tools/make_special_languages.py                    the five generated languages
 python tools/make_block_forms.py                       the mounted forms, and the fire
 ```
 

@@ -18,6 +18,7 @@ system font, which is what Tk does for a missing glyph anyway.
 import os
 import sys
 
+from structura import lang_parse
 from structura import paths
 FAMILY = "Source Sans Pro"
 
@@ -37,15 +38,17 @@ FILES = ("SourceSansPro-Regular.ttf",
          "NotoSansSC-Structura.ttf",
          "StructuraEnchanting.ttf")
 
-## a language whose script the interface face does not cover gets its own
-LANGUAGE_FAMILY = {"简体中文": CJK_FAMILY, "Enchanting": SGA_FAMILY}
+## A language whose script the interface face does not cover gets its own. Keyed
+## by locale or by the language part of one: `zh` covers zh_CN and zh_TW alike,
+## and en_SGA is English written in the enchanting alphabet.
+LANGUAGE_FAMILY = {"zh": CJK_FAMILY, "en_SGA": SGA_FAMILY}
 
 ## What to multiply a requested point size by, per face. The rune alphabet is
 ## squarer than a Latin one and stays about a fifth wider even with the ink
 ## measured properly, so it is asked for a little smaller and the window's
 ## labels come out the length the layout was built around. Anything not listed
 ## is used at the size it was asked for.
-LANGUAGE_SCALE = {"Enchanting": 0.85}
+LANGUAGE_SCALE = {"en_SGA": 0.85}
 
 ## what to use when the bundled font could not be registered
 FALLBACKS = ("Segoe UI", "Helvetica Neue", "DejaVu Sans", "sans-serif")
@@ -89,8 +92,22 @@ def register():
     return _registered
 
 
-def family(language=None):
-    """The family name to ask Tk for, for this language.
+def _for(table, locale, missing):
+    """A locale's entry, or its language's, or `missing`.
+
+    Falling back to the language is what lets a regional variant be added as a
+    file and nothing else: zh_TW is drawn in the same face as zh_CN because both
+    ask for `zh` when neither is listed by name.
+    """
+    if locale is None:
+        return missing
+    if locale in table:
+        return table[locale]
+    return table.get(lang_parse.language_of(locale), missing)
+
+
+def family(locale=None):
+    """The family name to ask Tk for, for this locale.
 
     Tk substitutes silently for a family it does not have, and its per-character
     fallback does not reach a privately registered font, so the face is chosen
@@ -99,12 +116,12 @@ def family(language=None):
     """
     if not register():
         return FALLBACKS[0]
-    return LANGUAGE_FAMILY.get(language, FAMILY)
+    return _for(LANGUAGE_FAMILY, locale, FAMILY)
 
 
-def scale(language=None):
+def scale(locale=None):
     """How much to shrink this language's face, as a factor of the asked size."""
-    return LANGUAGE_SCALE.get(language, 1.0)
+    return _for(LANGUAGE_SCALE, locale, 1.0)
 
 
 def truetype(weight="Regular"):

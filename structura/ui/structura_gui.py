@@ -217,7 +217,7 @@ _image_cache = {}
 ## every font the window makes, so they can all be re-pointed at once when the
 ## language changes to one the interface face does not cover
 _fonts = []
-_font_language = [None]
+_font_language = [None]      # the language code the fonts are currently set for
 
 
 def font(size=13, weight="normal"):
@@ -228,35 +228,35 @@ def font(size=13, weight="normal"):
     the platform default when the bundled file could not be registered, so the
     substitution is at least a deliberate one.
     """
-    language = _font_language[0]
-    made = ctk.CTkFont(family=ui_fonts.family(language),
-                       size=_sized(size, language), weight=weight)
+    code = _font_language[0]
+    made = ctk.CTkFont(family=ui_fonts.family(code),
+                       size=_sized(size, code), weight=weight)
     ## the size asked for, kept so the face's own factor can be applied again
     ## from scratch when the language changes rather than compounding
     _fonts.append((made, size))
     return made
 
 
-def _sized(size, language):
-    return max(8, int(round(size * ui_fonts.scale(language))))
+def _sized(size, code):
+    return max(8, int(round(size * ui_fonts.scale(code))))
 
 
-def restyle_fonts(language):
-    """Point every font at the face this language needs.
+def restyle_fonts(code):
+    """Point every font at the face this language code needs.
 
     Chinese and Enchanting are not written in the interface face: one has no CJK
     glyphs, the other is a different alphabet entirely. Tk will not fall back to
     a privately registered font on its own, so the whole window is switched over
     rather than left to render boxes.
     """
-    _font_language[0] = language
-    family = ui_fonts.family(language)
+    _font_language[0] = code
+    family = ui_fonts.family(code)
     for made, asked in _fonts:
         try:
             ## size as well as family: a face wider than the interface face is
             ## asked for smaller, and switching away from it has to put the
             ## size back
-            made.configure(family=family, size=_sized(asked, language))
+            made.configure(family=family, size=_sized(asked, code))
         except Exception:
             pass
 
@@ -904,10 +904,12 @@ class Chooser(ctk.CTkFrame):
         self.configure(fg_color=BORDER if on else FIELD)
 
     def badge_for(self, value, size=BADGE):
+        ## a language chooser carries locales, and each language file says what
+        ## letters its badge should read
         if not self.badges:
             return None
-        code = lang_parse.code(value)
-        light, dark = lang_icons.pair(code, size=size)
+        light, dark = lang_icons.pair(value, size=size,
+                                      label=settings.language_badge(value))
         return ctk.CTkImage(light_image=light, dark_image=dark, size=(size, size))
 
     def set(self, value):
@@ -1559,8 +1561,11 @@ class App(ctk.CTk):
         self.theme_menu.set(settings.settings["theme"])
         self.theme_menu.grid(row=0, column=3, padx=(0, 6), pady=8)
 
+        ## the picker carries codes and shows each language's own name for
+        ## itself, which is the one thing a reader looking for it will know
         self.language_menu = Chooser(bar, self, settings.choices(),
-                                     self.on_language)
+                                     self.on_language,
+                                     labels=settings.language_name)
         self.language_menu.set(settings.settings["lang"])
         self.language_menu.grid(row=0, column=4, padx=(4, 12), pady=8)
 
@@ -1936,17 +1941,18 @@ class App(ctk.CTk):
         self.refresh_icon_preview()
         self.set_status(self.text("status theme", self.text(name)))
 
-    def on_language(self, name):
-        self.strings = settings.set_language(name)
+    def on_language(self, code):
+        self.strings = settings.set_language(code)
         ## keep the control in step: it is already right when the user picked
         ## from it, but not when the language is set from anywhere else
-        self.language_menu.set(name)
-        restyle_fonts(name)
+        self.language_menu.set(code)
+        restyle_fonts(code)
         ## the box is sized from measured text, and the measurement changed
         ## with the face
         self.language_menu.refit()
         self.retranslate()
-        self.set_status(self.text("status language", name))
+        self.set_status(self.text("status language",
+                                  settings.language_name(code)))
 
     def retranslate(self):
         """Relabel everything in place, without rebuilding the window."""

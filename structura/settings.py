@@ -8,9 +8,9 @@ import json
 import os
 import sys
 
-from structura import lang_fun
 from structura import lang_parse
 from structura import paths
+from structura import system_locale
 SETTINGS_NAME = ".structura"
 
 ## The settings file Structura 1.7 and earlier wrote. Read once, to carry an
@@ -40,10 +40,15 @@ def settings_file():
             return portable
     return os.path.join(os.path.expanduser("~"), SETTINGS_NAME)
 
-DEFAULT_LANGUAGE = "English"
-## a placeholder column in langs.csv, useful for spotting a missing lookup but
-## not something to offer in the menu
-HIDDEN_LANGUAGES = {"Test"}
+## A language is named by its locale throughout, the way Minecraft names its
+## own: a language and a region, `en_US`, `es_MX`, `zh_CN`. It is the file's
+## name and what the settings file remembers, so a language's own name can be
+## corrected without stranding anyone's stored choice, and a regional variant is
+## a file rather than a special case.
+DEFAULT_LANGUAGE = "en_US"
+## a placeholder language file, useful for spotting a missing lookup but not
+## something to offer in the menu
+HIDDEN_LANGUAGES = {"xx_XX"}
 
 ## "system" follows the desktop. It is the default, and falls back to dark when
 ## the desktop cannot be asked, because a dark window is the safer thing to show
@@ -93,33 +98,91 @@ def transparency_to_alpha(transparency):
     return (100 - float(transparency)) / 100
 
 
-def language(name=None):
-    """The strings for `name`, with English filling any gap.
+def language(code=None):
+    """The strings for a language code, with English filling any gap.
 
-    A translation column that is missing a row, or has it blank, would otherwise
-    put an empty label on screen.
+    A language file missing a line, or with it blank, would otherwise put an
+    empty label on screen. That is what makes a half-finished translation worth
+    shipping: what is there is used and the rest reads English.
     """
-    name = name or settings.get("lang", DEFAULT_LANGUAGE)
+    code = code or settings.get("lang", DEFAULT_LANGUAGE)
     strings = dict(langs.get(DEFAULT_LANGUAGE, {}))
-    strings.update({k: v for k, v in langs.get(name, {}).items() if v})
+    strings.update({k: v for k, v in langs.get(code, {}).items() if v})
     return strings
 
 
-## The order the picker shows. English first because it is the source the rest
-## are translated from and the fallback for anything missing; then the other
-## real languages alphabetically by their own name; then the joke ones together
-## at the end, where nobody scrolling for a real language has to pass them.
-LANGUAGE_ORDER = ["English", "Cebuano", "Español", "Tagalog", "Українська", "简体中文"]
+def language_name(locale):
+    """What to call a language on screen: its own name for itself."""
+    return lang_parse.name(locale, langs)
+
+
+def language_badge(locale):
+    """The letters its badge carries."""
+    return lang_parse.badge(locale, langs)
+
+
+def _speaking(language):
+    """A file for a language, whatever region it was written for.
+
+    The default comes first, so English asked for by a locale nobody has a file
+    for lands on English rather than on whichever special language sorts before it.
+    """
+    if not language:
+        return None
+    if lang_parse.language_of(DEFAULT_LANGUAGE) == language:
+        return DEFAULT_LANGUAGE
+    for locale in sorted(langs):
+        if locale in HIDDEN_LANGUAGES:
+            continue
+        if lang_parse.language_of(locale) == language:
+            return locale
+    return None
+
+
+def language_code(stored):
+    """The locale a remembered language means, if any file still provides it.
+
+    Structura remembered a language by name until 3.0 and by bare code during
+    it, so a settings file may hold `English`, `en`, or nothing recognisable.
+    """
+    if not stored:
+        return None
+    for locale in langs:
+        if language_name(locale) == stored:
+            return locale
+    return _speaking(stored)
+
+
+def match_locale(locale):
+    """The language file that best serves a locale the desktop reported.
+
+    A file for that exact locale if there is one, so a Mexican desktop gets
+    Mexican Spanish; otherwise any file for the language, so it gets Spain's
+    rather than English. None when nothing there speaks it.
+
+    The special languages sit at locales an operating system does not report, so
+    they are not reachable this way in practice. Somebody who sets their desktop
+    to English (Portugal) by hand will be shown Pirate Speak, and can pick again.
+    """
+    if not locale:
+        return None
+    if locale in langs and locale not in HIDDEN_LANGUAGES:
+        return locale
+    return _speaking(lang_parse.language_of(locale))
 
 
 def choices():
-    """The languages worth offering, in an order somebody would expect."""
-    offered = [name for name in langs if name not in HIDDEN_LANGUAGES]
-    real = [n for n in LANGUAGE_ORDER if n in offered]
-    real += sorted(n for n in offered
-                   if n not in LANGUAGE_ORDER and n not in lang_fun.names())
-    invented = [n for n in lang_fun.names() if n in offered]
-    return real + invented
+    """The codes worth offering, in an order somebody would expect.
+
+    English first, because it is the source the rest are translated from and the
+    fallback for anything missing; then every other language alphabetically by
+    its own name, the special ones among them. A language added to the folder lands
+    in that order without anything here being told about it.
+    """
+    offered = [code for code in langs if code not in HIDDEN_LANGUAGES]
+    rest = sorted((c for c in offered if c != DEFAULT_LANGUAGE),
+                  key=lambda c: language_name(c).casefold())
+    return ([DEFAULT_LANGUAGE] if DEFAULT_LANGUAGE in offered else []) + rest
 
 
 def save():
@@ -132,17 +195,8 @@ def save():
 
 
 def read_languages():
-    """Every language on offer: the CSV columns plus the generated ones.
-
-    The constructed languages are transformations of English rather than stored
-    columns, so they cover every string the window has without anyone
-    maintaining them.
-    """
-    table = lang_parse.parse()
-    english = table.get(DEFAULT_LANGUAGE, {})
-    for name in lang_fun.names():
-        table[name] = lang_fun.translate(name, english)
-    return table
+    """Every language there is a file for, keyed by its code."""
+    return lang_parse.parse()
 
 
 def _read(path):
@@ -156,7 +210,7 @@ def _read(path):
 
 
 def load():
-    """Read langs.csv and the settings file. Returns the language's strings."""
+    """Read the language files and the settings file. Returns the strings."""
     global settings, langs
     langs = read_languages()
     settings = dict(DEFAULTS)
@@ -167,9 +221,17 @@ def load():
         stored = _read(LEGACY_SETTINGS_FILE)
     if stored:
         settings.update({k: v for k, v in stored.items() if k in DEFAULTS})
+    ## First launch: nobody has chosen a language, and the desktop's own is a
+    ## better guess than English. Only ever a guess, and only ever now: the
+    ## choice is written to the file below, so a person who then picks English
+    ## on a Spanish machine keeps English.
+    if not stored or "lang" not in stored:
+        settings["lang"] = (match_locale(system_locale.read())
+                            or DEFAULT_LANGUAGE)
     ## an unknown language or theme must not stop the program starting either
     if settings.get("lang") not in langs:
-        settings["lang"] = DEFAULT_LANGUAGE
+        settings["lang"] = (language_code(settings.get("lang"))
+                            or DEFAULT_LANGUAGE)
     if settings.get("theme") not in THEMES:
         settings["theme"] = DEFAULT_THEME
     if settings.get("tech_pack") not in TECH_PACK_MODES:
@@ -198,9 +260,10 @@ def set_output_dir(path):
     return output_dir()
 
 
-def set_language(name):
-    if name in langs:
-        settings["lang"] = name
+def set_language(code):
+    """Remember a language by its code. Anything unknown leaves it alone."""
+    if code in langs:
+        settings["lang"] = code
         save()
     return language()
 

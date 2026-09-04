@@ -117,7 +117,7 @@ def main():
     ## the documentation is in English whatever the machine taking it is set to,
     ## and the setting is put back afterwards
     was = settings.settings["lang"]
-    app.on_language("English")
+    app.on_language("en_US")
     populate(app)
     settle(app, 0.8)
 
@@ -153,8 +153,8 @@ def main():
     shoot(about, "about.png")
     about.destroy()
 
-    ## one of the joke languages, so the picker's point is visible
-    app.on_language("Pirate Speak")
+    ## one of the special languages, so the picker's point is visible
+    app.on_language("en_PT")
     settle(app, 0.8)
     shoot(app, "window_pirate.png")
     app.on_language(was)

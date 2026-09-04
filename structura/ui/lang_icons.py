@@ -15,11 +15,14 @@ one fills it, two split it along the diagonal, and three take a third each.
 Drawn here rather than shipped as art so a badge comes out at whatever size and
 scaling the window is running at, and in the bundled typeface rather than
 whichever one the machine happens to have.
+
+One badge is borrowed: upside-down English wears the English badge turned over.
 """
 import json
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 
+from structura import lang_parse
 from structura import paths
 from structura.ui import ui_fonts
 
@@ -47,10 +50,17 @@ def _rgb(value):
     return tuple(int(value[i:i + 2], 16) for i in (0, 2, 4))
 
 
-def colour(code):
-    """The one, two or three colours a code is drawn in."""
+def colour(locale):
+    """The one, two or three colours a locale is drawn in.
+
+    A locale with no colours of its own takes its language's, which is what lets
+    es_MX be added beside es_ES as a file and nothing else. Only a language that
+    is its own thing, rather than a region of another, needs an entry.
+    """
     table = colours()
-    entry = table.get(code) or table.get(DEFAULT_KEY) or ["#E2A834"]
+    entry = (table.get(locale)
+             or table.get(lang_parse.language_of(locale))
+             or table.get(DEFAULT_KEY) or ["#E2A834"])
     return [_rgb(c) for c in entry[:3]]
 
 
@@ -96,19 +106,34 @@ def _band(size, low, high):
     return clip(shape, False, high)
 
 
-def badge(code, size=22, fill=None, text=None, scale=4):
-    """A disc in a language's colours, optionally carrying its code.
+## A badge drawn as another language's, turned over. Upside-down English is the
+## only one: it is English, upside down, so its badge is the English badge the
+## same way round as the language. A vertical flip mirrors the slant of the
+## bands as well as the letters, which a half turn would not.
+UPSIDE_DOWN = {"en_UD": "en_US"}
 
-    The code is off by default. At the size the picker uses, two or three
-    letters over a two or three colour field are hard to read whatever is done
+
+def badge(locale, size=22, fill=None, text=None, scale=4, label=None):
+    """A disc in a language's colours, optionally carrying its letters.
+
+    The letters are off by default. At the size the picker uses, two or three
+    of them over a two or three colour field are hard to read whatever is done
     to them, and the language's own name is always written beside the badge, so
-    the letters repeat something already legible. Pass `text` to draw them
-    anyway.
+    they repeat something already legible. Pass `text` to draw them anyway.
+
+    `label` is what they say, and defaults to the language part of the locale.
+    A language file can name its own where that is not the thing to show, which
+    is how Pirate Speak reads PT rather than EN.
 
     Drawn at `scale` times the requested size and reduced, because a circle and
     a diagonal both come out visibly stepped when rasterised straight to 22 px.
     """
-    palette = [tuple(c) for c in fill] if fill else colour(code)
+    borrowed = UPSIDE_DOWN.get(locale)
+    if borrowed and fill is None:
+        ## the borrowed badge is drawn as its own language, letters and all
+        return ImageOps.flip(badge(borrowed, size, fill, text, scale))
+
+    palette = [tuple(c) for c in fill] if fill else colour(locale)
     big = size * scale
     img = Image.new("RGBA", (big, big), (0, 0, 0, 0))
     bands = Image.new("RGBA", (big, big), (0, 0, 0, 0))
@@ -133,7 +158,7 @@ def badge(code, size=22, fill=None, text=None, scale=4):
                  width=max(1, int(big * 0.045)))
 
     if text is not None:
-        label = (code or "?").upper()[:3]
+        label = (label or lang_parse.language_of(locale) or "?").upper()[:3]
         font = _font(int(big * (0.52 if len(label) < 3 else 0.38)))
         left, top, right, bottom = draw.textbbox((0, 0), label, font=font)
         position = ((big - (right + left)) / 2, (big - (bottom + top)) / 2)
@@ -144,22 +169,23 @@ def badge(code, size=22, fill=None, text=None, scale=4):
     return img.resize((size, size), Image.LANCZOS)
 
 
-def pair(code, size=22, light=None, dark=None,
-         light_text=None, dark_text=None):
-    """(light mode image, dark mode image) for one language code.
+def pair(locale, size=22, light=None, dark=None,
+         light_text=None, dark_text=None, label=None):
+    """(light mode image, dark mode image) for one locale.
 
     The colours belong to the language, not to the window, so both modes get the
     same picture unless a caller overrides them.
     """
-    return (badge(code, size, light, light_text),
-            badge(code, size, dark, dark_text))
+    return (badge(locale, size, light, light_text, label=label),
+            badge(locale, size, dark, dark_text, label=label))
 
 
 if __name__ == "__main__":
-    from structura import lang_parse
-    codes = [lang_parse.code(name) for name in lang_parse.CODES]
+    table = lang_parse.parse()
+    codes = list(table)
     sheet = Image.new("RGBA", (len(codes) * 52 + 8, 60), (60, 60, 60, 255))
     for i, code in enumerate(codes):
-        sheet.alpha_composite(badge(code, 44), (i * 52 + 8, 8))
+        sheet.alpha_composite(
+            badge(code, 44, label=lang_parse.badge(code, table)), (i * 52 + 8, 8))
     sheet.save("lang_badges_preview.png")
     print("wrote lang_badges_preview.png")

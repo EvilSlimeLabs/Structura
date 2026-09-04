@@ -1,11 +1,10 @@
-"""The joke languages, generated from English rather than stored.
+"""The transforms the special languages are written with.
 
-Pirate, LOLCAT, Shakespearean, upside-down and Enchanting are transformations of
-the English strings, applied when the language is selected. Keeping them as
-transforms rather than as columns in langs.csv matters for a practical reason:
-there are sixty-odd strings and five of these languages, and every new label
-added to the window would otherwise need three hundred more cells of nonsense
-maintained by hand. Generated, they cover whatever the window asks for next.
+Pirate, LOLCAT, Shakespearean and upside-down English are transformations of the
+English strings. The program reads them as ordinary language files like any
+other; `tools/make_special_languages.py` is what writes those files, and this is
+where it gets the words. Writing them by hand would mean sixty-odd strings times
+four languages of nonsense to keep in step with every label anyone adds.
 
 **Format placeholders are protected.** The strings carry `{}` markers that get a
 filename or a count substituted into them, so every transform runs over the text
@@ -226,29 +225,39 @@ def enchanting(text):
 
 # --- registry --------------------------------------------------------------
 
-## name shown in the picker -> (transform, badge code)
+## Locale -> (transform, the name shown in the picker, the badge's letters).
+## The locales are Minecraft's own for four of them: en_PT is Pirate Speak,
+## en_UD upside-down English, en_WS Shakespearean and lol_US is LOLCAT.
+## Enchanting has none, because it is a font rather than a language, so it takes
+## the name of the alphabet: SGA, the Standard Galactic Alphabet, which is what
+## Minecraft calls the glyph sheet it is traced from.
+##
+## Four of the five are English underneath, so the badge cannot read the
+## language part the way a real language's does: it takes the rest of the
+## locale, which is what says which of them this is.
 TRANSFORMS = {
-    "Enchanting":    (enchanting, "sga"),
-    "Pirate Speak":  (pirate, "arr"),
-    "LOLCAT":        (lolcat, "cat"),
-    "Shakespearean": (shakespeare, "wil"),
-    "ɥsᴉlƃuƎ":       (upside_down, "uen"),
+    "en_SGA": (enchanting, "Enchanting", "SGA"),
+    "en_PT": (pirate, "Pirate Speak", "PT"),
+    "lol_US": (lolcat, "LOLCAT", "LOL"),
+    "en_WS": (shakespeare, "Shakespearean", "WS"),
+    "en_UD": (upside_down, "ɥsᴉlƃuƎ", "UD"),
 }
 
 
-def names():
+def codes():
     return list(TRANSFORMS)
 
 
-def translate(name, english):
-    """A whole string table, transformed. Unknown names come back unchanged."""
-    entry = TRANSFORMS.get(name)
+def translate(code, english):
+    """A whole string table, transformed. Unknown codes come back unchanged."""
+    entry = TRANSFORMS.get(code)
     if entry is None:
         return dict(english)
     transform = entry[0]
     return {key: transform(value) for key, value in english.items()}
 
 
-def code(name):
-    entry = TRANSFORMS.get(name)
+def name(code):
+    """What to call this one in the picker, or None if it is a real language."""
+    entry = TRANSFORMS.get(code)
     return entry[1] if entry else None
