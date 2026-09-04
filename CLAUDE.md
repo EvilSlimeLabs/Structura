@@ -110,7 +110,9 @@ structura/               everything importable, and everything it reads
   images/                  the two pictures the running program opens
   techpack/                TechPack's assets, staged from the submodule
 
-art/                     source art the icons are generated from; never shipped
+art/                     source art the icons are generated from, and
+                         readme_header.png, which the README opens with;
+                         nothing here goes into a build
 tools/                   one-off and maintenance scripts, not shipped
                          (make_icon.py, make_screenshots.py, make_fonts.py,
                           audit_blocks.py, coverage_report.py,

@@ -886,9 +886,9 @@ class AboutDialog(ctk.CTkToplevel):
         if tag:
             self.update_status.configure(text=self.app.text("update found", tag))
             self.app.offer_update(tag)
-        elif updates.running_file() is None:
-            self.update_status.configure(text=self.app.text("update current"))
         else:
+            ## a build from a checkout lands here too, and is told the same
+            ## thing: whether a newer version is out is all anyone asked
             self.update_status.configure(text=self.app.text("update current"))
 
     def _centre(self):
