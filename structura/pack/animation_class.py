@@ -50,14 +50,17 @@ class Animations:
         with open(path_to_rc, "w+") as json_file:
             json.dump(self.default_size, json_file, indent=2)
     def export_big(self,pack_name,offset):
-        print(offset)
+        ## The model turns with the stand and stands still in the world, so the
+        ## bone is rotated against the body and moved by the difference between
+        ## where the stand is and the corner the build was taken from. The
+        ## rotation is about the bone's pivot, which armor_stand_geo_class sets
+        ## alongside these offsets: the two go together.
         self.default_size["animations"]["animation.armor_stand.ghost_blocks.scale"]["bones"]["ghost_blocks"]["rotation"]=[0,"-query.body_y_rotation", 0]
         self.default_size["animations"]["animation.armor_stand.ghost_blocks.scale"]["bones"]["ghost_blocks"]["position"]=[
             f"(-(query.position(0)-{int(offset[0])-7.5})*math.cos(query.body_y_rotation)-(query.position(2)-{int(offset[2])-7.5})*math.sin(query.body_y_rotation))*16",
             f"({int(offset[1])}-query.position(1))*16",
             f"((query.position(2)-{int(offset[2])-7.5})*math.cos(query.body_y_rotation)-(query.position(0)-{int(offset[0])-7.5})*math.sin(query.body_y_rotation))*16"]
         path_to_ani = f"{pack_name}/animations/armor_stand.animation.json"
-        print(self.default_size["animations"]["animation.armor_stand.ghost_blocks.scale"]["bones"]["ghost_blocks"]["position"])
         os.makedirs(os.path.dirname(path_to_ani), exist_ok=True)
         with open(path_to_ani, "w+") as json_file:
             json.dump(self.sizing, json_file, indent=2)

@@ -168,8 +168,12 @@ class ArmorStandGeo:
             geometries[layer_name]["description"]["visible_bounds_width"] = 5120
             geometries[layer_name]["description"]["visible_bounds_height"] = 5120
             geometries[layer_name]["description"]["visible_bounds_offset"] = [0, 1.5, 0]
-            geometries[layer_name]["bones"]=[{"name": "ghost_blocks","pivot": [0, 0, 0]},## I am not sure this should be this value for pivot
-                                             {"name": layer_name,"parent": "ghost_blocks","pivot": [0, 0, 0]}]## I am not sure this should be this value for pivot
+            ## A big build turns its whole model with the stand, and a bone
+            ## rotates about its pivot, so this one and the offsets in
+            ## animation_class.export_big are a pair: change either and the
+            ## model swings around a different point.
+            geometries[layer_name]["bones"]=[{"name": "ghost_blocks","pivot": [0, 0, 0]},
+                                             {"name": layer_name,"parent": "ghost_blocks","pivot": [0, 0, 0]}]
         
         for key in self.blocks.keys():
             layer_name = self.blocks[key]["parent"]
@@ -331,7 +335,10 @@ class ArmorStandGeo:
                 temp_block_group["cubes"].append(block)
 
             for each_group in [ temp_block_group ]:
-                has_nested_rotation = 0
+                ## the one nested bone this block needs, if any, and the cubes
+                ## that went into it and so must not be drawn in the slice too
+                nested_group = None
+                nested_cubes = set()
                 copied_groups = []
 
                 is_rotated_group = ( "rotation" in each_group.keys() ) and ( "pivot" in each_group.keys() )
@@ -381,51 +388,52 @@ class ArmorStandGeo:
                         ## Same "pivot" point...  Matrix-Sum cube and group "rotation" value arrays
                         each_cube["rotation"] = [ each_group["rotation"][0] + each_cube["rotation"][0], each_group["rotation"][1] + each_cube["rotation"][1], each_group["rotation"][2] + each_cube["rotation"][2] ]
                     elif( is_rotated_group and isRotatedCube ):
-                        ## Cube and group rotate around different pivots, so the
-                        ## two cannot be summed. The cube goes into a nested
-                        ## group of its own instead, and the engine composes
-                        ## them. TODO: compose the two rotations here.
-                        has_nested_rotation += 1
-                        newGroup =  { "parent": each_group["name"], "name": each_group["name"] + "___" + ghost_block_coordinates + "___" + str(has_nested_rotation) }
-                        
-                        for primitiveKey in [ "mirror", "inflate", "debug", "render_group_id", "binding" ]:
-                            if primitiveKey in each_group.keys():
-                                newGroup[primitiveKey] = each_group[primitiveKey]
-                        
-                        for objectKey in [ "pivot", "rotation", "locators", "poly_mesh", "texture_meshes" ]:
-                            if objectKey in each_group.keys():
-                                newGroup[objectKey] = copy.deepcopy( each_group[objectKey] )
-                        
-                        newGroup["cubes"] = []
-                        newGroup["cubes"].append( copy.deepcopy( each_cube ) )
-                        copied_groups.append( newGroup )
-                        each_cube["flag_unnest_from_group"] = True
+                        ## Cube and group turn about different points, and no
+                        ## single rotation says both, so the cube goes into a
+                        ## bone carrying the group's turn and keeps its own. One
+                        ## bone holds all of a block's cubes that need this: they
+                        ## take the same rotation about the same pivot, and only
+                        ## the cubes inside differ.
+                        if nested_group is None:
+                            nested_group =  { "parent": each_group["name"], "name": each_group["name"] + "___" + ghost_block_coordinates }
+
+                            for primitiveKey in [ "mirror", "inflate", "debug", "render_group_id", "binding" ]:
+                                if primitiveKey in each_group.keys():
+                                    nested_group[primitiveKey] = each_group[primitiveKey]
+
+                            for objectKey in [ "pivot", "rotation", "locators", "poly_mesh", "texture_meshes" ]:
+                                if objectKey in each_group.keys():
+                                    nested_group[objectKey] = copy.deepcopy( each_group[objectKey] )
+
+                            nested_group["cubes"] = []
+                            copied_groups.append( nested_group )
+                        nested_group["cubes"].append( each_cube )
+                        nested_cubes.add( id( each_cube ) )
                 
                 ## next each_cube
                 
                 
-                ## A cube that went into a nested group of its own is drawn
-                ## there. Leaving it in the slice as well draws it twice, once
-                ## turned and once not, which is two ghost blocks in one place.
+                ## A cube that went into a nested bone is drawn there. Leaving it
+                ## in the slice as well draws it twice, once turned and once not,
+                ## which is two ghost blocks in one place.
                 kept = [each_cube for each_cube in temp_block_group["cubes"]
-                        if not each_cube.get("flag_unnest_from_group")]
+                        if id(each_cube) not in nested_cubes]
 
+                ## Nothing here is copied on the way in. temp_block_group is
+                ## built again for the next block and never read after this, so
+                ## the cubes have one owner from here on.
                 if each_group["name"] in self.blocks.keys():
-                    for each_cube in kept:
-                        #TOCONSIDER: Git rid of unnecessary deepcopies
-                        self.blocks[each_group["name"]]["cubes"].append( copy.deepcopy(each_cube) )
+                    self.blocks[each_group["name"]]["cubes"].extend( kept )
                 else:
                     if "rotation" in each_group.keys():
                         del each_group["rotation"]
                     if "pivot" in each_group.keys():
                         del each_group["pivot"]
                     each_group["cubes"] = kept
-                    #TOCONSIDER: Git rid of unnecessary deepcopies
-                    self.blocks[each_group["name"]] = copy.deepcopy( each_group )
-                
+                    self.blocks[each_group["name"]] = each_group
+
                 for newChildGroup in copied_groups:
-                    #TOCONSIDER: Git rid of unnecessary deepcopies
-                    self.blocks[newChildGroup["name"]] = copy.deepcopy( newChildGroup )
+                    self.blocks[newChildGroup["name"]] = newChildGroup
             
 
     def save_uv(self, name):
@@ -557,9 +565,10 @@ class ArmorStandGeo:
 
     def add_blocks_to_bones(self):
         # Moves every collected block group into the geometry's bone list. Called
-        # during the writing step, once every block has been made.
+        # during the writing step, once every block has been made. A slice is
+        # already one bone; the rest are the nested bones a turned block needs,
+        # one per block.
         for key in self.blocks.keys():
-            ## TODO: merge the groups belonging to one slice into a single bone
             self.geometry["bones"].append(self.blocks[key])
 
     def get_block_texture_paths(self, blockName, variant = ""):

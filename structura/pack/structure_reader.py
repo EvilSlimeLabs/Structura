@@ -98,9 +98,10 @@ class StructureFile:
                     try:
                         name=self.block_names[name][variant]
                     except KeyError:
-                        ## no material_list_names entry for this variant;
-                        ## the raw block name is reported instead
-                        print(name,variant)
+                        ## No material_list_names entry for this variant, so the
+                        ## block list carries the raw id. That is visible in the
+                        ## list itself, which is the only place it matters.
+                        pass
                 if name not in block_counter.keys():
                     block_counter[name]=0
                 
@@ -176,9 +177,10 @@ class CombinedStructures:
                     try:
                         name=self.block_names[name][variant]
                     except KeyError:
-                        ## no material_list_names entry for this variant;
-                        ## the raw block name is reported instead
-                        print(name,variant)
+                        ## No material_list_names entry for this variant, so the
+                        ## block list carries the raw id. That is visible in the
+                        ## list itself, which is the only place it matters.
+                        pass
                 if name not in block_counter.keys():
                     block_counter[name]=0
                 

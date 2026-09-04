@@ -226,6 +226,18 @@ class MountingTests(unittest.TestCase):
         self.geo.make_block(0, 0, 0, "hanging_sign", data="0-1")
         self.assertTrue(self.geo.blocks)
 
+    def test_a_turned_block_needs_one_bone_and_not_one_per_cube(self):
+        # a cube that turns on its own goes into a bone carrying the block's own
+        # turn, and every such cube of one block takes the same turn about the
+        # same pivot, so they share the bone
+        self.geo.blocks = {}
+        self.geo.make_block(0, 0, 0, "campfire", rot="east", data="0")
+        nested = [group for name, group in self.geo.blocks.items()
+                  if "___" in name]
+        self.assertEqual(len(nested), 1, "one bone for the block, not one a cube")
+        self.assertEqual(len(nested[0]["cubes"]), 2, "both flame quads are in it")
+        self.assertEqual(nested[0]["rotation"], [0, 270, 0])
+
     def test_a_cube_that_turns_on_its_own_is_drawn_once(self):
         # a cube carrying its own rotation goes into a nested bone, and leaving
         # it in the slice as well draws every campfire and statue twice
