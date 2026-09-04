@@ -199,6 +199,14 @@ CHOOSER_THEME_WIDE = 132
 CHOOSER_TALL = 28
 TAG_FIELD_WIDTH = 200          # every name tag field is this wide, on every row
 STRUCTURE_TYPES = [("Minecraft structure", "*.mcstructure"), ("All files", "*.*")]
+
+
+def structure_name(path):
+    """A structure file's own name: no folder, no extension.
+
+    What a pack is called when it is named after what is in it.
+    """
+    return os.path.splitext(os.path.basename(path or ""))[0]
 IMAGE_TYPES = [("Images", "*.png *.jpg *.jpeg *.bmp *.gif"), ("All files", "*.*")]
 
 ## Where the help and about buttons point. Both are here rather than inline so
@@ -1223,17 +1231,45 @@ class App(ctk.CTk):
         row = StructureRow(self.list_frame, self, path)
         row.grid(row=len(self.rows), column=0, sticky="ew", padx=8, pady=(8, 0))
         self.rows.append(row)
+        self.name_after_structure(path)
         self.set_status(self.text("status added", os.path.basename(path)))
         self.select_row(row)
         self.revalidate()
         return row
 
+    def name_after_structure(self, path):
+        """Name the pack after the first structure, if it has no name yet.
+
+        A pack is usually called what is in it, and typing that twice is work.
+        Only the first structure, and only into an empty field: a name somebody
+        typed is never written over.
+        """
+        if self.pack_name_var.get().strip():
+            return
+        if len([row for row in self.rows if row.path]) != 1:
+            return
+        self.pack_name_var.set(structure_name(path))
+
+    def forget_structure_name(self, gone):
+        """Drop a pack name that came from a structure once it is gone.
+
+        Only when the list is empty and the name is still that file's, so a
+        name typed over the suggestion, or one that outlived other structures,
+        stays where it is.
+        """
+        if [row for row in self.rows if row.path]:
+            return
+        if self.pack_name_var.get().strip() in gone:
+            self.pack_name_var.set("")
+
     def remove_structure(self, row):
         if row not in self.rows:
             return
         name = os.path.basename(row.path) or self.text("structures")
+        gone = structure_name(row.path)
         self.rows.remove(row)
         row.destroy()
+        self.forget_structure_name({gone})
         for index, remaining in enumerate(self.rows):
             remaining.grid_configure(row=index)
         if self.selected is row:
@@ -1766,10 +1802,12 @@ class App(ctk.CTk):
         if not self.rows:
             return
         count = len(self.rows)
+        gone = {structure_name(row.path) for row in self.rows if row.path}
         for row in list(self.rows):
             row.destroy()
         self.rows = []
         self.selected = None
+        self.forget_structure_name(gone)
         self.stashed_tags.clear()
         self.load_offset_fields([0, 0, 0])
         self.set_status(self.text("status cleared",

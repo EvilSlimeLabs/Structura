@@ -88,6 +88,10 @@ for it. Give the pack a name, and press **Make Pack**.
 Each structure sits on its own row. Click the file name to swap in a different
 file without losing the row, or the ✕ to drop it.
 
+The first structure you add names the pack, if you have not named it yourself,
+and taking that structure back out again clears the name with it. Anything you
+type over the suggestion is yours and stays.
+
 That is the whole flow. Everything else is optional:
 
 | Setting | What it does |

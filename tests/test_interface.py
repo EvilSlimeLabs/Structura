@@ -572,6 +572,69 @@ class CoordinatesButtonTests(unittest.TestCase):
             app.destroy()
 
 
+class PackNameTests(unittest.TestCase):
+    """The pack is named after the first structure until somebody says otherwise."""
+
+    def files(self):
+        import glob
+        found = sorted(glob.glob("test_structures/*.mcstructure"))[:2]
+        if len(found) < 2:
+            raise unittest.SkipTest("needs two test structures")
+        return found
+
+    def test_the_first_structure_names_an_unnamed_pack(self):
+        first, second = self.files()
+        app = open_window()
+        try:
+            app.add_structure_row(first)
+            self.assertEqual(app.pack_name_var.get(),
+                             os.path.splitext(os.path.basename(first))[0])
+            # the second leaves the name alone
+            app.add_structure_row(second)
+            self.assertEqual(app.pack_name_var.get(),
+                             os.path.splitext(os.path.basename(first))[0])
+        finally:
+            app.destroy()
+
+    def test_a_name_somebody_typed_is_never_written_over(self):
+        first, _ = self.files()
+        app = open_window()
+        try:
+            app.pack_name_var.set("My Build")
+            app.add_structure_row(first)
+            self.assertEqual(app.pack_name_var.get(), "My Build")
+            # and it outlives the structure it was typed beside
+            app.remove_structure(app.rows[0])
+            self.assertEqual(app.pack_name_var.get(), "My Build")
+        finally:
+            app.destroy()
+
+    def test_the_name_goes_when_the_structure_it_came_from_does(self):
+        first, second = self.files()
+        app = open_window()
+        try:
+            row = app.add_structure_row(first)
+            other = app.add_structure_row(second)
+            app.remove_structure(other)
+            # still one structure left, so the name stays
+            self.assertEqual(app.pack_name_var.get(),
+                             os.path.splitext(os.path.basename(first))[0])
+            app.remove_structure(row)
+            self.assertEqual(app.pack_name_var.get(), "")
+        finally:
+            app.destroy()
+
+    def test_clearing_the_list_clears_a_name_that_came_from_it(self):
+        first, _ = self.files()
+        app = open_window()
+        try:
+            app.add_structure_row(first)
+            app.clear_all_structures()
+            self.assertEqual(app.pack_name_var.get(), "")
+        finally:
+            app.destroy()
+
+
 class FieldTests(unittest.TestCase):
     def test_a_field_shows_the_same_margin_above_and_below_its_text(self):
         # a CTkEntry paints the colour behind it across its whole rectangle, so
