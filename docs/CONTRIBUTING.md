@@ -17,7 +17,7 @@ Two rules keep the core usable that way, and a pull request that breaks either c
 #### Structura CLI
 The CLI was added by contributors that wanted to make their own web services. This is allowed. Structura is MIT licensed and anyone can do anything with Structura.
 
-It lives in `structura/cli/` now, and **nothing in there may import `structura/ui/`**. That rule is what lets `Structura-cli.exe` be built without the interface in it at all; `structura_cli.spec` excludes `structura.ui` outright, so a build fails rather than quietly growing if the interface creeps back into the command line's imports. Anything both the window and the command line need — the settings, the language tables — belongs at the top of the package instead, beside `core.py`.
+It lives in `structura/cli/` now, and **nothing in there may import `structura/ui/`**. That rule is what lets `Structura-cli.exe` be built without the interface in it at all; `structura_cli.spec` excludes `structura.ui` outright, so a build fails rather than quietly growing if the interface creeps back into the command line's imports. Anything both the window and the command line need, such as the settings and the language tables, belongs at the top of the package instead, beside `core.py`.
 
 ## Blocks Definitions
 Minecraft is a giant mess when it comes to naming, versioning, and block definitions. But because Structura dates back to 2020 and posted files still reference old block names, we need to be careful when updating blocks. In 2020 an effort was made to remove all hard coded block definitions. At this point, blocks are defined in 2 locations. Vanilla_Resource_pack, where the textures and texture locations are saved in a similar way to the default texture pack from Minecraft, and in lookups, where all the block geometry and nbt is defined.
@@ -30,12 +30,12 @@ In 2025 when Vibrant Visuals was added, the CPU cost of rendering a bone became 
 
 A family that carries three or more cubes should also have a simplified form, so that a pack built with **Low Geometry** has something cheaper to draw. `tools/make_low_geometry.py` generates them from the detailed shapes; re-run it after changing one.
 
-`be_tech_pack` is a git submodule and far too large to be package data, so the megabyte of it a generated pack needs is staged into `structura/techpack/` and committed. **After updating the submodule, run `python tools/stage_tech_pack.py`** — otherwise a release quietly ships the old assets. `tests/test_tech_pack.py` fails when the two have drifted.
+`be_tech_pack` is a git submodule and far too large to be package data, so the megabyte of it a generated pack needs is staged into `structura/techpack/` and committed. **After updating the submodule, run `python tools/stage_tech_pack.py`**, or a release quietly ships the old assets. `tests/test_tech_pack.py` fails when the two have drifted.
 
 ### Adding Blocks to all_blocks world.
 When adding blocks it is helpful to add them to the all_blocks world so they can at least get tested each update. This helps when we need to do a big refactor. Simply add the block to the world where it makes the most sense. Add every block state you can to help in the future. Then remove all packs. (may need to manually removed them if they were attached to the world) and export the world and add it back into the git repo.
 
-Not everything a block looks like is in its states. A copper golem statue keeps its pose in the block entity beside it, so placing four statues in four poses is worth doing even though they share one palette entry — the exported structure carries the difference in `block_position_data`. `test_structures/All Blocks World/problems.mcstructure` is the file for blocks that are known to still be drawn wrong.
+Not everything a block looks like is in its states. A copper golem statue keeps its pose in the block entity beside it, so placing four statues in four poses is worth doing even though they share one palette entry, because the exported structure carries the difference in `block_position_data`. `test_structures/All Blocks World/problems.mcstructure` is the file for blocks that are known to still be drawn wrong.
 
 # Recognition
 In the beginning I added the first 2 people who contributed to the manifest.json of every pack. If you stick around and help for more than a few months, I may choose to do that in the future. If you fix things you will get credit in the release notes and likely in a video covering that release.

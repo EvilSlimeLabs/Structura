@@ -1,8 +1,8 @@
 # Editing blocks
 
 The reference for the five lookup tables a block is described by. For the
-knowledge that is not obvious from the formats — why a door faced the wrong way,
-which textures are lists, where a copper golem keeps its pose — read
+knowledge that is not obvious from the formats, such as why a door faced the
+wrong way, which textures are lists and where a copper golem keeps its pose, read
 [Block Notes](Block%20Notes.md) instead.
 
 Every table is keyed by a **shape family** rather than by a block id, so the
@@ -42,7 +42,8 @@ A family maps each rotation state to a turn about X, Y and Z in degrees.
              "2": [0, 0, 0], "3": [0, 90, 0]}
 ```
 
-Keys are strings. **Give both the numbers and the compass words** — Bedrock uses
+Keys are strings. **Give both the numbers and the compass words**, because
+Bedrock uses
 a numeric `direction` on some blocks and a `minecraft:cardinal_direction` string
 on others, and a value the table has no key for is drawn unrotated with no
 warning. The numbering differs between blocks; see
@@ -67,7 +68,8 @@ A family holds one entry per variant, and always a `default`.
 | `rotation` | optional | one `[x, y, z]` per cube, in degrees, turning that cube alone |
 | `center` | required | the point the family's own rotation is applied about |
 
-A variant name comes from the block's states — see `nbt_defs.json` below. The
+A variant name comes from the block's states, described under `nbt_defs.json`
+below. The
 names `top`, `open`, `open_hinged` and `side` are used by the code itself for
 upper halves, open doors and trapdoors, and side-fed hoppers.
 
@@ -86,8 +88,8 @@ from. All six directions must be present, and each must have one entry per cube.
                  "south": [[0.25, 0.5]], "east": [[0.25, 0.5]], "west": [[0.25, 0.5]]}}}
 ```
 
-- `uv_sizes` — how much of the tile that face takes, as a fraction
-- `offset` — where on the tile it starts, from the **upper left**
+- `uv_sizes`: how much of the tile that face takes, as a fraction
+- `offset`: where on the tile it starts, from the **upper left**
 
 **V grows downward.** A block sitting on the floor of its cell takes the lower
 part of the tile, so its `v` offset is one minus the top of the box.
@@ -109,7 +111,7 @@ One entry per cube, per face:
   face**
 
 Prefer the `@` form. It survives a family gaining variants and works for a family
-shared by many block ids — one entry serves every wood a sign comes in.
+shared by many block ids, so one entry serves every wood a sign comes in.
 
 ---
 

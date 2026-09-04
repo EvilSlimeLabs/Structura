@@ -1,5 +1,5 @@
 # Pirate Speak (en_PT)
-# Generated from en_US.lang by tools/make_joke_languages.py. Do not edit by
+# Generated from en_US.lang by tools/make_special_languages.py. Do not edit by
 # hand: re-run that script instead, or the next English string added leaves this
 # one behind.
 
@@ -33,8 +33,8 @@ techpack=TechPack
 techpack none=Nary a one
 techpack compatibility=Sailin' together
 techpack full=Full Haul
-techpack help=Structura an' TechPack both replace th' armor stand, an' a resource haul replaces that scroll rather than merging wi' it, so applying both loses whichever sits lower in yer list. Sailin' together declares TechPack on th' armor stand so yer own copy keeps working alongside this haul. Full Haul carries TechPack's own scrolls as well, so this one haul be both.
-techpack missing=TechPack be not available in this raise
+techpack help=Structura an' TechPack both swap out th' armor stand, an' a resource haul replaces that scroll rather than merging wi' it, so applying both loses whichever sits lower in yer list. Sailin' together declares TechPack on th' armor stand so yer own copy keeps working alongside this haul. Full Haul carries TechPack's own scrolls as well, so this one haul be both.
+techpack missing=TechPack be not to be had in this raise
 lowgeo=Lean Carvin'
 lowgeo help=Structura paints every barnacle in full carvin'. Vibrant Visuals lights each o' those carvin's, so a grand wreck can be demanding t' paint. Lean carvin' redraws only th' most finely carved barnacles as plainer carvin's, keeping their paintwork an' their berths, which be far cheaper on th' paintin' engine.
 settings=Riggin'
@@ -94,4 +94,28 @@ status reset=Riggin' rig anew
 list header=Barnacles needed fer this raise
 list footer=Raised wi'
 reset=Rig anew
+check updates=Spy This instant
+check on launch=Spy fer updates on launch
+update current=Structura be up t' date.
+update checking=Hailin' GitHub...
+update found=Structura {} be to be had
+update title=Refit
+update body=Structura will swap out itself an' cast off th' new raise. Yer riggin' an' yer wrecks be unspoilt.
+update now=Refit
+not now=Not This instant
+update working=Haulin' aboard an' stowin' it in berth...
+update no asset=That haul has nay raise fer this vessel.
+update stage downloading=Haulin' aboard th' new raise...
+update stage checking=Spyin' that it sails...
+update stage placing=Stowin' it in berth...
+update download failed=Th' download did not make an end. {}
+update not a build=What made port be not a Structura raise.
+update does not run=Th' downloaded raise does not cast off, so it has been cast overboard. Structura be unspoilt. An ship's surgeon objecting t' it be th' usual reason.
+update cannot move=Structura could not move itself aside. {} A copy installed in Vessel Scrolls needs an cap'n.
+update cannot place=Th' new raise could not be put in berth, so th' old one were put back. {}
+update stranded=Th' refit could not be finished. Re-christen {} t' put Structura back.
+update while building=Structura be raisin' a haul. Let that make an end, then refit.
+update no release=GitHub could not be reached, so there be nothing t' take.
+update no fingerprint=That haul publishes nay {}, so th' download can't be checked. Structura will not install a raise it can't spy.
+update wrong fingerprint=Th' download does not match th' fingerprint published wi' th' haul, so it has been cast overboard. Structura be unspoilt.
 language badge=PT

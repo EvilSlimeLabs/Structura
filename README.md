@@ -10,7 +10,7 @@ Structura turns a `.mcstructure` file into a Minecraft Bedrock resource pack.
 The pack replaces the armor stand so it renders when off screen and carries
 every block of your build as a bone in its model, drawn as semi-transparent
 *ghost blocks* that show you exactly where the real blocks go. Inspired by
-Litematica, and it needs no behaviour pack, no commands and no cheats — just a
+Litematica, and it needs no behaviour pack, no commands and no cheats, only a
 resource pack and an armor stand, so it works in a survival, achievements-on
 world.
 
@@ -23,22 +23,23 @@ the screenshots below, but the idea and the in-game result are the same.)*
 
 ## Breaking changes from 1.7
 
-Structura is distributed as **single-file executables** now — one for each
-platform, for the window and for the command line. You are not expected to
-install Python or run any of the source directly, and everything below follows
-from that.
+Structura is distributed as **single-file Windows executables** now, one for the
+window and one for the command line. You are not expected to install Python or
+run any of the source directly, and everything below follows from that. On macOS
+and Linux the command line installs from PyPI instead; see
+[Installing it instead](#installing-it-instead).
 
 | Was | Is now |
 | --- | --- |
-| `python structura.py` | `Structura.exe` — double-click for the window, or give it arguments in a terminal and it builds there instead |
+| `python structura.py` | `Structura.exe`. Double-click for the window, or give it arguments in a terminal and it builds there instead |
 | `python structura_cli.py` | `Structura-cli.exe`, the same command line with the window left out of the build; from a checkout, `python -m structura.cli` |
-| `sh start.sh` on Linux | the Linux executable; the script is gone |
-| **Bundle TechPack** on/off | a **TechPack** menu with three settings — see [TechPack](#techpack). The default is now **None**; a pack that used to be built with the toggle on wants **Full Pack** |
+| `sh start.sh` on Linux | `pip install structura` and the `structura-cli` command; the script is gone |
+| **Bundle TechPack** on/off | a **TechPack** menu with three settings, described under [TechPack](#techpack). The default is now **None**; a pack that used to be built with the toggle on wants **Full Pack** |
 | Basic and Advanced screens | one screen |
 
 **Packs built by 3.0 replace packs built by 1.7 only if the build is identical.**
-A pack's identity is now derived from its contents — the structures, the
-transparency, the icon, the description and every setting — rather than from its
+A pack's identity is now derived from its contents, meaning the structures, the
+transparency, the icon, the description and every setting, rather than from its
 name alone. Rebuilding an unchanged pack replaces the copy already in your list,
 as before; changing anything about it produces a pack the game treats as a
 different one, so both can sit in your list at once. Turning **Low Geometry** on
@@ -53,7 +54,7 @@ the window and `python -m structura.cli` for the command line.
 
 ## 1. Export a structure from Minecraft
 
-Get a structure block — in a creative world with cheats on, run
+Get a structure block. In a creative world with cheats on, run
 `/give @s structure_block`.
 
 ![Giving yourself a structure block](docs/give_structure.png)
@@ -75,10 +76,10 @@ need it in a moment.
 
 ## 2. Build the pack
 
-Download `Structura.exe` and run it. That is the whole install — it is a single
-self-contained file with everything inside it, so there is no folder to keep
-together and nothing to extract. (A zip of the same executable is published
-alongside it, for browsers and chat clients that refuse a bare `.exe`.)
+Download `Structura.exe` and run it. That is the whole install, because it is a
+single self-contained file with everything inside it, so there is no folder to
+keep together and nothing to extract. A zip of the same executable is published
+alongside it, for browsers and chat clients that refuse a bare `.exe`.
 
 ![The Structura window](docs/window_dark.png)
 
@@ -103,7 +104,7 @@ That is the whole flow. Everything else is optional:
 | **Big Build Mode** | For builds larger than one structure block; see below. |
 | **Make Block Lists** | Writes a text file of every block the build needs, beside the pack. |
 | **Low Geometry** | Draws the most detailed blocks as simpler shapes, and is remembered; see below. |
-| **TechPack** | What to do about the Bedrock Technical Resource Pack — see below. |
+| **TechPack** | What to do about the Bedrock Technical Resource Pack; see below. |
 | **Output folder** | Where finished packs land. Defaults to `Structura Builds` in your Documents, and is remembered. |
 
 **Name tags.** With a single structure the name tag is optional. Add a second
@@ -117,8 +118,8 @@ as you type.
 build in pieces, add them all, and Structura assembles them into one model
 spread across the armor stand's layers.
 
-The name tag fields step aside while it is on — big build mode names its own
-models — and the offset becomes the **Corner** of the whole assembly. **Get
+The name tag fields step aside while it is on, because big build mode names its
+own models, and the offset becomes the **Corner** of the whole assembly. **Get
 Global Cords** fills that in for you: every `.mcstructure` records where in the
 world it was taken from, so the corner is the lowest of those origins, and the
 ghost model lands back where the pieces came from without you reading
@@ -140,11 +141,29 @@ desktop by default; light and dark are there if you would rather pin it.
 
 ![The window in light mode](docs/window_light.png)
 
-Your theme, language, output folder, TechPack choice and Low Geometry switch are
-remembered in a `.structura` file.
-Structura looks for one **next to the executable** first — put it there and the
-program is portable, carrying its settings on a stick and touching nothing on
-the host — and otherwise uses (and creates) one in your home directory.
+**Updates.** Structura checks its own GitHub releases when it starts, and offers
+to update if a newer build is out. Taking it replaces the executable you are
+running and starts the new one; your settings and your structures are untouched.
+The check, and a switch to stop it happening at launch, are in **About**. It is
+the only thing Structura sends anywhere, and turning the switch off stops it
+entirely.
+
+The download is checked before anything is replaced. It has to arrive whole,
+match the SHA-256 published with the release in `SHA256SUMS.txt`, and then start
+when Structura runs it, so an update that goes wrong leaves the build you already
+had in place. Every release carries that file, and `sha256sum -c SHA256SUMS.txt`
+checks a download you made yourself.
+
+The build that gets replaced is kept beside the new one as a hidden
+`Structura.exe.old` until the next launch clears it. If a new build ever refuses
+to start, delete `Structura.exe` and take the `.old` off that name to get the
+previous one back.
+
+Your theme, language, output folder, TechPack choice, Low Geometry switch and
+whether to check for updates are remembered in a `.structura` file. Structura
+looks for one **next to the executable** first, so putting it there makes the
+program portable, carrying its settings on a stick and touching nothing on the
+host. Otherwise it uses, and creates, one in your home directory.
 
 ### Languages
 
@@ -164,7 +183,7 @@ its locale, the way Minecraft names its own, and nothing else: see the
 
 ## 3. Use the pack in game
 
-Apply the `.mcpack` like any resource pack — enabling it in your **global
+Apply the `.mcpack` like any resource pack. Enabling it in your **global
 resources** works well.
 
 ![Making the pack active](docs/make_pack_active.PNG)
@@ -189,10 +208,10 @@ Every ghost block is real geometry, and the game lights and draws each one.
 Vibrant Visuals makes that markedly more expensive, so a large build of detailed
 blocks can be demanding to render.
 
-**Low Geometry** redraws only the blocks that carry the most detail — bells,
-beacons, hanging signs, copper golem statues and the like — as simpler shapes.
-They keep their textures and their positions, so the build still reads correctly;
-they are just cheaper to display. Blocks that are already a cube or two are
+**Low Geometry** redraws only the blocks that carry the most detail, such as
+bells, beacons, hanging signs and copper golem statues, as simpler shapes. They
+keep their textures and their positions, so the build still reads correctly, and
+they are only cheaper to display. Blocks that are already a cube or two are
 untouched, which is most of them.
 
 On a structure made entirely of detailed blocks it removes about two cubes in
@@ -214,8 +233,8 @@ the command line.
 
 **Why this needs a setting at all.** Both Structura and TechPack replace the
 game's armor stand entity, and a resource pack *replaces* that file rather than
-merging with it — between two packs, only the one higher in your list is read at
-all. Applying them side by side does not half-work: whichever sits lower is
+merging with it, so between two packs only the one higher in your list is read
+at all. Applying them side by side does not half-work: whichever sits lower is
 ignored completely, so you either lose the ghost blocks or you lose every
 TechPack visualisation, depending on the order. No ordering gives you both.
 
@@ -246,8 +265,8 @@ Structura.exe --structure path/to/build.mcstructure --pack_name "CLI Pack" --ove
 ```
 
 `Structura-cli.exe` is the same command line with the window left out of the
-build — a smaller download for scripts, servers and batch jobs. It takes exactly
-the same arguments; the only difference is that running it with nothing to build
+build, a smaller download for scripts, servers and batch jobs. It takes exactly
+the same arguments. The only difference is that running it with nothing to build
 tells you so instead of opening a window.
 
 `--opacity` (1–100, the inverse of the window's transparency slider),
@@ -258,58 +277,39 @@ window uses.
 
 ### Installing it instead
 
-You do not need to — the executables are the supported way to run Structura, and
-they need nothing installed. But on any platform with **Python 3.11 or newer** it
-can be installed as a package, which is the easier route for scripting and for
-anything that wants to `import structura`:
+On Windows you do not need to, because the executables need nothing installed.
+On **macOS and Linux the package is how you run Structura**, and it is also the
+easier route on Windows for scripting and for anything that wants to
+`import structura`. Any platform with **Python 3.11 or newer** will do:
 
 ```bash
-pip install structura              # the library and the command line
-pip install "structura[gui]"       # and the window
-```
-
-That puts two commands on your PATH, the same two the executables are:
-
-```bash
-structura --structure build.mcstructure --pack_name "My Pack"   # or no arguments for the window
+pip install structura
 structura-cli --structure build.mcstructure --pack_name "My Pack"
 ```
 
-Everything travels with it — the lookup tables, the vanilla textures, the fonts
-and TechPack's assets — so `--tech_pack full` works from an install exactly as it
-does from the executable.
+Everything travels with it, including the lookup tables, the vanilla textures,
+the fonts and TechPack's assets, so `--tech_pack full` works from an install
+exactly as it does from the executable. Packs built this way are identical to
+packs built by the executable.
 
-Two things the executables give you that an install does not. **Tkinter is not on
-PyPI**: it ships with CPython on Windows and macOS, but on Linux it is a system
-package (`python3-tk` on Debian and Ubuntu, `python3-tkinter` on Fedora), so the
-`[gui]` extra needs that installed first. And `structura` here is a console
-script rather than a windowed one, so on Windows it briefly shows a console.
+**The window is Windows only.** It is written on CustomTkinter, which is Tk
+underneath, and Tk on macOS and Linux has not been tested and is not supported.
+A `structura[gui]` extra exists and will install its dependencies anywhere, but
+only Windows is claimed to work. Tkinter itself is never on PyPI: it comes with
+CPython on Windows and macOS, and is a system package on Linux (`python3-tk` on
+Debian and Ubuntu, `python3-tkinter` on Fedora).
+
+If you do install the extra on Windows, `structura` with no arguments opens the
+window. It is a console script rather than a windowed one, so a console flashes
+up first, which is the one thing `Structura.exe` does better.
 
 From a checkout, `python -m structura` and `python -m structura.cli` are the same
 two programs without installing anything.
 
-## Linux
-
-Download the Linux executable and run it; there is nothing to install.
-
-The theme setting has one limitation here: CustomTkinter cannot read a Linux
-desktop's light or dark preference, so **System** resolves to light. Pick
-**Light** or **Dark** explicitly if that is not what you want.
-
-Running from a checkout instead, you need the Tk package for your Python, which
-does not come from PyPI:
-
-```bash
-sudo apt-get install python3-tk     # Debian/Ubuntu
-sudo dnf install python3-tkinter    # Fedora
-python3 -m pip install -r requirements.txt
-python3 structura.py
-```
-
 ## Building a release
 
-Releases are built locally. The version comes from `[project] version` in
-`pyproject.toml` — bump that first, then:
+Releases are built locally, on Windows. The version comes from
+`[project] version` in `pyproject.toml`, so bump that first, then:
 
 ```bash
 python -m pip install -e ".[dev]"
@@ -318,16 +318,19 @@ python build.py
 
 `build.py` runs the unit tests, then freezes both entry points with PyInstaller:
 `structura/__main__.py` through `structura.spec` into `Structura.exe`, and
-`structura/cli/__main__.py` through `structura_cli.spec` into `Structura-cli.exe`, which
-excludes the interface outright and comes out several megabytes smaller. Both go
-into `dist/` along with `Structura-<version>.zip`. It prints the size and SHA-256
-when it is done. The tests are not optional in the normal
-path; `--skip-tests` and `--skip-freeze` exist for iterating on the packaging
-step.
+`structura/cli/__main__.py` through `structura_cli.spec` into `Structura-cli.exe`,
+which excludes the interface outright and comes out several megabytes smaller.
+Both go into `dist/` along with `Structura-<version>.zip` and a `SHA256SUMS.txt`
+covering all three. The tests are not optional in the normal path. `--skip-tests`
+and `--skip-freeze` exist for iterating on the packaging step.
 
-Everything the program reads — the lookup tables, the trimmed vanilla pack, the
-TechPack assets, `pyproject.toml` and the branding — is packed **inside** the
-executable. A copy of any of those folders placed *beside* the executable still
+**Upload `SHA256SUMS.txt` with the binaries.** Structura checks a download
+against the fingerprint published beside it and refuses to install a build it
+cannot check, so a release missing that file is one nobody can update to.
+
+Everything the program reads is packed **inside** the executable: the lookup
+tables, the trimmed vanilla pack, the TechPack assets, `pyproject.toml` and the
+branding. A copy of any of those folders placed *beside* the executable still
 wins, which lets you override a lookup table by dropping an edited folder next
 to the exe.
 
@@ -356,18 +359,36 @@ python tools/coverage_report.py   # what the bundled test structures still drop
 
 ## Contributing
 
-Contributions are welcome — see the [Contribution Guidelines](docs/CONTRIBUTING.md).
+**Contributions are welcome.** Block support is the most useful kind. Structura
+covers every block the community vanilla resource pack defines, but Minecraft
+keeps adding them, and a block with no entry is quietly left out of the model
+rather than reported as an error, so gaps are easy to miss and easy to close.
+Most of the time adding one is an edit to a lookup table rather than a code
+change: [Editing Blocks](docs/Editing%20Blocks.md) is the write-up, and
+`docs/Block Notes.md` is what to read before touching a block that already
+exists.
+
+A translation is one file named for its locale and nothing else. The
+[Translation Guide](docs/TRANSLATION.md) covers it, and no code has to change to
+add a language.
+
+Bug reports, test structures that expose a wrong shape, and better textures are
+all welcome too. Read the [Contribution Guidelines](docs/CONTRIBUTING.md) before
+opening a pull request. Two rules there will save you a rewrite: nothing in
+`structura/cli/` may import `structura/ui/`, and a new shape family carrying
+three or more cubes needs a simplified form for Low Geometry.
 
 ## Coverage
 
 Every block in all 108 bundled test structures builds, and every block the
 community vanilla resource pack defines has a Structura definition.
-`docs/Block Notes.md` records what was decided and which shapes are still
-approximations. Re-check at any time with `python tools/coverage_report.py`.
+`docs/Block Notes.md` records how the awkward blocks are described and which
+shapes are still approximations. Re-check at any time with
+`python tools/coverage_report.py`.
 
 ## Credits
 
-- **EvilSlimeLabs** — current maintainer
-- **DrAv0011**, **FondUnicycle**, **RavinMaddHatter** — original authors
+- **EvilSlimeLabs**: current maintainer
+- **DrAv0011**, **FondUnicycle**, **RavinMaddHatter**: original authors
 
 Every generated pack carries these credits in its description.

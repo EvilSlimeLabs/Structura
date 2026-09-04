@@ -33,6 +33,7 @@ from structura import lang_parse
 from structura.pack import manifest
 from structura import paths
 from structura import core
+from structura import updates
 from structura.pack import tech_pack
 from structura.ui import ui_fonts
 ## Drawn at one scale, chosen once and never changed.
@@ -813,8 +814,36 @@ class AboutDialog(ctk.CTkToplevel):
                      font=font(size=11)).grid(
             row=3, column=0, padx=22, pady=(2, 6))
 
+        ## the update controls: what is there now, and whether to look at all
+        panel = ctk.CTkFrame(self, fg_color=FIELD, corner_radius=10)
+        panel.grid(row=4, column=0, padx=22, pady=(6, 4), sticky="ew")
+        panel.grid_columnconfigure(0, weight=1)
+        draw_every_pixel(panel)
+
+        self.update_status = ctk.CTkLabel(
+            panel, text=app.text("update current"), text_color=MUTED,
+            wraplength=300, justify="left", anchor="w", font=font(size=11))
+        self.update_status.grid(row=0, column=0, padx=12, pady=(10, 0), sticky="w")
+
+        self.update_button = ctk.CTkButton(
+            panel, text=app.text("check updates"), width=118, height=28,
+            corner_radius=8, fg_color="transparent", border_width=1,
+            border_color=BORDER, text_color=TEXT, hover_color=BORDER,
+            font=font(size=12), command=self.check_now)
+        self.update_button.grid(row=0, column=1, rowspan=2, padx=(8, 12), pady=10)
+
+        self.check_on_launch = tkinter.IntVar(
+            value=int(settings.check_updates()))
+        switch = ctk.CTkSwitch(
+            panel, text=app.text("check on launch"), variable=self.check_on_launch,
+            width=40, progress_color=AMBER, font=font(size=11),
+            text_color=MUTED, button_color=("#FFFFFF", "#E9ECF2"),
+            command=lambda: settings.set_check_updates(
+                bool(self.check_on_launch.get())))
+        switch.grid(row=1, column=0, padx=12, pady=(2, 10), sticky="w")
+
         buttons = ctk.CTkFrame(self, fg_color="transparent")
-        buttons.grid(row=4, column=0, pady=(8, 18))
+        buttons.grid(row=5, column=0, pady=(8, 18))
         ctk.CTkButton(buttons, text=app.text("website"), width=120, height=32,
                       corner_radius=8, fg_color="transparent", border_width=1,
                       border_color=BORDER, text_color=TEXT, hover_color=BORDER,
@@ -830,12 +859,127 @@ class AboutDialog(ctk.CTkToplevel):
         self.after(120, self.grab_set)
         self.bind("<Escape>", lambda _e: self.destroy())
 
+    def check_now(self):
+        """Ask GitHub, off the main thread, and say what came back.
+
+        The asking is a network call and Tk is not thread safe, so the answer
+        comes back through the window's queue like a finished build does.
+        """
+        self.update_button.configure(state="disabled")
+        self.update_status.configure(text=self.app.text("update checking"))
+
+        def ask():
+            found = None
+            try:
+                found = updates.available()
+            except Exception:
+                ## a check that fails is not a thing to interrupt anybody over
+                found = None
+            self.app.after(0, lambda: self.answered(found))
+
+        threading.Thread(target=ask, daemon=True).start()
+
+    def answered(self, tag):
+        if not self.winfo_exists():
+            return
+        self.update_button.configure(state="normal")
+        if tag:
+            self.update_status.configure(text=self.app.text("update found", tag))
+            self.app.offer_update(tag)
+        elif updates.running_file() is None:
+            self.update_status.configure(text=self.app.text("update current"))
+        else:
+            self.update_status.configure(text=self.app.text("update current"))
+
     def _centre(self):
         centre_on(self, self.app)
         self.lift()
         self.attributes("-topmost", True)
         self.after(400, lambda: self.attributes("-topmost", False))
         self.focus_force()
+
+
+class UpdateDialog(ctk.CTkToplevel):
+    """A newer build is out. Take it now, or not."""
+
+    def __init__(self, app, tag):
+        super().__init__(app)
+        self.app = app
+        self.tag = tag
+        self.title(app.text("update title"))
+        self.resizable(False, False)
+        self.configure(fg_color=SURFACE)
+        self.grid_columnconfigure(0, weight=1)
+        self.after(220, lambda: apply_icon(self))
+
+        ctk.CTkLabel(self, text=app.text("update found", tag),
+                     font=font(size=15, weight="bold"), text_color=TEXT).grid(
+            row=0, column=0, padx=26, pady=(20, 4))
+        self.detail = ctk.CTkLabel(self, text=app.text("update body"),
+                                   text_color=MUTED, wraplength=320,
+                                   justify="center")
+        self.detail.grid(row=1, column=0, padx=26, pady=(2, 10))
+
+        self.buttons = ctk.CTkFrame(self, fg_color="transparent")
+        self.buttons.grid(row=2, column=0, pady=(4, 18))
+        self.later = ctk.CTkButton(
+            self.buttons, text=app.text("not now"), width=120, height=32,
+            corner_radius=8, fg_color="transparent", border_width=1,
+            border_color=BORDER, text_color=TEXT, hover_color=BORDER,
+            command=self.destroy)
+        self.later.pack(side="left", padx=(0, 8))
+        self.take = ctk.CTkButton(
+            self.buttons, text=app.text("update now"), width=120, height=32,
+            corner_radius=8, fg_color=AMBER, hover_color=AMBER_HOVER,
+            text_color=ON_AMBER, command=self.install)
+        self.take.pack(side="left")
+
+        self.transient(app)
+        self.after(60, self._centre)
+        self.after(120, self.grab_set)
+        self.bind("<Escape>", lambda _e: self.destroy())
+
+    def _centre(self):
+        centre_on(self, self.app)
+        self.lift()
+        self.attributes("-topmost", True)
+        self.after(400, lambda: self.attributes("-topmost", False))
+        self.focus_force()
+
+    def install(self):
+        """Fetch the build and put it in place, then start it and leave."""
+        ## leaving is the last step, and a build in progress would go with it
+        if self.app.building:
+            self.detail.configure(text=self.app.text("update while building"))
+            return
+        self.take.configure(state="disabled")
+        self.later.configure(state="disabled")
+        self.detail.configure(text=self.app.text("update working"))
+
+        def work():
+            trouble = updates.install_latest(report=self.stage)
+            self.app.after(0, lambda: self.finished(trouble))
+
+        threading.Thread(target=work, daemon=True).start()
+
+    def stage(self, key):
+        """Say which part of the update is happening, from the worker thread."""
+        self.app.after(0, lambda: self.winfo_exists()
+                       and self.detail.configure(text=self.app.text(key)))
+
+    def finished(self, trouble):
+        if not self.winfo_exists():
+            return
+        if trouble:
+            reason, detail = trouble
+            self.detail.configure(text=self.app.text(reason, detail))
+            self.take.configure(state="normal")
+            self.later.configure(state="normal")
+            return
+        ## The new build is already starting and this one has to be gone before
+        ## it can clear away what it replaced, so leave now rather than unwind.
+        self.app.destroy()
+        os._exit(0)
 
 
 class Chooser(ctk.CTkFrame):
@@ -1607,6 +1751,15 @@ class App(ctk.CTk):
 
         self.set_status(self.text("status ready"))
 
+        ## An update left the build it replaced behind, because a running file
+        ## cannot delete itself. When this launch is the one the update started,
+        ## that build is still shutting down, so the wait happens off the main
+        ## thread and the window does not stop for it.
+        threading.Thread(target=updates.clear_displaced,
+                         args=(updates.PATIENCE,), daemon=True).start()
+        if settings.check_updates():
+            self.check_for_updates()
+
     def refresh_icon_preview(self):
         """Redraw the control: background, preview, frame, cut corner.
 
@@ -1796,6 +1949,34 @@ class App(ctk.CTk):
             self.icon_path = path
             self.refresh_icon_preview()
             self.set_status(self.text("status icon", os.path.basename(path)))
+
+    def check_for_updates(self):
+        """Ask GitHub whether there is a newer build, without holding anything up.
+
+        Off the main thread, because it is a network call, and quiet about
+        every way of failing: somebody opening the program to build a pack does
+        not want to hear that an update check timed out.
+        """
+        def ask():
+            try:
+                found = updates.available()
+            except Exception:
+                found = None
+            if found:
+                self.after(0, lambda: self.offer_update(found))
+
+        threading.Thread(target=ask, daemon=True).start()
+
+    def offer_update(self, tag):
+        """Put the choice in front of the person: take it now, or not."""
+        if getattr(self, "update_dialog", None) is not None:
+            try:
+                if self.update_dialog.winfo_exists():
+                    self.update_dialog.lift()
+                    return
+            except Exception:
+                pass
+        self.update_dialog = UpdateDialog(self, tag)
 
     def clear_all_structures(self):
         """Empty the list in one go rather than a row at a time."""

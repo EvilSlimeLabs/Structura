@@ -4,7 +4,7 @@ What to know before adding a block, changing how one looks, or working out why
 one looks wrong. The tables themselves are described in `docs/Editing Blocks.md`;
 this is the accumulated knowledge that is not obvious from reading them.
 
-Coverage is closed and stays closed — check it at any time:
+Coverage is closed and stays closed. Check it at any time:
 
 ```bash
 python tools/audit_blocks.py         every declared block resolved to a texture
@@ -47,7 +47,7 @@ up wearing a full-height texture. Add variants to both.
 | `shape` | the state's **value** names the shape variant | `attachment` |
 
 `data` and `shape` both end up as the variant name. `data` is for numbers,
-`shape` for words — an `int()` on `"hanging"` raises. When a block carries
+`shape` for words, because an `int()` on `"hanging"` raises. When a block carries
 several `shape` states they are joined with `-` **in the order the state names
 sort**, so `attached_bit` before `hanging` gives `"0-1"`. Write the variants in
 that order or they will never be found.
@@ -64,7 +64,7 @@ Bedrock gives some blocks a numeric `direction` and others a
 versions. `block_rotation.json` is a plain lookup: a value it has no key for is
 drawn **unrotated, silently**.
 
-That is what made every door face the same way — `door` had `0`–`3` and the
+That is what made every door face the same way. `door` had `0`–`3` and the
 structures were giving it `"east"`. Twelve families had the same gap.
 
 The numbering is not the same for every block:
@@ -93,7 +93,7 @@ follow the convention every existing entry uses; confirm a new one in a world.
 
 ## One texture per cube, not per block
 
-Bedrock declares six textures for a block — up, down and the four sides. A block
+Bedrock declares six textures for a block: up, down and the four sides. A block
 built from one cube can use them directly. A block built from several **cannot**:
 without help, every cube gets the same six, so a grindstone's legs are painted
 with the wheel's texture on top and a beacon's glass shell, its core and its
@@ -118,18 +118,18 @@ families shared by many block ids.
 
 ## Textures that are not what they seem
 
-- **Some are lists.** `terrain_texture.json` may map one name to several files —
+- **Some are lists.** `terrain_texture.json` may map one name to several files.
   `dried_ghast_front` is four, one per drying stage. The `variant` mechanism
   indexes them through `variants.json`. A numeric state arrives from nbtlib as
   `Int(0)`, whose `str()` is `"Int(0)"` and not `"0"`; the lookup converts.
-- **Some are flipbooks.** `campfire.png` is 16×128 — eight stacked frames — and
+- **Some are flipbooks.** `campfire.png` is 16×128, eight stacked frames, and
   `campfire_log_lit.png` is 16×64. Using one whole stretches every frame over the
   face; the UV window has to take one frame's worth of `v`.
 - **Some are named and do not exist.** `blocks.json` names
   `chiseled_bookshelf_front`, which no vanilla pack ships and
   `terrain_texture.json` has no entry for. Name the real texture in `overwrite`.
 - **Some are entity sheets.** `copper_golem.png` is 64×64 and `oak_hanging_sign.png`
-  is 64×32 — atlases laid out for an entity model, not tiles.
+  is 64×32, atlases laid out for an entity model rather than tiles.
 
 Only the **top left 16×16** of a texture becomes a tile; a larger one is cropped,
 never scaled, so its pixels keep their size. A block drawn from a sheet says
@@ -162,7 +162,7 @@ one palette entry for all of them, and the pose is in
 
 `structure_reader.get_block_entity(x, y, z)` reads it and
 `structura.core.ENTITY_SHAPES` says which field of which block entity names the
-shape. Add to that mapping to support another one — a block entity carries a
+shape. Add to that mapping to support another one. A block entity carries a
 great deal that has nothing to do with how a block looks, so only the named
 fields are read.
 
@@ -172,7 +172,7 @@ fields are read.
 
 Every ghost block is geometry the client lights and draws, and Vibrant Visuals
 makes that markedly more expensive. A family may declare a simpler form of
-itself, named with the `__low` suffix — `bell__low` beside `bell` — and a pack
+itself, named with the `__low` suffix (`bell__low` beside `bell`), and a pack
 built with low geometry uses it. A family without one is drawn as it always is,
 which is most of them.
 

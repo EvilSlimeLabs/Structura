@@ -50,6 +50,11 @@ def _words(text, table):
 # --- pirate ----------------------------------------------------------------
 
 PIRATE = {
+    ## the words the update notice brought in
+    "check": "spy", "now": "this instant", "asking": "hailin'",
+    "update": "refit", "updated": "refitted", "available": "to be had",
+    "downloading": "haulin' aboard", "release": "haul", "version": "cut",
+    "program": "vessel", "untouched": "unspoilt", "replace": "swap out",
     "you": "ye", "your": "yer", "yours": "yers", "my": "me", "mine": "me own",
     "is": "be", "are": "be", "am": "be", "was": "were",
     "the": "th'", "of": "o'", "to": "t'", "and": "an'", "for": "fer",
@@ -83,6 +88,11 @@ PIRATE = {
     "graphics": "paintin'", "card": "engine", "draws": "paints",
     "simpler": "plainer", "large": "grand",
     "none": "nary a one", "compatibility": "sailin' together",
+    ## the words the update's own stages brought in
+    "checking": "spyin'", "runs": "sails", "putting": "stowin'",
+    "place": "berth", "arrived": "made port", "start": "cast off",
+    "thrown": "cast", "away": "overboard", "antivirus": "ship's surgeon",
+    "administrator": "cap'n", "rename": "re-christen", "finish": "make an end",
 }
 
 
@@ -97,6 +107,11 @@ def pirate(text):
 # --- lolcat ----------------------------------------------------------------
 
 LOLCAT = {
+    ## the words the update notice brought in
+    "check": "look", "now": "rite now", "asking": "askin",
+    "update": "updaet", "updated": "updaeted", "available": "here",
+    "downloading": "gettin", "release": "verzhun", "version": "verzhun",
+    "program": "proggy", "untouched": "safe", "replace": "swap",
     "the": "teh", "you": "u", "your": "ur", "you're": "ur", "are": "r",
     "is": "iz", "was": "wuz", "has": "haz", "have": "haz", "of": "ov",
     "with": "wif", "more": "moar", "than": "than", "please": "plz",
@@ -128,6 +143,11 @@ LOLCAT = {
     "positions": "spotz", "render": "draw", "graphics": "grafix",
     "card": "kard", "draws": "drawz", "simpler": "simplr", "large": "big",
     "none": "nuffin", "compatibility": "getz along",
+    ## the words the update's own stages brought in
+    "checking": "lookin", "runs": "goez", "putting": "puttin",
+    "place": "spot", "arrived": "showd up", "start": "go",
+    "thrown": "chukd", "away": "away", "antivirus": "scaredy cat",
+    "administrator": "big boss", "rename": "renaem", "finish": "finish",
 }
 
 
@@ -142,6 +162,12 @@ def lolcat(text):
 # --- shakespearean ---------------------------------------------------------
 
 SHAKESPEARE = {
+    ## the words the update notice brought in
+    "check": "enquire", "now": "anon", "asking": "entreating",
+    "date": "the hour",
+    "update": "renew", "updated": "renewed", "available": "at hand",
+    "downloading": "fetching", "release": "edition", "version": "edition",
+    "program": "instrument", "untouched": "unharmed", "replace": "supplant",
     "you": "thou", "your": "thy", "yours": "thine", "you're": "thou art",
     "are": "art", "is": "is", "am": "am", "do": "dost", "does": "doth",
     "have": "hast", "has": "hath", "will": "shall", "yes": "aye", "no": "nay",
@@ -175,6 +201,12 @@ SHAKESPEARE = {
     "card": "engine", "draws": "limns", "simpler": "plainer",
     "large": "vast",
     "none": "none at all", "compatibility": "concord",
+    ## the words the update's own stages brought in
+    "checking": "assaying", "runs": "stirs", "putting": "setting",
+    "place": "station", "arrived": "come", "start": "stir",
+    "thrown": "cast", "away": "aside", "antivirus": "warder",
+    "administrator": "steward", "rename": "christen anew",
+    "finish": "conclude",
 }
 
 

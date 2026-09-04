@@ -81,9 +81,14 @@ and would read EN, so its file asks for PT instead.
 
 ## Special language cases
 
-Do not edit the following language files: `en_PT`, `lol_US`, `en_WS`, `en_UD`, and `en_SGA`. They are generated from English, and a pull request that changes them will be rejected.
+Do not edit `en_PT`, `lol_US`, `en_WS`, `en_UD` or `en_SGA`. They are
+**generated**: English put through the transforms in `tools/lang_fun.py`. Edit
+that file instead, then re-run `python tools/make_special_languages.py` to write
+the five files out again.
 
-They are **generated**: English put through a transform using the words in `tools/lang_fun.py`. Any editing should be done there, and the script re-run to produce the new files. The script is run automatically by the build, so a pull request that changes them will be rejected.
+`tests/test_languages.py` fails when the generated files and English have
+drifted apart, and `build.py` runs the tests, so a release cannot ship them out
+of step. A pull request that edits one of the five directly will not pass.
 
 ## Scripts the bundled font does not cover
 

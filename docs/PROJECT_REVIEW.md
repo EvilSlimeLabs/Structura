@@ -4,7 +4,7 @@ The crash, wrong-output, robustness and structure findings from the original
 pass have all been worked. What is left is here: the parts that could not be
 settled from this side of the screen, and the checks that would settle them.
 
-Block work has its own notes — see `docs/Block Notes.md`.
+Block work has its own notes, in `docs/Block Notes.md`.
 
 ---
 
@@ -15,7 +15,7 @@ and vanilla's own model files. The arithmetic can be checked here; how it looks
 cannot. None of it has been seen in game.
 
 **The horizontal UV window is still wrong for cubes narrower than their block.**
-Vertical windows are now correct everywhere — a half-height cube takes half a
+Vertical windows are now correct everywhere, so a half-height cube takes half a
 texture tile. The horizontal axis was deliberately left alone, because setting
 it needs to know which way U runs across the east and west faces, and there is
 no worked example anywhere in `block_uv.json` to copy: every existing entry is

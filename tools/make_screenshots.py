@@ -153,12 +153,7 @@ def main():
     shoot(about, "about.png")
     about.destroy()
 
-    ## one of the special languages, so the picker's point is visible
-    app.on_language("en_PT")
-    settle(app, 0.8)
-    shoot(app, "window_pirate.png")
     app.on_language(was)
-
     app.destroy()
     print("done")
     return 0

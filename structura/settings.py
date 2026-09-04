@@ -83,10 +83,17 @@ DEFAULT_TECH_PACK = "none"
 ## between structures. Full detail is the default.
 DEFAULT_LOW_GEOMETRY = False
 
+## Whether the program asks GitHub for a newer release when it starts. On,
+## because an updater nobody is told about is an updater nobody uses, and the
+## About window says plainly that it is happening and turns it off. It is the
+## only thing Structura sends anywhere.
+DEFAULT_CHECK_UPDATES = True
+
 DEFAULTS = {"lang": DEFAULT_LANGUAGE,
             "theme": DEFAULT_THEME,
             "tech_pack": DEFAULT_TECH_PACK,
             "low_geometry": DEFAULT_LOW_GEOMETRY,
+            "check_updates": DEFAULT_CHECK_UPDATES,
             "output_dir": ""}          # empty means "use the default"
 
 settings = dict(DEFAULTS)
@@ -239,6 +246,8 @@ def load():
     ## a switch is stored as a JSON boolean, but an older file or a hand edit
     ## may hold 0 or 1, which mean the same thing
     settings["low_geometry"] = bool(settings.get("low_geometry"))
+    settings["check_updates"] = bool(settings.get("check_updates",
+                                                  DEFAULT_CHECK_UPDATES))
     if not isinstance(settings.get("output_dir"), str):
         settings["output_dir"] = ""
     save()
@@ -285,6 +294,18 @@ def set_low_geometry(enabled):
     settings["low_geometry"] = bool(enabled)
     save()
     return settings["low_geometry"]
+
+
+def check_updates():
+    """Whether to ask for a newer release at launch."""
+    return bool(settings.get("check_updates", DEFAULT_CHECK_UPDATES))
+
+
+def set_check_updates(enabled):
+    """Remember whether to ask. Off means nothing is sent anywhere."""
+    settings["check_updates"] = bool(enabled)
+    save()
+    return settings["check_updates"]
 
 
 def set_theme(name):

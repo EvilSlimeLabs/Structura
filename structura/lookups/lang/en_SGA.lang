@@ -1,5 +1,5 @@
 # Enchanting (en_SGA)
-# Generated from en_US.lang by tools/make_joke_languages.py. Do not edit by
+# Generated from en_US.lang by tools/make_special_languages.py. Do not edit by
 # hand: re-run that script instead, or the next English string added leaves this
 # one behind.
 
@@ -94,4 +94,28 @@ status reset=Settings reset
 list header=Blocks needed for this build
 list footer=Built with
 reset=Reset
+check updates=Check Now
+check on launch=Check for updates on launch
+update current=Structura is up to date.
+update checking=Asking GitHub...
+update found=Structura {} is available
+update title=Update
+update body=Structura will replace itself and start the new build. Your settings and your structures are untouched.
+update now=Update
+not now=Not Now
+update working=Downloading and putting it in place...
+update no asset=That release has no build for this program.
+update stage downloading=Downloading the new build...
+update stage checking=Checking that it runs...
+update stage placing=Putting it in place...
+update download failed=The download did not finish. {}
+update not a build=What arrived is not a Structura build.
+update does not run=The downloaded build does not start, so it has been thrown away. Structura is untouched. An antivirus objecting to it is the usual reason.
+update cannot move=Structura could not move itself aside. {} A copy installed in Program Files needs an administrator.
+update cannot place=The new build could not be put in place, so the old one was put back. {}
+update stranded=The update could not be finished. Rename {} to put Structura back.
+update while building=Structura is building a pack. Let that finish, then update.
+update no release=GitHub could not be reached, so there is nothing to take.
+update no fingerprint=That release publishes no {}, so the download cannot be checked. Structura will not install a build it cannot check.
+update wrong fingerprint=The download does not match the fingerprint published with the release, so it has been thrown away. Structura is untouched.
 language badge=SGA

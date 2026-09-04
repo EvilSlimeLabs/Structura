@@ -697,6 +697,7 @@ class SettingsFileTests(unittest.TestCase):
             "theme": ("dark", settings.set_theme),
             "tech_pack": ("compatibility", settings.set_tech_pack),
             "low_geometry": (True, settings.set_low_geometry),
+            "check_updates": (False, settings.set_check_updates),
             "output_dir": (os.path.join(os.path.expanduser("~"), "Somewhere"),
                            settings.set_output_dir),
         }

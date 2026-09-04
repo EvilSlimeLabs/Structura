@@ -1,5 +1,5 @@
 # Shakespearean (en_WS)
-# Generated from en_US.lang by tools/make_joke_languages.py. Do not edit by
+# Generated from en_US.lang by tools/make_special_languages.py. Do not edit by
 # hand: re-run that script instead, or the next English string added leaves this
 # one behind.
 
@@ -33,8 +33,8 @@ techpack=TechPack
 techpack none=None at all
 techpack compatibility=Concord
 techpack full=Full Bundle
-techpack help=Structura and TechPack both replace the armor stand, and a resource bundle replaces that scroll rather than merging with it, so applying both loses whichever sits lower in thy list. Concord declares TechPack on the armor stand so thy own copy keeps working alongside this bundle. Full Bundle carries TechPack's own scrolls as well, so this one bundle is both.
-techpack missing=TechPack is not available in this raise
+techpack help=Structura and TechPack both supplant the armor stand, and a resource bundle replaces that scroll rather than merging with it, so applying both loses whichever sits lower in thy list. Concord declares TechPack on the armor stand so thy own copy keeps working alongside this bundle. Full Bundle carries TechPack's own scrolls as well, so this one bundle is both.
+techpack missing=TechPack is not at hand in this raise
 lowgeo=Plain Form
 lowgeo help=Structura limns every stone in full nicety. Vibrant Visuals lights each of those forms, so a vast edifice can be demanding to limn. Plain form redraws only the most wrought stones as plainer forms, keeping their hues and their stations, which is far cheaper on the limning engine.
 settings=Appointments
@@ -94,4 +94,28 @@ status reset=Appointments restore
 list header=Stones needed for this raise
 list footer=Wrought with
 reset=Restore
+check updates=Enquire Anon
+check on launch=Enquire for updates on launch
+update current=Structura is up to the hour.
+update checking=Entreating GitHub...
+update found=Structura {} is at hand
+update title=Renew
+update body=Structura shall supplant itself and stir the new raise. Thy appointments and thy edifices art unharmed.
+update now=Renew
+not now=Not Anon
+update working=Fetching and setting it in station...
+update no asset=That edition hath nay raise for this instrument.
+update stage downloading=Fetching the new raise...
+update stage checking=Assaying that it stirs...
+update stage placing=Setting it in station...
+update download failed=The download did not conclude. {}
+update not a build=What come is not a Structura raise.
+update does not run=The downloaded raise doth not stir, so it hath been cast aside. Structura is unharmed. An warder objecting to it is the usual reason.
+update cannot move=Structura couldst not move itself aside. {} A copy installed in Instrument Scrolls needs an steward.
+update cannot place=The new raise couldst not be put in station, so the old one was put back. {}
+update stranded=The renew couldst not be finished. Christen anew {} to put Structura back.
+update while building=Structura is a-forging a bundle. Let that conclude, then renew.
+update no release=GitHub couldst not be reached, so thither is nothing to take.
+update no fingerprint=That edition publishes nay {}, so the download cannot be checked. Structura shall not install a raise it cannot enquire.
+update wrong fingerprint=The download doth not match the fingerprint published with the edition, so it hath been cast aside. Structura is unharmed.
 language badge=WS

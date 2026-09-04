@@ -19,11 +19,30 @@ and textures.
 
 ## This is a private fork
 
-Releases are built locally with `python build.py`, not by CI. There is no update
-mechanism at all: the fork does not publish to the upstream update server, so
-`updater.py`, the `--update` flag and `build.py --update-package` were removed
-rather than left as code that could never succeed. Do not add build or release
-workflows, and do not reintroduce an updater without a server to point it at.
+Releases are built locally with `python build.py`, not by CI, and uploaded to
+the project's own GitHub releases by hand. **Do not add build or release
+workflows.**
+
+**The window is Windows only.** The release is built on a Windows machine, so
+`Structura.exe` and `Structura-cli.exe` are the only executables that exist.
+macOS and Linux get the command line through `pip install structura`. Do not
+write documentation promising a Linux or macOS build; the README claimed one for
+a long time and it has never been produced.
+
+**Upload `dist/SHA256SUMS.txt` with the binaries.** `build.py` writes it over
+everything the release carries, and the updater refuses to install a build whose
+fingerprint the release does not publish. A release missing that one file is a
+release nobody can update to.
+
+**The program updates itself from those releases.** `structura/updates.py` asks
+the GitHub API for the latest release, and if its tag is a later version than
+the running one and it carries an asset named the way the running executable is,
+it offers to replace it. Nothing about the upstream update server survives; this
+points at this repository and nowhere else.
+
+That whole feature rests on the repository being **public**, because the release
+API and the download are unauthenticated. While it is private every check comes
+back as "up to date", quietly, which is the same answer as no network.
 
 ---
 
@@ -58,6 +77,7 @@ structura/               everything importable, and everything it reads
   settings.py              settings, and the strings both sides label things with
   lang_parse.py            reads lookups/lang/, one file per language
   system_locale.py         what language the desktop is set to, for a first launch
+  updates.py               whether a newer release is out, and swapping it in
   paths.py                 where data lives, in a checkout and inside the bundle
   version.py               reads the version out of pyproject.toml
   jsonc.py                 reads Bedrock's permissive JSON; shipped, not a tool
@@ -211,6 +231,41 @@ Things worth knowing before changing it:
   does not change between structures. Every setter in `settings.py` writes the
   file, and `tests/test_interface.py` fails when a key in `DEFAULTS` has no
   setter it checks.
+- **The program replaces itself, and the swap is a rename.** A running
+  executable cannot be written over on Windows, but it can be moved: the running
+  file is renamed to `Structura.exe.old`, the download is written where it
+  stood, and the new build is started. Only a frozen build has anything to
+  replace; from a checkout the About window says so.
+- **Nothing is touched until the download has answered for itself.** It lands
+  beside the running file as `Structura.exe.new`, and it has to arrive at the
+  length the server declared, match the SHA-256 the release publishes for it in
+  `SHA256SUMS.txt`, start with `MZ`, and then actually run:
+  `updates.answers_for_itself` starts it with `--help` and requires it to exit
+  zero. Both builds answer that, the windowed one included. This is what turns
+  "the new build will not open" from something nobody is left alive to fix into
+  a refusal with the old build still in place, and it is why there is no
+  separate updater program. **A downloaded file must be probed by an absolute
+  path** -- Windows searches for a bare name and appends `.exe` while it does,
+  which never finds a file named `.new`.
+- **A release with no fingerprints is refused, not taken on trust.**
+  `updates.SUMS` and `build.SUMS_NAME` are the same file from its two ends, and
+  a test fails when they drift. The format is `sha256sum`'s own, so the same
+  asset checks a hand download. **This is not a signature.** The fingerprint
+  travels with the build it describes, from the same release over the same
+  connection, so it proves the file arrived whole, not that the release is the
+  project's. Do not describe it as proving where a build came from.
+- **A file operation in the update path is retried, not trusted.** Windows
+  refuses to rename or replace a file another process has open, and an antivirus
+  opens a freshly written executable to scan it. `updates.keep_trying` asks
+  again for `updates.PATIENCE` seconds. If the second rename fails anyway the
+  first is undone, so the folder is never left with nothing to run.
+- **The displaced build is hidden, and the attribute travels.** `updates.hide`
+  sets it only after the swap has succeeded, because a rollback renames that
+  same file back into place and would hide the program itself. Clearing it
+  races the process still shutting down, so `updates.clear_displaced()` is
+  called with patience, on a thread of its own so the window never waits.
+  Nothing depends on it winning: the leftover is what a broken update is
+  recovered from, and any later launch clears it.
 - **The first launch starts in the desktop's language.** With no language
   remembered, `system_locale.read()` asks the machine and `settings.match_locale`
   turns the answer into one of the files: that locale, then any file for the

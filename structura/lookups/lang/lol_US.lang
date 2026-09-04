@@ -1,5 +1,5 @@
 # LOLCAT (lol_US)
-# Generated from en_US.lang by tools/make_joke_languages.py. Do not edit by
+# Generated from en_US.lang by tools/make_special_languages.py. Do not edit by
 # hand: re-run that script instead, or the next English string added leaves this
 # one behind.
 
@@ -33,8 +33,8 @@ techpack=TechPack
 techpack none=Nuffin
 techpack compatibility=Getz along
 techpack full=Full Pak
-techpack help=Structura an TechPack both replace teh armor stand, an a resource pak replaces that fiel rather than merging wif it, so applying both loses whichever sits lower in ur list. Getz along declares TechPack on teh armor stand so ur own copy keeps working alongside this pak. Full Pak carries TechPack's own fielz as well, so this one pak iz both.
-techpack missing=TechPack iz not available in this bild
+techpack help=Structura an TechPack both swap teh armor stand, an a resource pak replaces that fiel rather than merging wif it, so applying both loses whichever sits lower in ur list. Getz along declares TechPack on teh armor stand so ur own copy keeps working alongside this pak. Full Pak carries TechPack's own fielz as well, so this one pak iz both.
+techpack missing=TechPack iz not here in this bild
 lowgeo=Smol Shaypz
 lowgeo help=Structura drawz every blok in full stuf. Vibrant Visuals lights each ov those shaypz, so a big strukchur can be demanding to draw. Smol shaypz redraws only teh most fancy blokz as simplr shaypz, keeping their skinz an their spotz, which iz far cheaper on teh grafix kard.
 settings=Settingz
@@ -94,4 +94,28 @@ status reset=Settingz startz ovr
 list header=Blokz needed for this bild
 list footer=Bilt wif
 reset=Startz ovr
+check updates=Look Rite now
+check on launch=Look for updates on launch
+update current=Structura iz up to date.
+update checking=Askin GitHub...
+update found=Structura {} iz here
+update title=Updaet
+update body=Structura will swap itself an go teh new bild. Ur settingz an ur strukchurz r safe.
+update now=Updaet
+not now=Not Rite now
+update working=Gettin an puttin it in spot...
+update no asset=That verzhun haz nope bild for this proggy.
+update stage downloading=Gettin teh new bild...
+update stage checking=Lookin that it goez...
+update stage placing=Puttin it in spot...
+update download failed=Teh download did not finish. {}
+update not a build=What showd up iz not a Structura bild.
+update does not run=Teh downloaded bild does not go, so it haz been chukd away. Structura iz safe. An scaredy cat objecting to it iz teh usual reason.
+update cannot move=Structura cud not move itself aside. {} A copy installed in Proggy Fielz needs an big boss.
+update cannot place=Teh new bild cud not be put in spot, so teh old one wuz put back. {}
+update stranded=Teh updaet cud not be finished. Renaem {} to put Structura back.
+update while building=Structura iz bildin a pak. Let that finish, then updaet.
+update no release=GitHub cud not be reached, so there iz nothing to take.
+update no fingerprint=That verzhun publishes nope {}, so teh download cant be checked. Structura will not install a bild it cant look.
+update wrong fingerprint=Teh download does not match teh fingerprint published wif teh verzhun, so it haz been chukd away. Structura iz safe.
 language badge=LOL

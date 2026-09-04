@@ -1,5 +1,5 @@
 # ɥsᴉlƃuƎ (en_UD)
-# Generated from en_US.lang by tools/make_joke_languages.py. Do not edit by
+# Generated from en_US.lang by tools/make_special_languages.py. Do not edit by
 # hand: re-run that script instead, or the next English string added leaves this
 # one behind.
 
@@ -94,4 +94,28 @@ status reset=ʇǝsǝɹ sƃuᴉʇʇǝS
 list header=plᴉnq sᴉɥʇ ɹoɟ pǝpǝǝu sʞɔol𝐐
 list footer=ɥʇᴉʍ ʇlᴉn𝐐
 reset=ʇǝsǝɹ
+check updates=ʍoN ʞɔǝɥƆ
+check on launch=ɥɔunɐl uo sǝʇɐpdn ɹoɟ ʞɔǝɥƆ
+update current=˙ǝʇɐp oʇ dn sᴉ ɐɹnʇɔnɹʇS
+update checking=˙˙˙qnHʇᴉפ ƃuᴉʞs∀
+update found=ǝlqɐlᴉɐʌɐ sᴉ {} ɐɹnʇɔnɹʇS
+update title=ǝʇɐpd∩
+update body=˙pǝɥɔnoʇun ǝɹɐ sǝɹnʇɔnɹʇs ɹnoʎ puɐ sƃuᴉʇʇǝs ɹno⅄ ˙plᴉnq ʍǝu ǝɥʇ ʇɹɐʇs puɐ ɟlǝsʇᴉ ǝɔɐldǝɹ llᴉʍ ɐɹnʇɔnɹʇS
+update now=ǝʇɐpd∩
+not now=ʍoN ʇoN
+update working=˙˙˙ǝɔɐld uᴉ ʇᴉ ƃuᴉʇʇnd puɐ ƃuᴉpɐoluʍop
+update no asset=˙ɯɐɹƃoɹd sᴉɥʇ ɹoɟ plᴉnq ou sɐɥ ǝsɐǝlǝɹ ʇɐɥ┴
+update stage downloading=˙˙˙plᴉnq ʍǝu ǝɥʇ ƃuᴉpɐoluʍop
+update stage checking=˙˙˙sunɹ ʇᴉ ʇɐɥʇ ƃuᴉʞɔǝɥƆ
+update stage placing=˙˙˙ǝɔɐld uᴉ ʇᴉ ƃuᴉʇʇnԀ
+update download failed={} ˙ɥsᴉuᴉɟ ʇou pᴉp pɐoluʍop ǝɥ┴
+update not a build=˙plᴉnq ɐɹnʇɔnɹʇS ɐ ʇou sᴉ pǝʌᴉɹɹɐ ʇɐɥM
+update does not run=˙uosɐǝɹ lɐnsn ǝɥʇ sᴉ ʇᴉ oʇ ƃuᴉʇɔǝɾqo snɹᴉʌᴉʇuɐ u∀ ˙pǝɥɔnoʇun sᴉ ɐɹnʇɔnɹʇS ˙ʎɐʍɐ uʍoɹɥʇ uǝǝq sɐɥ ʇᴉ os 'ʇɹɐʇs ʇou sǝop plᴉnq pǝpɐoluʍop ǝɥ┴
+update cannot move=˙ɹoʇɐɹʇsᴉuᴉɯpɐ uɐ spǝǝu sǝlᴉℲ ɯɐɹƃoɹԀ uᴉ pǝllɐʇsuᴉ ʎdoɔ ∀ {} ˙ǝpᴉsɐ ɟlǝsʇᴉ ǝʌoɯ ʇou plnoɔ ɐɹnʇɔnɹʇS
+update cannot place={} ˙ʞɔɐq ʇnd sɐʍ ǝuo plo ǝɥʇ os 'ǝɔɐld uᴉ ʇnd ǝq ʇou plnoɔ plᴉnq ʍǝu ǝɥ┴
+update stranded=˙ʞɔɐq ɐɹnʇɔnɹʇS ʇnd oʇ {} ǝɯɐuǝɹ ˙pǝɥsᴉuᴉɟ ǝq ʇou plnoɔ ǝʇɐpdn ǝɥ┴
+update while building=˙ǝʇɐpdn uǝɥʇ 'ɥsᴉuᴉɟ ʇɐɥʇ ʇǝ˥ ˙ʞɔɐd ɐ ƃuᴉplᴉnq sᴉ ɐɹnʇɔnɹʇS
+update no release=˙ǝʞɐʇ oʇ ƃuᴉɥʇou sᴉ ǝɹǝɥʇ os 'pǝɥɔɐǝɹ ǝq ʇou plnoɔ qnHʇᴉפ
+update no fingerprint=˙ʞɔǝɥɔ ʇouuɐɔ ʇᴉ plᴉnq ɐ llɐʇsuᴉ ʇou llᴉʍ ɐɹnʇɔnɹʇS ˙pǝʞɔǝɥɔ ǝq ʇouuɐɔ pɐoluʍop ǝɥʇ os '{} ou sǝɥsᴉlqnd ǝsɐǝlǝɹ ʇɐɥ┴
+update wrong fingerprint=˙pǝɥɔnoʇun sᴉ ɐɹnʇɔnɹʇS ˙ʎɐʍɐ uʍoɹɥʇ uǝǝq sɐɥ ʇᴉ os 'ǝsɐǝlǝɹ ǝɥʇ ɥʇᴉʍ pǝɥsᴉlqnd ʇuᴉɹdɹǝƃuᴉɟ ǝɥʇ ɥɔʇɐɯ ʇou sǝop pɐoluʍop ǝɥ┴
 language badge=UD
