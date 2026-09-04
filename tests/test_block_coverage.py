@@ -209,11 +209,88 @@ class MountingTests(unittest.TestCase):
     def test_a_head_is_drawn_rather_than_ignored(self):
         # a head was `ignore`, so every skull in a build was silently missing
         for name in ("skeleton_skull", "wither_skeleton_skull", "zombie_head",
-                     "creeper_head"):
+                     "creeper_head", "player_head"):
             self.assertEqual(len(self.cubes(name, rot=1)), 1, name)
+        # the piglin keeps its snout, its tusks and its ears, and the dragon
+        # every one of its seven pieces, because both are read from the
+        # geometry the game draws them with
+        self.assertEqual(len(self.cubes("piglin_head", rot=1)), 6)
+        self.assertEqual(len(self.cubes("dragon_head", rot=1)), 7)
         floor = self.cubes("skeleton_skull", rot=1)
         wall = self.cubes("skeleton_skull", rot=3)
         self.assertNotEqual(floor, wall, "a wall head hangs where it is fixed")
+
+    def test_a_head_reads_every_face_of_its_sheet(self):
+        # an entity sheet is 64 wide, and only a 16x16 window of a texture
+        # becomes a tile, so each face has to name the window it reads
+        self.geo.blocks = {}
+        self.geo.uv_map = {}
+        self.geo.uv_array = None
+        self.geo.make_block(0, 0, 0, "skeleton_skull", rot=1)
+        self.assertEqual(len(self.geo.uv_map), 6, "one tile a face")
+        corners = sorted(name.split("#")[1] for name in self.geo.uv_map)
+        self.assertEqual(corners, ["0,8", "16,0", "16,8", "24,8", "8,0", "8,8"])
+
+    def test_a_dragon_head_is_bigger_than_the_block_it_is_placed_on(self):
+        # sixteen across, twenty tall and thirty deep, with the snout out the
+        # front and the jaw below the floor. That is the model the game draws a
+        # dragon head block with, and shrinking it to fit would put the ghost
+        # block somewhere the real one will not be.
+        reach = [(min(o[i] * 16 for o, _ in self.cubes("dragon_head", rot=1)),
+                  max((o[i] + s[i]) * 16
+                      for o, s in self.cubes("dragon_head", rot=1)))
+                 for i in range(3)]
+        self.assertEqual([(round(a), round(b)) for a, b in reach],
+                         [(-8, 8), (-8, 12), (-6, 24)])
+
+    def test_a_head_and_a_banner_stay_inside_the_block_they_mark(self):
+        # a ghost block is a mark on the place a block goes, so one that leans
+        # into its neighbours makes a row of them hard to tell apart. x and z
+        # run -8 to 8 about the middle; y runs 0 to 16 from the floor. The
+        # dragon is the exception, and is checked above.
+        limits = ((-8, 8), (0, 16), (-8, 8))
+        cases = [(name, rot) for name in
+                 ("skeleton_skull", "player_head", "piglin_head")
+                 for rot in (1, 3)]
+        cases += [("standing_banner", 0), ("wall_banner", 3)]
+        for name, rot in cases:
+            for axis, (low, high) in enumerate(limits):
+                reach = [(origin[axis] * 16, (origin[axis] + size[axis]) * 16)
+                         for origin, size in self.cubes(name, rot=rot)]
+                self.assertGreaterEqual(min(a for a, _ in reach), low - 0.01,
+                                        "%s at %s runs past %s" % (name, rot, axis))
+                self.assertLessEqual(max(b for _, b in reach), high + 0.01,
+                                     "%s at %s runs past %s" % (name, rot, axis))
+
+    def test_a_banner_is_drawn_in_the_colour_its_block_entity_names(self):
+        from structura import core
+
+        pack = core.Structura.__new__(core.Structura)
+        for base, colour in ((0, "white"), (9, "cyan"), (15, "black")):
+            entity = {"id": "Banner", "Base": base}
+            data = core.Structura._process_block(
+                pack, {"name": "minecraft:standing_banner",
+                       "states": {"ground_sign_direction": 0}}, entity)[4]
+            self.geo.blocks = {}
+            self.geo.uv_map = {}
+            self.geo.uv_array = None
+            self.geo.make_block(0, 0, 0, "standing_banner", rot=0, data=data)
+            self.assertEqual([n.split("/")[-1] for n in self.geo.uv_map],
+                             ["banner_%s" % colour])
+
+    def test_a_head_on_the_floor_turns_with_its_block_entity(self):
+        # the states say only which of the six faces a head is fixed to; a head
+        # standing on the floor keeps its sixteen steps in the block entity
+        from structura import core
+
+        entity = {"id": "Skull", "Rotation": 90.0}
+        rot = core.Structura._process_block(
+            core.Structura.__new__(core.Structura),
+            {"name": "minecraft:skeleton_skull",
+             "states": {"facing_direction": 1}}, entity)[0]
+        self.assertEqual(rot, "spin4", "ninety degrees is the fourth step")
+        # and it is named apart from the facings, which are numbers too
+        self.assertNotEqual(rot, 4)
 
     def test_a_sheet_texture_is_read_a_window_at_a_time(self):
         # A hanging sign's texture is an entity sized sheet carrying the bar,

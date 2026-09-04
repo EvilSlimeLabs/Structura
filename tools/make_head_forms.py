@@ -5,20 +5,27 @@
 A head was `ignore`, which is the lookup for a block Structura leaves out on
 purpose, so every skull in a build simply was not there and nothing said so.
 
-A head is an eight pixel box wearing an entity sheet: 64x32, with the box
-unwrapped across its top left corner the way every mob's head is. Only the top
-left 16x16 of a texture becomes a tile, so each face names the window it reads,
-and the two windows between them carry all six faces.
+Seven heads are built here: the skeleton, the wither skeleton, the zombie, the
+creeper, the player, the piglin and the ender dragon. Each is a family of its
+own, because the sheet it wears is the only thing that tells them apart and
+`blocks.json` gives every one of them the same name for it, `skull`, which the
+vanilla pack points at soul sand.
 
-Each head is a family of its own because the texture is the only thing that
-tells them apart, and `blocks.json` gives every one of them the same name for
-it: `skull`, which the vanilla pack points at soul sand. The sheets are copied
-out of the community submodule into `textures/entity/skulls/` and named here
-directly.
+**The shapes come from the game's own entity geometry.** The community submodule
+ships `models/entity/*.geo.json`, so a piglin's snout, its tusks and its ears,
+and every one of the dragon's seven pieces, are the cubes and the UV corners
+Mojang drew rather than something measured off a picture. `convert()` turns one
+of those cubes into a Structura cube: it lays out the six faces the way Bedrock
+unwraps a box, and turns the model half a turn about its own middle, because an
+entity faces -z and a block faces +z.
 
-The player head, the dragon head and the piglin head are left out. A player head
-wears whatever skin the player has, and neither of the other two has a sheet in
-the pack this reads.
+The four skulls and the player have no geometry file, being drawn by the engine
+rather than by a model, so they take the head box every humanoid skin has in the
+top left corner of its sheet.
+
+Only the top left 16x16 of a texture becomes a tile, so each face names the
+window it reads. The sheets are copied out of the community submodule into
+`textures/entity/`.
 
 Nothing here is needed at run time.
 """
@@ -33,59 +40,144 @@ sys.path.insert(0, os.path.join(ROOT, "tools"))
 
 import lookup_writer
 from make_block_forms import Cube, build
+from structura import jsonc
 
 LOOKUPS = os.path.join(ROOT, "structura", "lookups")
 SHAPES = os.path.join(LOOKUPS, "block_shapes.json")
 UV = os.path.join(LOOKUPS, "block_uv.json")
 DEFINITION = os.path.join(LOOKUPS, "block_definition.json")
 ROTATION = os.path.join(LOOKUPS, "block_rotation.json")
+COMMUNITY = os.path.join(ROOT, "CommunityVanillaResourcePack", "models")
+GEOMETRY = os.path.join(COMMUNITY, "entity")
+## the heads the game draws a skull block with, all four in one file
+MOBS = os.path.join(COMMUNITY, "mobs.json")
 
-SHEET = "textures/entity/skulls/%s"
-
-## Which head goes with which block id. The name on the left becomes the family,
-## because one family cannot carry four different sheets.
-HEADS = {
-    "skull_skeleton": ("skeleton", ["skeleton_skull", "skull"]),
-    "skull_wither": ("wither_skeleton", ["wither_skeleton_skull"]),
-    "skull_zombie": ("zombie", ["zombie_head"]),
-    "skull_creeper": ("creeper", ["creeper_head"]),
-}
-
-## The head box across the sheet's top left corner: the top and the bottom in a
-## row above the four sides. Two 16x16 windows reach all six, and each face
-## takes the eight pixel square it needs out of one of them.
-FRONT_HALF = (0, 0)      # the top, the right side and the front
-BACK_HALF = (16, 0)      # the bottom, the left side and the back
+## A head is drawn about its pivot, which sits at the middle of the block's
+## floor: a mob head's cube runs from y24 to y32 and appears in the bottom half
+## of its block, so the pivot's y24 is the floor. A head on a wall is the same
+## model four pixels higher and four back.
+PIVOT_Y = 24
+WALL_LIFT = 4
+WALL_BACK = 4
 
 
-def faces(name):
-    """What each face of a head reads, and out of which window."""
-    front = SHEET % name + "#0,0"
-    back = SHEET % name + "#16,0"
-    return ({"up": front, "down": back, "south": front, "north": back,
-             "east": front, "west": back},
-            {"up": (8, 0, 8, 8), "down": (0, 0, 8, 8),
-             "south": (8, 8, 8, 8), "north": (8, 8, 8, 8),
-             "east": (0, 8, 8, 8), "west": (0, 8, 8, 8)})
+def convert(sheet, cube, lift, back):
+    """One cube of an entity's head, as a cube of a block.
+
+    Bedrock unwraps a box from its UV corner as two faces in a row above four
+    in a strip: up and down across the top, then east, north, west and south.
+    Each of those is a rectangle of the sheet, and each becomes the window its
+    face reads.
+
+    An entity faces -z and a block faces +z, so the model is turned half a turn
+    about its middle on the way in: what was its front ends up on the block's
+    south face, which is where the rotation tables put a block at rest.
+    """
+    ox, oy, oz = cube["origin"]
+    w, h, d = cube["size"]
+    u, v = cube.get("uv", [0, 0])
+
+    ## The six rectangles of the sheet. Each becomes a tile of its own, named by
+    ## the corner it starts at, because only a 16x16 window of a texture becomes
+    ## one: a face of an entity sheet is nowhere near the top left of it.
+    rectangles = {
+        "south": (u + d, v + d, w, h),
+        "north": (u + d + w + d, v + d, w, h),
+        "west": (u, v + d, d, h),
+        "east": (u + d + w, v + d, d, h),
+        "up": (u + d, v, w, d),
+        "down": (u + d + w, v, w, d),
+    }
+    texture, window = {}, {}
+    for face, (x, y, across, down) in rectangles.items():
+        texture[face] = "%s#%d,%d" % (sheet, x, y)
+        window[face] = (0, 0, across, down)
+
+    ## and the box itself, turned half about the middle of the block
+    at = (8 - ox - w, oy - PIVOT_Y + lift, 8 - oz - d - back)
+    return Cube((w, h, d), at, texture=texture, window=window)
 
 
-def head(name):
+def from_mobs(identifier, bones=None):
+    """The cubes of a geometry in models/mobs.json.
+
+    That file is where the game keeps the models it draws a skull block with.
+    `entity/skull.entity.json` names four of them, one per kind of head, so
+    what is written here is the head the game itself puts on the block rather
+    than a box measured off a picture.
+    """
+    stored = jsonc.load(MOBS)
+    if identifier in stored:
+        geo = stored[identifier]
+    else:
+        ## the newer format keeps one geometry to a file, and the piglin is
+        ## there rather than in mobs.json
+        path = os.path.join(GEOMETRY, "%s.geo.json"
+                            % identifier[len("geometry."):])
+        body = jsonc.load(path)
+        geo = body["minecraft:geometry"][0]
+    found = []
+    for bone in geo["bones"]:
+        if bones is None or bone["name"] in bones:
+            found.extend(bone.get("cubes", []))
+    return found
+
+
+## The seven heads: the family, the sheet, the cubes and the block ids, each at
+## the size the game draws it.
+def heads():
+    mob = from_mobs("geometry.mob_head")
+    return {
+        "skull_skeleton": ("textures/entity/skulls/skeleton", mob,
+                           ["skeleton_skull", "skull"]),
+        "skull_wither": ("textures/entity/skulls/wither_skeleton", mob,
+                         ["wither_skeleton_skull"]),
+        "skull_zombie": ("textures/entity/skulls/zombie", mob, ["zombie_head"]),
+        "skull_creeper": ("textures/entity/skulls/creeper", mob,
+                          ["creeper_head"]),
+        ## a player head is always Steve: a skin is the player's own, and a
+        ## resource pack cannot know it
+        "skull_player": ("textures/entity/steve",
+                         from_mobs("geometry.player_head"), ["player_head"]),
+        ## the piglin keeps its snout, its tusks and its ears
+        "skull_piglin": ("textures/entity/piglin/piglin",
+                         from_mobs("geometry.piglin",
+                                   {"head", "leftear", "rightear"}),
+                         ["piglin_head"]),
+        ## A dragon's head is bigger than the block it is placed on: sixteen
+        ## across, twenty tall and thirty deep, with the snout out the front and
+        ## the jaw hanging below the block's floor. That is the model the game
+        ## draws, so it is the model here, at that size.
+        "skull_dragon": ("textures/entity/dragon/dragon",
+                         from_mobs("geometry.dragon_head"), ["dragon_head"]),
+    }
+
+
+def head(sheet, cubes):
     """A head on the floor, and the same head against a wall.
 
-    The wall form sits against the block behind it and higher up, the way a
-    wall sign does: at no rotation that is z 0, facing along +z.
+    Both are the game's own model about its own pivot, at the size the game
+    draws it. A dragon's head is bigger than the block it is placed on, sixteen
+    across and thirty deep, and shrinking it to fit would put the ghost block
+    somewhere the real one will not be.
     """
-    texture, window = faces(name)
-    return {"default": [Cube((8, 8, 8), (4, 0, 4), texture, window=window)],
-            "wall": [Cube((8, 8, 8), (4, 4, 0), texture, window=window)]}
+    return {"default": [convert(sheet, cube, 0, 0) for cube in cubes],
+            "wall": [convert(sheet, cube, WALL_LIFT, WALL_BACK)
+                     for cube in cubes]}
 
 
 ## facing_direction: 1 is a head standing on the floor and 2 to 5 name the wall
 ## it hangs on. The wall values are scoped to the wall form, because 2 means
 ## something different in the two numberings.
+##
+## A head on the floor can face any of sixteen ways, and that is in the block
+## entity rather than the states, so `core.py` hands it over as `spinN`. Named
+## apart from the facings so that the second step round is not read as the north
+## wall. A floor head with no entity beside it keeps the plain 1.
 TURNS = {"1": [0, 0, 0],
          "wall:2": [0, 180, 0], "wall:3": [0, 0, 0],
          "wall:4": [0, 90, 0], "wall:5": [0, 270, 0]}
+TURNS.update({"spin%d" % n: [0, round(n * 22.5, 1), 0] for n in range(16)})
 
 
 def define(blocks, family):
@@ -99,16 +191,17 @@ def define(blocks, family):
 
 def main():
     print("writing the heads")
-    for family, (sheet, blocks) in HEADS.items():
-        forms = head(sheet)
+    for family, (sheet, cubes, blocks) in heads().items():
+        forms = head(sheet, cubes)
         shapes, uvs = {}, {}
-        for name, cubes in forms.items():
-            shapes[name], uvs[name] = build(cubes)
+        for name, made in forms.items():
+            shapes[name], uvs[name] = build(made)
         lookup_writer.put(SHAPES, family, shapes, tight=True)
         lookup_writer.put(UV, family, uvs, tight=True)
         lookup_writer.put(ROTATION, family, TURNS, tight=True)
         define(blocks, family)
-        print("   %-16s %s" % (family, ", ".join(blocks)))
+        print("   %-16s %d cubes  %s" % (family, len(cubes), ", ".join(blocks)))
+    print("now re-run tools/make_low_geometry.py")
 
 
 if __name__ == "__main__":

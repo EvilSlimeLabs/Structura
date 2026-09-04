@@ -14253,31 +14253,31 @@
 				"west": [[ 0.5, 0.5 ]]
 			},
 			"offset": {
-				"up": [[ 0.5, 0.0 ]],
+				"up": [[ 0.0, 0.0 ]],
 				"down": [[ 0.0, 0.0 ]],
-				"north": [[ 0.5, 0.5 ]],
-				"south": [[ 0.5, 0.5 ]],
-				"east": [[ 0.0, 0.5 ]],
-				"west": [[ 0.0, 0.5 ]]
+				"north": [[ 0.0, 0.0 ]],
+				"south": [[ 0.0, 0.0 ]],
+				"east": [[ 0.0, 0.0 ]],
+				"west": [[ 0.0, 0.0 ]]
 			},
 			"overwrite": {
 				"up": [
-					"textures/entity/skulls/skeleton#0,0"
+					"textures/entity/skulls/skeleton#8,0"
 				],
 				"down": [
 					"textures/entity/skulls/skeleton#16,0"
 				],
 				"north": [
-					"textures/entity/skulls/skeleton#16,0"
+					"textures/entity/skulls/skeleton#24,8"
 				],
 				"south": [
-					"textures/entity/skulls/skeleton#0,0"
+					"textures/entity/skulls/skeleton#8,8"
 				],
 				"east": [
-					"textures/entity/skulls/skeleton#0,0"
+					"textures/entity/skulls/skeleton#16,8"
 				],
 				"west": [
-					"textures/entity/skulls/skeleton#16,0"
+					"textures/entity/skulls/skeleton#0,8"
 				]
 			}
 		},
@@ -14291,31 +14291,31 @@
 				"west": [[ 0.5, 0.5 ]]
 			},
 			"offset": {
-				"up": [[ 0.5, 0.0 ]],
+				"up": [[ 0.0, 0.0 ]],
 				"down": [[ 0.0, 0.0 ]],
-				"north": [[ 0.5, 0.5 ]],
-				"south": [[ 0.5, 0.5 ]],
-				"east": [[ 0.0, 0.5 ]],
-				"west": [[ 0.0, 0.5 ]]
+				"north": [[ 0.0, 0.0 ]],
+				"south": [[ 0.0, 0.0 ]],
+				"east": [[ 0.0, 0.0 ]],
+				"west": [[ 0.0, 0.0 ]]
 			},
 			"overwrite": {
 				"up": [
-					"textures/entity/skulls/skeleton#0,0"
+					"textures/entity/skulls/skeleton#8,0"
 				],
 				"down": [
 					"textures/entity/skulls/skeleton#16,0"
 				],
 				"north": [
-					"textures/entity/skulls/skeleton#16,0"
+					"textures/entity/skulls/skeleton#24,8"
 				],
 				"south": [
-					"textures/entity/skulls/skeleton#0,0"
+					"textures/entity/skulls/skeleton#8,8"
 				],
 				"east": [
-					"textures/entity/skulls/skeleton#0,0"
+					"textures/entity/skulls/skeleton#16,8"
 				],
 				"west": [
-					"textures/entity/skulls/skeleton#16,0"
+					"textures/entity/skulls/skeleton#0,8"
 				]
 			}
 		}
@@ -14331,31 +14331,31 @@
 				"west": [[ 0.5, 0.5 ]]
 			},
 			"offset": {
-				"up": [[ 0.5, 0.0 ]],
+				"up": [[ 0.0, 0.0 ]],
 				"down": [[ 0.0, 0.0 ]],
-				"north": [[ 0.5, 0.5 ]],
-				"south": [[ 0.5, 0.5 ]],
-				"east": [[ 0.0, 0.5 ]],
-				"west": [[ 0.0, 0.5 ]]
+				"north": [[ 0.0, 0.0 ]],
+				"south": [[ 0.0, 0.0 ]],
+				"east": [[ 0.0, 0.0 ]],
+				"west": [[ 0.0, 0.0 ]]
 			},
 			"overwrite": {
 				"up": [
-					"textures/entity/skulls/wither_skeleton#0,0"
+					"textures/entity/skulls/wither_skeleton#8,0"
 				],
 				"down": [
 					"textures/entity/skulls/wither_skeleton#16,0"
 				],
 				"north": [
-					"textures/entity/skulls/wither_skeleton#16,0"
+					"textures/entity/skulls/wither_skeleton#24,8"
 				],
 				"south": [
-					"textures/entity/skulls/wither_skeleton#0,0"
+					"textures/entity/skulls/wither_skeleton#8,8"
 				],
 				"east": [
-					"textures/entity/skulls/wither_skeleton#0,0"
+					"textures/entity/skulls/wither_skeleton#16,8"
 				],
 				"west": [
-					"textures/entity/skulls/wither_skeleton#16,0"
+					"textures/entity/skulls/wither_skeleton#0,8"
 				]
 			}
 		},
@@ -14369,31 +14369,31 @@
 				"west": [[ 0.5, 0.5 ]]
 			},
 			"offset": {
-				"up": [[ 0.5, 0.0 ]],
+				"up": [[ 0.0, 0.0 ]],
 				"down": [[ 0.0, 0.0 ]],
-				"north": [[ 0.5, 0.5 ]],
-				"south": [[ 0.5, 0.5 ]],
-				"east": [[ 0.0, 0.5 ]],
-				"west": [[ 0.0, 0.5 ]]
+				"north": [[ 0.0, 0.0 ]],
+				"south": [[ 0.0, 0.0 ]],
+				"east": [[ 0.0, 0.0 ]],
+				"west": [[ 0.0, 0.0 ]]
 			},
 			"overwrite": {
 				"up": [
-					"textures/entity/skulls/wither_skeleton#0,0"
+					"textures/entity/skulls/wither_skeleton#8,0"
 				],
 				"down": [
 					"textures/entity/skulls/wither_skeleton#16,0"
 				],
 				"north": [
-					"textures/entity/skulls/wither_skeleton#16,0"
+					"textures/entity/skulls/wither_skeleton#24,8"
 				],
 				"south": [
-					"textures/entity/skulls/wither_skeleton#0,0"
+					"textures/entity/skulls/wither_skeleton#8,8"
 				],
 				"east": [
-					"textures/entity/skulls/wither_skeleton#0,0"
+					"textures/entity/skulls/wither_skeleton#16,8"
 				],
 				"west": [
-					"textures/entity/skulls/wither_skeleton#16,0"
+					"textures/entity/skulls/wither_skeleton#0,8"
 				]
 			}
 		}
@@ -14409,31 +14409,31 @@
 				"west": [[ 0.5, 0.5 ]]
 			},
 			"offset": {
-				"up": [[ 0.5, 0.0 ]],
+				"up": [[ 0.0, 0.0 ]],
 				"down": [[ 0.0, 0.0 ]],
-				"north": [[ 0.5, 0.5 ]],
-				"south": [[ 0.5, 0.5 ]],
-				"east": [[ 0.0, 0.5 ]],
-				"west": [[ 0.0, 0.5 ]]
+				"north": [[ 0.0, 0.0 ]],
+				"south": [[ 0.0, 0.0 ]],
+				"east": [[ 0.0, 0.0 ]],
+				"west": [[ 0.0, 0.0 ]]
 			},
 			"overwrite": {
 				"up": [
-					"textures/entity/skulls/zombie#0,0"
+					"textures/entity/skulls/zombie#8,0"
 				],
 				"down": [
 					"textures/entity/skulls/zombie#16,0"
 				],
 				"north": [
-					"textures/entity/skulls/zombie#16,0"
+					"textures/entity/skulls/zombie#24,8"
 				],
 				"south": [
-					"textures/entity/skulls/zombie#0,0"
+					"textures/entity/skulls/zombie#8,8"
 				],
 				"east": [
-					"textures/entity/skulls/zombie#0,0"
+					"textures/entity/skulls/zombie#16,8"
 				],
 				"west": [
-					"textures/entity/skulls/zombie#16,0"
+					"textures/entity/skulls/zombie#0,8"
 				]
 			}
 		},
@@ -14447,31 +14447,31 @@
 				"west": [[ 0.5, 0.5 ]]
 			},
 			"offset": {
-				"up": [[ 0.5, 0.0 ]],
+				"up": [[ 0.0, 0.0 ]],
 				"down": [[ 0.0, 0.0 ]],
-				"north": [[ 0.5, 0.5 ]],
-				"south": [[ 0.5, 0.5 ]],
-				"east": [[ 0.0, 0.5 ]],
-				"west": [[ 0.0, 0.5 ]]
+				"north": [[ 0.0, 0.0 ]],
+				"south": [[ 0.0, 0.0 ]],
+				"east": [[ 0.0, 0.0 ]],
+				"west": [[ 0.0, 0.0 ]]
 			},
 			"overwrite": {
 				"up": [
-					"textures/entity/skulls/zombie#0,0"
+					"textures/entity/skulls/zombie#8,0"
 				],
 				"down": [
 					"textures/entity/skulls/zombie#16,0"
 				],
 				"north": [
-					"textures/entity/skulls/zombie#16,0"
+					"textures/entity/skulls/zombie#24,8"
 				],
 				"south": [
-					"textures/entity/skulls/zombie#0,0"
+					"textures/entity/skulls/zombie#8,8"
 				],
 				"east": [
-					"textures/entity/skulls/zombie#0,0"
+					"textures/entity/skulls/zombie#16,8"
 				],
 				"west": [
-					"textures/entity/skulls/zombie#16,0"
+					"textures/entity/skulls/zombie#0,8"
 				]
 			}
 		}
@@ -14487,31 +14487,31 @@
 				"west": [[ 0.5, 0.5 ]]
 			},
 			"offset": {
-				"up": [[ 0.5, 0.0 ]],
+				"up": [[ 0.0, 0.0 ]],
 				"down": [[ 0.0, 0.0 ]],
-				"north": [[ 0.5, 0.5 ]],
-				"south": [[ 0.5, 0.5 ]],
-				"east": [[ 0.0, 0.5 ]],
-				"west": [[ 0.0, 0.5 ]]
+				"north": [[ 0.0, 0.0 ]],
+				"south": [[ 0.0, 0.0 ]],
+				"east": [[ 0.0, 0.0 ]],
+				"west": [[ 0.0, 0.0 ]]
 			},
 			"overwrite": {
 				"up": [
-					"textures/entity/skulls/creeper#0,0"
+					"textures/entity/skulls/creeper#8,0"
 				],
 				"down": [
 					"textures/entity/skulls/creeper#16,0"
 				],
 				"north": [
-					"textures/entity/skulls/creeper#16,0"
+					"textures/entity/skulls/creeper#24,8"
 				],
 				"south": [
-					"textures/entity/skulls/creeper#0,0"
+					"textures/entity/skulls/creeper#8,8"
 				],
 				"east": [
-					"textures/entity/skulls/creeper#0,0"
+					"textures/entity/skulls/creeper#16,8"
 				],
 				"west": [
-					"textures/entity/skulls/creeper#16,0"
+					"textures/entity/skulls/creeper#0,8"
 				]
 			}
 		},
@@ -14525,31 +14525,31 @@
 				"west": [[ 0.5, 0.5 ]]
 			},
 			"offset": {
-				"up": [[ 0.5, 0.0 ]],
+				"up": [[ 0.0, 0.0 ]],
 				"down": [[ 0.0, 0.0 ]],
-				"north": [[ 0.5, 0.5 ]],
-				"south": [[ 0.5, 0.5 ]],
-				"east": [[ 0.0, 0.5 ]],
-				"west": [[ 0.0, 0.5 ]]
+				"north": [[ 0.0, 0.0 ]],
+				"south": [[ 0.0, 0.0 ]],
+				"east": [[ 0.0, 0.0 ]],
+				"west": [[ 0.0, 0.0 ]]
 			},
 			"overwrite": {
 				"up": [
-					"textures/entity/skulls/creeper#0,0"
+					"textures/entity/skulls/creeper#8,0"
 				],
 				"down": [
 					"textures/entity/skulls/creeper#16,0"
 				],
 				"north": [
-					"textures/entity/skulls/creeper#16,0"
+					"textures/entity/skulls/creeper#24,8"
 				],
 				"south": [
-					"textures/entity/skulls/creeper#0,0"
+					"textures/entity/skulls/creeper#8,8"
 				],
 				"east": [
-					"textures/entity/skulls/creeper#0,0"
+					"textures/entity/skulls/creeper#16,8"
 				],
 				"west": [
-					"textures/entity/skulls/creeper#16,0"
+					"textures/entity/skulls/creeper#0,8"
 				]
 			}
 		}
@@ -15337,6 +15337,710 @@
 		}
 	},
 	"standing_banner": {
+		"0": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_white",
+					"textures/entity/banner/banner_white"
+				],
+				"down": [
+					"textures/entity/banner/banner_white",
+					"textures/entity/banner/banner_white"
+				],
+				"north": [
+					"textures/entity/banner/banner_white",
+					"textures/entity/banner/banner_white"
+				],
+				"south": [
+					"textures/entity/banner/banner_white",
+					"textures/entity/banner/banner_white"
+				],
+				"east": [
+					"textures/entity/banner/banner_white",
+					"textures/entity/banner/banner_white"
+				],
+				"west": [
+					"textures/entity/banner/banner_white",
+					"textures/entity/banner/banner_white"
+				]
+			}
+		},
+		"1": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_orange",
+					"textures/entity/banner/banner_orange"
+				],
+				"down": [
+					"textures/entity/banner/banner_orange",
+					"textures/entity/banner/banner_orange"
+				],
+				"north": [
+					"textures/entity/banner/banner_orange",
+					"textures/entity/banner/banner_orange"
+				],
+				"south": [
+					"textures/entity/banner/banner_orange",
+					"textures/entity/banner/banner_orange"
+				],
+				"east": [
+					"textures/entity/banner/banner_orange",
+					"textures/entity/banner/banner_orange"
+				],
+				"west": [
+					"textures/entity/banner/banner_orange",
+					"textures/entity/banner/banner_orange"
+				]
+			}
+		},
+		"2": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_magenta",
+					"textures/entity/banner/banner_magenta"
+				],
+				"down": [
+					"textures/entity/banner/banner_magenta",
+					"textures/entity/banner/banner_magenta"
+				],
+				"north": [
+					"textures/entity/banner/banner_magenta",
+					"textures/entity/banner/banner_magenta"
+				],
+				"south": [
+					"textures/entity/banner/banner_magenta",
+					"textures/entity/banner/banner_magenta"
+				],
+				"east": [
+					"textures/entity/banner/banner_magenta",
+					"textures/entity/banner/banner_magenta"
+				],
+				"west": [
+					"textures/entity/banner/banner_magenta",
+					"textures/entity/banner/banner_magenta"
+				]
+			}
+		},
+		"3": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_light_blue",
+					"textures/entity/banner/banner_light_blue"
+				],
+				"down": [
+					"textures/entity/banner/banner_light_blue",
+					"textures/entity/banner/banner_light_blue"
+				],
+				"north": [
+					"textures/entity/banner/banner_light_blue",
+					"textures/entity/banner/banner_light_blue"
+				],
+				"south": [
+					"textures/entity/banner/banner_light_blue",
+					"textures/entity/banner/banner_light_blue"
+				],
+				"east": [
+					"textures/entity/banner/banner_light_blue",
+					"textures/entity/banner/banner_light_blue"
+				],
+				"west": [
+					"textures/entity/banner/banner_light_blue",
+					"textures/entity/banner/banner_light_blue"
+				]
+			}
+		},
+		"4": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_yellow",
+					"textures/entity/banner/banner_yellow"
+				],
+				"down": [
+					"textures/entity/banner/banner_yellow",
+					"textures/entity/banner/banner_yellow"
+				],
+				"north": [
+					"textures/entity/banner/banner_yellow",
+					"textures/entity/banner/banner_yellow"
+				],
+				"south": [
+					"textures/entity/banner/banner_yellow",
+					"textures/entity/banner/banner_yellow"
+				],
+				"east": [
+					"textures/entity/banner/banner_yellow",
+					"textures/entity/banner/banner_yellow"
+				],
+				"west": [
+					"textures/entity/banner/banner_yellow",
+					"textures/entity/banner/banner_yellow"
+				]
+			}
+		},
+		"5": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_lime",
+					"textures/entity/banner/banner_lime"
+				],
+				"down": [
+					"textures/entity/banner/banner_lime",
+					"textures/entity/banner/banner_lime"
+				],
+				"north": [
+					"textures/entity/banner/banner_lime",
+					"textures/entity/banner/banner_lime"
+				],
+				"south": [
+					"textures/entity/banner/banner_lime",
+					"textures/entity/banner/banner_lime"
+				],
+				"east": [
+					"textures/entity/banner/banner_lime",
+					"textures/entity/banner/banner_lime"
+				],
+				"west": [
+					"textures/entity/banner/banner_lime",
+					"textures/entity/banner/banner_lime"
+				]
+			}
+		},
+		"6": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_pink",
+					"textures/entity/banner/banner_pink"
+				],
+				"down": [
+					"textures/entity/banner/banner_pink",
+					"textures/entity/banner/banner_pink"
+				],
+				"north": [
+					"textures/entity/banner/banner_pink",
+					"textures/entity/banner/banner_pink"
+				],
+				"south": [
+					"textures/entity/banner/banner_pink",
+					"textures/entity/banner/banner_pink"
+				],
+				"east": [
+					"textures/entity/banner/banner_pink",
+					"textures/entity/banner/banner_pink"
+				],
+				"west": [
+					"textures/entity/banner/banner_pink",
+					"textures/entity/banner/banner_pink"
+				]
+			}
+		},
+		"7": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_gray",
+					"textures/entity/banner/banner_gray"
+				],
+				"down": [
+					"textures/entity/banner/banner_gray",
+					"textures/entity/banner/banner_gray"
+				],
+				"north": [
+					"textures/entity/banner/banner_gray",
+					"textures/entity/banner/banner_gray"
+				],
+				"south": [
+					"textures/entity/banner/banner_gray",
+					"textures/entity/banner/banner_gray"
+				],
+				"east": [
+					"textures/entity/banner/banner_gray",
+					"textures/entity/banner/banner_gray"
+				],
+				"west": [
+					"textures/entity/banner/banner_gray",
+					"textures/entity/banner/banner_gray"
+				]
+			}
+		},
+		"8": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_silver",
+					"textures/entity/banner/banner_silver"
+				],
+				"down": [
+					"textures/entity/banner/banner_silver",
+					"textures/entity/banner/banner_silver"
+				],
+				"north": [
+					"textures/entity/banner/banner_silver",
+					"textures/entity/banner/banner_silver"
+				],
+				"south": [
+					"textures/entity/banner/banner_silver",
+					"textures/entity/banner/banner_silver"
+				],
+				"east": [
+					"textures/entity/banner/banner_silver",
+					"textures/entity/banner/banner_silver"
+				],
+				"west": [
+					"textures/entity/banner/banner_silver",
+					"textures/entity/banner/banner_silver"
+				]
+			}
+		},
+		"9": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_cyan",
+					"textures/entity/banner/banner_cyan"
+				],
+				"down": [
+					"textures/entity/banner/banner_cyan",
+					"textures/entity/banner/banner_cyan"
+				],
+				"north": [
+					"textures/entity/banner/banner_cyan",
+					"textures/entity/banner/banner_cyan"
+				],
+				"south": [
+					"textures/entity/banner/banner_cyan",
+					"textures/entity/banner/banner_cyan"
+				],
+				"east": [
+					"textures/entity/banner/banner_cyan",
+					"textures/entity/banner/banner_cyan"
+				],
+				"west": [
+					"textures/entity/banner/banner_cyan",
+					"textures/entity/banner/banner_cyan"
+				]
+			}
+		},
+		"10": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_purple",
+					"textures/entity/banner/banner_purple"
+				],
+				"down": [
+					"textures/entity/banner/banner_purple",
+					"textures/entity/banner/banner_purple"
+				],
+				"north": [
+					"textures/entity/banner/banner_purple",
+					"textures/entity/banner/banner_purple"
+				],
+				"south": [
+					"textures/entity/banner/banner_purple",
+					"textures/entity/banner/banner_purple"
+				],
+				"east": [
+					"textures/entity/banner/banner_purple",
+					"textures/entity/banner/banner_purple"
+				],
+				"west": [
+					"textures/entity/banner/banner_purple",
+					"textures/entity/banner/banner_purple"
+				]
+			}
+		},
+		"11": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_blue",
+					"textures/entity/banner/banner_blue"
+				],
+				"down": [
+					"textures/entity/banner/banner_blue",
+					"textures/entity/banner/banner_blue"
+				],
+				"north": [
+					"textures/entity/banner/banner_blue",
+					"textures/entity/banner/banner_blue"
+				],
+				"south": [
+					"textures/entity/banner/banner_blue",
+					"textures/entity/banner/banner_blue"
+				],
+				"east": [
+					"textures/entity/banner/banner_blue",
+					"textures/entity/banner/banner_blue"
+				],
+				"west": [
+					"textures/entity/banner/banner_blue",
+					"textures/entity/banner/banner_blue"
+				]
+			}
+		},
+		"12": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_brown",
+					"textures/entity/banner/banner_brown"
+				],
+				"down": [
+					"textures/entity/banner/banner_brown",
+					"textures/entity/banner/banner_brown"
+				],
+				"north": [
+					"textures/entity/banner/banner_brown",
+					"textures/entity/banner/banner_brown"
+				],
+				"south": [
+					"textures/entity/banner/banner_brown",
+					"textures/entity/banner/banner_brown"
+				],
+				"east": [
+					"textures/entity/banner/banner_brown",
+					"textures/entity/banner/banner_brown"
+				],
+				"west": [
+					"textures/entity/banner/banner_brown",
+					"textures/entity/banner/banner_brown"
+				]
+			}
+		},
+		"13": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_green",
+					"textures/entity/banner/banner_green"
+				],
+				"down": [
+					"textures/entity/banner/banner_green",
+					"textures/entity/banner/banner_green"
+				],
+				"north": [
+					"textures/entity/banner/banner_green",
+					"textures/entity/banner/banner_green"
+				],
+				"south": [
+					"textures/entity/banner/banner_green",
+					"textures/entity/banner/banner_green"
+				],
+				"east": [
+					"textures/entity/banner/banner_green",
+					"textures/entity/banner/banner_green"
+				],
+				"west": [
+					"textures/entity/banner/banner_green",
+					"textures/entity/banner/banner_green"
+				]
+			}
+		},
+		"14": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_red",
+					"textures/entity/banner/banner_red"
+				],
+				"down": [
+					"textures/entity/banner/banner_red",
+					"textures/entity/banner/banner_red"
+				],
+				"north": [
+					"textures/entity/banner/banner_red",
+					"textures/entity/banner/banner_red"
+				],
+				"south": [
+					"textures/entity/banner/banner_red",
+					"textures/entity/banner/banner_red"
+				],
+				"east": [
+					"textures/entity/banner/banner_red",
+					"textures/entity/banner/banner_red"
+				],
+				"west": [
+					"textures/entity/banner/banner_red",
+					"textures/entity/banner/banner_red"
+				]
+			}
+		},
+		"15": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_black",
+					"textures/entity/banner/banner_black"
+				],
+				"down": [
+					"textures/entity/banner/banner_black",
+					"textures/entity/banner/banner_black"
+				],
+				"north": [
+					"textures/entity/banner/banner_black",
+					"textures/entity/banner/banner_black"
+				],
+				"south": [
+					"textures/entity/banner/banner_black",
+					"textures/entity/banner/banner_black"
+				],
+				"east": [
+					"textures/entity/banner/banner_black",
+					"textures/entity/banner/banner_black"
+				],
+				"west": [
+					"textures/entity/banner/banner_black",
+					"textures/entity/banner/banner_black"
+				]
+			}
+		},
 		"default": {
 			"uv_sizes": {
 				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
@@ -15356,33 +16060,737 @@
 			},
 			"overwrite": {
 				"up": [
-					"textures/entity/banner/banner_base",
-					"textures/entity/banner/banner_base"
+					"textures/entity/banner/banner_white",
+					"textures/entity/banner/banner_white"
 				],
 				"down": [
-					"textures/entity/banner/banner_base",
-					"textures/entity/banner/banner_base"
+					"textures/entity/banner/banner_white",
+					"textures/entity/banner/banner_white"
 				],
 				"north": [
-					"textures/entity/banner/banner_base",
-					"textures/entity/banner/banner_base"
+					"textures/entity/banner/banner_white",
+					"textures/entity/banner/banner_white"
 				],
 				"south": [
-					"textures/entity/banner/banner_base",
-					"textures/entity/banner/banner_base"
+					"textures/entity/banner/banner_white",
+					"textures/entity/banner/banner_white"
 				],
 				"east": [
-					"textures/entity/banner/banner_base",
-					"textures/entity/banner/banner_base"
+					"textures/entity/banner/banner_white",
+					"textures/entity/banner/banner_white"
 				],
 				"west": [
-					"textures/entity/banner/banner_base",
-					"textures/entity/banner/banner_base"
+					"textures/entity/banner/banner_white",
+					"textures/entity/banner/banner_white"
 				]
 			}
 		}
 	},
 	"wall_banner": {
+		"0": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_white",
+					"textures/entity/banner/banner_white"
+				],
+				"down": [
+					"textures/entity/banner/banner_white",
+					"textures/entity/banner/banner_white"
+				],
+				"north": [
+					"textures/entity/banner/banner_white",
+					"textures/entity/banner/banner_white"
+				],
+				"south": [
+					"textures/entity/banner/banner_white",
+					"textures/entity/banner/banner_white"
+				],
+				"east": [
+					"textures/entity/banner/banner_white",
+					"textures/entity/banner/banner_white"
+				],
+				"west": [
+					"textures/entity/banner/banner_white",
+					"textures/entity/banner/banner_white"
+				]
+			}
+		},
+		"1": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_orange",
+					"textures/entity/banner/banner_orange"
+				],
+				"down": [
+					"textures/entity/banner/banner_orange",
+					"textures/entity/banner/banner_orange"
+				],
+				"north": [
+					"textures/entity/banner/banner_orange",
+					"textures/entity/banner/banner_orange"
+				],
+				"south": [
+					"textures/entity/banner/banner_orange",
+					"textures/entity/banner/banner_orange"
+				],
+				"east": [
+					"textures/entity/banner/banner_orange",
+					"textures/entity/banner/banner_orange"
+				],
+				"west": [
+					"textures/entity/banner/banner_orange",
+					"textures/entity/banner/banner_orange"
+				]
+			}
+		},
+		"2": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_magenta",
+					"textures/entity/banner/banner_magenta"
+				],
+				"down": [
+					"textures/entity/banner/banner_magenta",
+					"textures/entity/banner/banner_magenta"
+				],
+				"north": [
+					"textures/entity/banner/banner_magenta",
+					"textures/entity/banner/banner_magenta"
+				],
+				"south": [
+					"textures/entity/banner/banner_magenta",
+					"textures/entity/banner/banner_magenta"
+				],
+				"east": [
+					"textures/entity/banner/banner_magenta",
+					"textures/entity/banner/banner_magenta"
+				],
+				"west": [
+					"textures/entity/banner/banner_magenta",
+					"textures/entity/banner/banner_magenta"
+				]
+			}
+		},
+		"3": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_light_blue",
+					"textures/entity/banner/banner_light_blue"
+				],
+				"down": [
+					"textures/entity/banner/banner_light_blue",
+					"textures/entity/banner/banner_light_blue"
+				],
+				"north": [
+					"textures/entity/banner/banner_light_blue",
+					"textures/entity/banner/banner_light_blue"
+				],
+				"south": [
+					"textures/entity/banner/banner_light_blue",
+					"textures/entity/banner/banner_light_blue"
+				],
+				"east": [
+					"textures/entity/banner/banner_light_blue",
+					"textures/entity/banner/banner_light_blue"
+				],
+				"west": [
+					"textures/entity/banner/banner_light_blue",
+					"textures/entity/banner/banner_light_blue"
+				]
+			}
+		},
+		"4": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_yellow",
+					"textures/entity/banner/banner_yellow"
+				],
+				"down": [
+					"textures/entity/banner/banner_yellow",
+					"textures/entity/banner/banner_yellow"
+				],
+				"north": [
+					"textures/entity/banner/banner_yellow",
+					"textures/entity/banner/banner_yellow"
+				],
+				"south": [
+					"textures/entity/banner/banner_yellow",
+					"textures/entity/banner/banner_yellow"
+				],
+				"east": [
+					"textures/entity/banner/banner_yellow",
+					"textures/entity/banner/banner_yellow"
+				],
+				"west": [
+					"textures/entity/banner/banner_yellow",
+					"textures/entity/banner/banner_yellow"
+				]
+			}
+		},
+		"5": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_lime",
+					"textures/entity/banner/banner_lime"
+				],
+				"down": [
+					"textures/entity/banner/banner_lime",
+					"textures/entity/banner/banner_lime"
+				],
+				"north": [
+					"textures/entity/banner/banner_lime",
+					"textures/entity/banner/banner_lime"
+				],
+				"south": [
+					"textures/entity/banner/banner_lime",
+					"textures/entity/banner/banner_lime"
+				],
+				"east": [
+					"textures/entity/banner/banner_lime",
+					"textures/entity/banner/banner_lime"
+				],
+				"west": [
+					"textures/entity/banner/banner_lime",
+					"textures/entity/banner/banner_lime"
+				]
+			}
+		},
+		"6": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_pink",
+					"textures/entity/banner/banner_pink"
+				],
+				"down": [
+					"textures/entity/banner/banner_pink",
+					"textures/entity/banner/banner_pink"
+				],
+				"north": [
+					"textures/entity/banner/banner_pink",
+					"textures/entity/banner/banner_pink"
+				],
+				"south": [
+					"textures/entity/banner/banner_pink",
+					"textures/entity/banner/banner_pink"
+				],
+				"east": [
+					"textures/entity/banner/banner_pink",
+					"textures/entity/banner/banner_pink"
+				],
+				"west": [
+					"textures/entity/banner/banner_pink",
+					"textures/entity/banner/banner_pink"
+				]
+			}
+		},
+		"7": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_gray",
+					"textures/entity/banner/banner_gray"
+				],
+				"down": [
+					"textures/entity/banner/banner_gray",
+					"textures/entity/banner/banner_gray"
+				],
+				"north": [
+					"textures/entity/banner/banner_gray",
+					"textures/entity/banner/banner_gray"
+				],
+				"south": [
+					"textures/entity/banner/banner_gray",
+					"textures/entity/banner/banner_gray"
+				],
+				"east": [
+					"textures/entity/banner/banner_gray",
+					"textures/entity/banner/banner_gray"
+				],
+				"west": [
+					"textures/entity/banner/banner_gray",
+					"textures/entity/banner/banner_gray"
+				]
+			}
+		},
+		"8": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_silver",
+					"textures/entity/banner/banner_silver"
+				],
+				"down": [
+					"textures/entity/banner/banner_silver",
+					"textures/entity/banner/banner_silver"
+				],
+				"north": [
+					"textures/entity/banner/banner_silver",
+					"textures/entity/banner/banner_silver"
+				],
+				"south": [
+					"textures/entity/banner/banner_silver",
+					"textures/entity/banner/banner_silver"
+				],
+				"east": [
+					"textures/entity/banner/banner_silver",
+					"textures/entity/banner/banner_silver"
+				],
+				"west": [
+					"textures/entity/banner/banner_silver",
+					"textures/entity/banner/banner_silver"
+				]
+			}
+		},
+		"9": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_cyan",
+					"textures/entity/banner/banner_cyan"
+				],
+				"down": [
+					"textures/entity/banner/banner_cyan",
+					"textures/entity/banner/banner_cyan"
+				],
+				"north": [
+					"textures/entity/banner/banner_cyan",
+					"textures/entity/banner/banner_cyan"
+				],
+				"south": [
+					"textures/entity/banner/banner_cyan",
+					"textures/entity/banner/banner_cyan"
+				],
+				"east": [
+					"textures/entity/banner/banner_cyan",
+					"textures/entity/banner/banner_cyan"
+				],
+				"west": [
+					"textures/entity/banner/banner_cyan",
+					"textures/entity/banner/banner_cyan"
+				]
+			}
+		},
+		"10": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_purple",
+					"textures/entity/banner/banner_purple"
+				],
+				"down": [
+					"textures/entity/banner/banner_purple",
+					"textures/entity/banner/banner_purple"
+				],
+				"north": [
+					"textures/entity/banner/banner_purple",
+					"textures/entity/banner/banner_purple"
+				],
+				"south": [
+					"textures/entity/banner/banner_purple",
+					"textures/entity/banner/banner_purple"
+				],
+				"east": [
+					"textures/entity/banner/banner_purple",
+					"textures/entity/banner/banner_purple"
+				],
+				"west": [
+					"textures/entity/banner/banner_purple",
+					"textures/entity/banner/banner_purple"
+				]
+			}
+		},
+		"11": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_blue",
+					"textures/entity/banner/banner_blue"
+				],
+				"down": [
+					"textures/entity/banner/banner_blue",
+					"textures/entity/banner/banner_blue"
+				],
+				"north": [
+					"textures/entity/banner/banner_blue",
+					"textures/entity/banner/banner_blue"
+				],
+				"south": [
+					"textures/entity/banner/banner_blue",
+					"textures/entity/banner/banner_blue"
+				],
+				"east": [
+					"textures/entity/banner/banner_blue",
+					"textures/entity/banner/banner_blue"
+				],
+				"west": [
+					"textures/entity/banner/banner_blue",
+					"textures/entity/banner/banner_blue"
+				]
+			}
+		},
+		"12": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_brown",
+					"textures/entity/banner/banner_brown"
+				],
+				"down": [
+					"textures/entity/banner/banner_brown",
+					"textures/entity/banner/banner_brown"
+				],
+				"north": [
+					"textures/entity/banner/banner_brown",
+					"textures/entity/banner/banner_brown"
+				],
+				"south": [
+					"textures/entity/banner/banner_brown",
+					"textures/entity/banner/banner_brown"
+				],
+				"east": [
+					"textures/entity/banner/banner_brown",
+					"textures/entity/banner/banner_brown"
+				],
+				"west": [
+					"textures/entity/banner/banner_brown",
+					"textures/entity/banner/banner_brown"
+				]
+			}
+		},
+		"13": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_green",
+					"textures/entity/banner/banner_green"
+				],
+				"down": [
+					"textures/entity/banner/banner_green",
+					"textures/entity/banner/banner_green"
+				],
+				"north": [
+					"textures/entity/banner/banner_green",
+					"textures/entity/banner/banner_green"
+				],
+				"south": [
+					"textures/entity/banner/banner_green",
+					"textures/entity/banner/banner_green"
+				],
+				"east": [
+					"textures/entity/banner/banner_green",
+					"textures/entity/banner/banner_green"
+				],
+				"west": [
+					"textures/entity/banner/banner_green",
+					"textures/entity/banner/banner_green"
+				]
+			}
+		},
+		"14": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_red",
+					"textures/entity/banner/banner_red"
+				],
+				"down": [
+					"textures/entity/banner/banner_red",
+					"textures/entity/banner/banner_red"
+				],
+				"north": [
+					"textures/entity/banner/banner_red",
+					"textures/entity/banner/banner_red"
+				],
+				"south": [
+					"textures/entity/banner/banner_red",
+					"textures/entity/banner/banner_red"
+				],
+				"east": [
+					"textures/entity/banner/banner_red",
+					"textures/entity/banner/banner_red"
+				],
+				"west": [
+					"textures/entity/banner/banner_red",
+					"textures/entity/banner/banner_red"
+				]
+			}
+		},
+		"15": {
+			"uv_sizes": {
+				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"down": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"north": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
+				"west": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.6875, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/banner/banner_black",
+					"textures/entity/banner/banner_black"
+				],
+				"down": [
+					"textures/entity/banner/banner_black",
+					"textures/entity/banner/banner_black"
+				],
+				"north": [
+					"textures/entity/banner/banner_black",
+					"textures/entity/banner/banner_black"
+				],
+				"south": [
+					"textures/entity/banner/banner_black",
+					"textures/entity/banner/banner_black"
+				],
+				"east": [
+					"textures/entity/banner/banner_black",
+					"textures/entity/banner/banner_black"
+				],
+				"west": [
+					"textures/entity/banner/banner_black",
+					"textures/entity/banner/banner_black"
+				]
+			}
+		},
 		"default": {
 			"uv_sizes": {
 				"up": [[ 0.25, 1.0 ], [ 1.0, 1.0 ]],
@@ -15402,28 +16810,474 @@
 			},
 			"overwrite": {
 				"up": [
-					"textures/entity/banner/banner_base",
-					"textures/entity/banner/banner_base"
+					"textures/entity/banner/banner_white",
+					"textures/entity/banner/banner_white"
 				],
 				"down": [
-					"textures/entity/banner/banner_base",
-					"textures/entity/banner/banner_base"
+					"textures/entity/banner/banner_white",
+					"textures/entity/banner/banner_white"
 				],
 				"north": [
-					"textures/entity/banner/banner_base",
-					"textures/entity/banner/banner_base"
+					"textures/entity/banner/banner_white",
+					"textures/entity/banner/banner_white"
 				],
 				"south": [
-					"textures/entity/banner/banner_base",
-					"textures/entity/banner/banner_base"
+					"textures/entity/banner/banner_white",
+					"textures/entity/banner/banner_white"
 				],
 				"east": [
-					"textures/entity/banner/banner_base",
-					"textures/entity/banner/banner_base"
+					"textures/entity/banner/banner_white",
+					"textures/entity/banner/banner_white"
 				],
 				"west": [
-					"textures/entity/banner/banner_base",
-					"textures/entity/banner/banner_base"
+					"textures/entity/banner/banner_white",
+					"textures/entity/banner/banner_white"
+				]
+			}
+		}
+	},
+	"skull_player": {
+		"default": {
+			"uv_sizes": {
+				"up": [[ 0.5, 0.5 ]],
+				"down": [[ 0.5, 0.5 ]],
+				"north": [[ 0.5, 0.5 ]],
+				"south": [[ 0.5, 0.5 ]],
+				"east": [[ 0.5, 0.5 ]],
+				"west": [[ 0.5, 0.5 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ]],
+				"down": [[ 0.0, 0.0 ]],
+				"north": [[ 0.0, 0.0 ]],
+				"south": [[ 0.0, 0.0 ]],
+				"east": [[ 0.0, 0.0 ]],
+				"west": [[ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/steve#8,0"
+				],
+				"down": [
+					"textures/entity/steve#16,0"
+				],
+				"north": [
+					"textures/entity/steve#24,8"
+				],
+				"south": [
+					"textures/entity/steve#8,8"
+				],
+				"east": [
+					"textures/entity/steve#16,8"
+				],
+				"west": [
+					"textures/entity/steve#0,8"
+				]
+			}
+		},
+		"wall": {
+			"uv_sizes": {
+				"up": [[ 0.5, 0.5 ]],
+				"down": [[ 0.5, 0.5 ]],
+				"north": [[ 0.5, 0.5 ]],
+				"south": [[ 0.5, 0.5 ]],
+				"east": [[ 0.5, 0.5 ]],
+				"west": [[ 0.5, 0.5 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ]],
+				"down": [[ 0.0, 0.0 ]],
+				"north": [[ 0.0, 0.0 ]],
+				"south": [[ 0.0, 0.0 ]],
+				"east": [[ 0.0, 0.0 ]],
+				"west": [[ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/steve#8,0"
+				],
+				"down": [
+					"textures/entity/steve#16,0"
+				],
+				"north": [
+					"textures/entity/steve#24,8"
+				],
+				"south": [
+					"textures/entity/steve#8,8"
+				],
+				"east": [
+					"textures/entity/steve#16,8"
+				],
+				"west": [
+					"textures/entity/steve#0,8"
+				]
+			}
+		}
+	},
+	"skull_piglin": {
+		"default": {
+			"uv_sizes": {
+				"up": [[ 0.625, 0.5 ], [ 0.25, 0.0625 ], [ 0.0625, 0.0625 ], [ 0.0625, 0.0625 ], [ 0.0625, 0.25 ], [ 0.0625, 0.25 ]],
+				"down": [[ 0.625, 0.5 ], [ 0.25, 0.0625 ], [ 0.0625, 0.0625 ], [ 0.0625, 0.0625 ], [ 0.0625, 0.25 ], [ 0.0625, 0.25 ]],
+				"north": [[ 0.625, 0.5 ], [ 0.25, 0.25 ], [ 0.0625, 0.125 ], [ 0.0625, 0.125 ], [ 0.0625, 0.3125 ], [ 0.0625, 0.3125 ]],
+				"south": [[ 0.625, 0.5 ], [ 0.25, 0.25 ], [ 0.0625, 0.125 ], [ 0.0625, 0.125 ], [ 0.0625, 0.3125 ], [ 0.0625, 0.3125 ]],
+				"east": [[ 0.5, 0.5 ], [ 0.0625, 0.25 ], [ 0.0625, 0.125 ], [ 0.0625, 0.125 ], [ 0.25, 0.3125 ], [ 0.25, 0.3125 ]],
+				"west": [[ 0.5, 0.5 ], [ 0.0625, 0.25 ], [ 0.0625, 0.125 ], [ 0.0625, 0.125 ], [ 0.25, 0.3125 ], [ 0.25, 0.3125 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/piglin/piglin#8,0",
+					"textures/entity/piglin/piglin#32,1",
+					"textures/entity/piglin/piglin#3,4",
+					"textures/entity/piglin/piglin#3,0",
+					"textures/entity/piglin/piglin#55,6",
+					"textures/entity/piglin/piglin#43,6"
+				],
+				"down": [
+					"textures/entity/piglin/piglin#18,0",
+					"textures/entity/piglin/piglin#36,1",
+					"textures/entity/piglin/piglin#4,4",
+					"textures/entity/piglin/piglin#4,0",
+					"textures/entity/piglin/piglin#56,6",
+					"textures/entity/piglin/piglin#44,6"
+				],
+				"north": [
+					"textures/entity/piglin/piglin#26,8",
+					"textures/entity/piglin/piglin#37,2",
+					"textures/entity/piglin/piglin#5,5",
+					"textures/entity/piglin/piglin#5,1",
+					"textures/entity/piglin/piglin#60,10",
+					"textures/entity/piglin/piglin#48,10"
+				],
+				"south": [
+					"textures/entity/piglin/piglin#8,8",
+					"textures/entity/piglin/piglin#32,2",
+					"textures/entity/piglin/piglin#3,5",
+					"textures/entity/piglin/piglin#3,1",
+					"textures/entity/piglin/piglin#55,10",
+					"textures/entity/piglin/piglin#43,10"
+				],
+				"east": [
+					"textures/entity/piglin/piglin#18,8",
+					"textures/entity/piglin/piglin#36,2",
+					"textures/entity/piglin/piglin#4,5",
+					"textures/entity/piglin/piglin#4,1",
+					"textures/entity/piglin/piglin#56,10",
+					"textures/entity/piglin/piglin#44,10"
+				],
+				"west": [
+					"textures/entity/piglin/piglin#0,8",
+					"textures/entity/piglin/piglin#31,2",
+					"textures/entity/piglin/piglin#2,5",
+					"textures/entity/piglin/piglin#2,1",
+					"textures/entity/piglin/piglin#51,10",
+					"textures/entity/piglin/piglin#39,10"
+				]
+			}
+		},
+		"wall": {
+			"uv_sizes": {
+				"up": [[ 0.625, 0.5 ], [ 0.25, 0.0625 ], [ 0.0625, 0.0625 ], [ 0.0625, 0.0625 ], [ 0.0625, 0.25 ], [ 0.0625, 0.25 ]],
+				"down": [[ 0.625, 0.5 ], [ 0.25, 0.0625 ], [ 0.0625, 0.0625 ], [ 0.0625, 0.0625 ], [ 0.0625, 0.25 ], [ 0.0625, 0.25 ]],
+				"north": [[ 0.625, 0.5 ], [ 0.25, 0.25 ], [ 0.0625, 0.125 ], [ 0.0625, 0.125 ], [ 0.0625, 0.3125 ], [ 0.0625, 0.3125 ]],
+				"south": [[ 0.625, 0.5 ], [ 0.25, 0.25 ], [ 0.0625, 0.125 ], [ 0.0625, 0.125 ], [ 0.0625, 0.3125 ], [ 0.0625, 0.3125 ]],
+				"east": [[ 0.5, 0.5 ], [ 0.0625, 0.25 ], [ 0.0625, 0.125 ], [ 0.0625, 0.125 ], [ 0.25, 0.3125 ], [ 0.25, 0.3125 ]],
+				"west": [[ 0.5, 0.5 ], [ 0.0625, 0.25 ], [ 0.0625, 0.125 ], [ 0.0625, 0.125 ], [ 0.25, 0.3125 ], [ 0.25, 0.3125 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/piglin/piglin#8,0",
+					"textures/entity/piglin/piglin#32,1",
+					"textures/entity/piglin/piglin#3,4",
+					"textures/entity/piglin/piglin#3,0",
+					"textures/entity/piglin/piglin#55,6",
+					"textures/entity/piglin/piglin#43,6"
+				],
+				"down": [
+					"textures/entity/piglin/piglin#18,0",
+					"textures/entity/piglin/piglin#36,1",
+					"textures/entity/piglin/piglin#4,4",
+					"textures/entity/piglin/piglin#4,0",
+					"textures/entity/piglin/piglin#56,6",
+					"textures/entity/piglin/piglin#44,6"
+				],
+				"north": [
+					"textures/entity/piglin/piglin#26,8",
+					"textures/entity/piglin/piglin#37,2",
+					"textures/entity/piglin/piglin#5,5",
+					"textures/entity/piglin/piglin#5,1",
+					"textures/entity/piglin/piglin#60,10",
+					"textures/entity/piglin/piglin#48,10"
+				],
+				"south": [
+					"textures/entity/piglin/piglin#8,8",
+					"textures/entity/piglin/piglin#32,2",
+					"textures/entity/piglin/piglin#3,5",
+					"textures/entity/piglin/piglin#3,1",
+					"textures/entity/piglin/piglin#55,10",
+					"textures/entity/piglin/piglin#43,10"
+				],
+				"east": [
+					"textures/entity/piglin/piglin#18,8",
+					"textures/entity/piglin/piglin#36,2",
+					"textures/entity/piglin/piglin#4,5",
+					"textures/entity/piglin/piglin#4,1",
+					"textures/entity/piglin/piglin#56,10",
+					"textures/entity/piglin/piglin#44,10"
+				],
+				"west": [
+					"textures/entity/piglin/piglin#0,8",
+					"textures/entity/piglin/piglin#31,2",
+					"textures/entity/piglin/piglin#2,5",
+					"textures/entity/piglin/piglin#2,1",
+					"textures/entity/piglin/piglin#51,10",
+					"textures/entity/piglin/piglin#39,10"
+				]
+			}
+		}
+	},
+	"skull_dragon": {
+		"default": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.125, 0.375 ], [ 0.125, 0.375 ], [ 0.75, 1.0 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.75, 1.0 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.125, 0.375 ], [ 0.125, 0.375 ], [ 0.75, 1.0 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.75, 1.0 ]],
+				"north": [[ 1.0, 1.0 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.75, 0.3125 ], [ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.75, 0.25 ]],
+				"south": [[ 1.0, 1.0 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.75, 0.3125 ], [ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.75, 0.25 ]],
+				"east": [[ 1.0, 1.0 ], [ 0.375, 0.25 ], [ 0.375, 0.25 ], [ 1.0, 0.3125 ], [ 0.25, 0.125 ], [ 0.25, 0.125 ], [ 1.0, 0.25 ]],
+				"west": [[ 1.0, 1.0 ], [ 0.375, 0.25 ], [ 0.375, 0.25 ], [ 1.0, 0.3125 ], [ 0.25, 0.125 ], [ 0.25, 0.125 ], [ 1.0, 0.25 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/dragon/dragon#128,30",
+					"textures/entity/dragon/dragon#6,0",
+					"textures/entity/dragon/dragon#6,0",
+					"textures/entity/dragon/dragon#192,44",
+					"textures/entity/dragon/dragon#116,0",
+					"textures/entity/dragon/dragon#116,0",
+					"textures/entity/dragon/dragon#192,65"
+				],
+				"down": [
+					"textures/entity/dragon/dragon#144,30",
+					"textures/entity/dragon/dragon#8,0",
+					"textures/entity/dragon/dragon#8,0",
+					"textures/entity/dragon/dragon#204,44",
+					"textures/entity/dragon/dragon#118,0",
+					"textures/entity/dragon/dragon#118,0",
+					"textures/entity/dragon/dragon#204,65"
+				],
+				"north": [
+					"textures/entity/dragon/dragon#160,46",
+					"textures/entity/dragon/dragon#14,6",
+					"textures/entity/dragon/dragon#14,6",
+					"textures/entity/dragon/dragon#220,60",
+					"textures/entity/dragon/dragon#122,4",
+					"textures/entity/dragon/dragon#122,4",
+					"textures/entity/dragon/dragon#220,81"
+				],
+				"south": [
+					"textures/entity/dragon/dragon#128,46",
+					"textures/entity/dragon/dragon#6,6",
+					"textures/entity/dragon/dragon#6,6",
+					"textures/entity/dragon/dragon#192,60",
+					"textures/entity/dragon/dragon#116,4",
+					"textures/entity/dragon/dragon#116,4",
+					"textures/entity/dragon/dragon#192,81"
+				],
+				"east": [
+					"textures/entity/dragon/dragon#144,46",
+					"textures/entity/dragon/dragon#8,6",
+					"textures/entity/dragon/dragon#8,6",
+					"textures/entity/dragon/dragon#204,60",
+					"textures/entity/dragon/dragon#118,4",
+					"textures/entity/dragon/dragon#118,4",
+					"textures/entity/dragon/dragon#204,81"
+				],
+				"west": [
+					"textures/entity/dragon/dragon#112,46",
+					"textures/entity/dragon/dragon#0,6",
+					"textures/entity/dragon/dragon#0,6",
+					"textures/entity/dragon/dragon#176,60",
+					"textures/entity/dragon/dragon#112,4",
+					"textures/entity/dragon/dragon#112,4",
+					"textures/entity/dragon/dragon#176,81"
+				]
+			}
+		},
+		"wall": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.125, 0.375 ], [ 0.125, 0.375 ], [ 0.75, 1.0 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.75, 1.0 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.125, 0.375 ], [ 0.125, 0.375 ], [ 0.75, 1.0 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.75, 1.0 ]],
+				"north": [[ 1.0, 1.0 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.75, 0.3125 ], [ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.75, 0.25 ]],
+				"south": [[ 1.0, 1.0 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.75, 0.3125 ], [ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.75, 0.25 ]],
+				"east": [[ 1.0, 1.0 ], [ 0.375, 0.25 ], [ 0.375, 0.25 ], [ 1.0, 0.3125 ], [ 0.25, 0.125 ], [ 0.25, 0.125 ], [ 1.0, 0.25 ]],
+				"west": [[ 1.0, 1.0 ], [ 0.375, 0.25 ], [ 0.375, 0.25 ], [ 1.0, 0.3125 ], [ 0.25, 0.125 ], [ 0.25, 0.125 ], [ 1.0, 0.25 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/dragon/dragon#128,30",
+					"textures/entity/dragon/dragon#6,0",
+					"textures/entity/dragon/dragon#6,0",
+					"textures/entity/dragon/dragon#192,44",
+					"textures/entity/dragon/dragon#116,0",
+					"textures/entity/dragon/dragon#116,0",
+					"textures/entity/dragon/dragon#192,65"
+				],
+				"down": [
+					"textures/entity/dragon/dragon#144,30",
+					"textures/entity/dragon/dragon#8,0",
+					"textures/entity/dragon/dragon#8,0",
+					"textures/entity/dragon/dragon#204,44",
+					"textures/entity/dragon/dragon#118,0",
+					"textures/entity/dragon/dragon#118,0",
+					"textures/entity/dragon/dragon#204,65"
+				],
+				"north": [
+					"textures/entity/dragon/dragon#160,46",
+					"textures/entity/dragon/dragon#14,6",
+					"textures/entity/dragon/dragon#14,6",
+					"textures/entity/dragon/dragon#220,60",
+					"textures/entity/dragon/dragon#122,4",
+					"textures/entity/dragon/dragon#122,4",
+					"textures/entity/dragon/dragon#220,81"
+				],
+				"south": [
+					"textures/entity/dragon/dragon#128,46",
+					"textures/entity/dragon/dragon#6,6",
+					"textures/entity/dragon/dragon#6,6",
+					"textures/entity/dragon/dragon#192,60",
+					"textures/entity/dragon/dragon#116,4",
+					"textures/entity/dragon/dragon#116,4",
+					"textures/entity/dragon/dragon#192,81"
+				],
+				"east": [
+					"textures/entity/dragon/dragon#144,46",
+					"textures/entity/dragon/dragon#8,6",
+					"textures/entity/dragon/dragon#8,6",
+					"textures/entity/dragon/dragon#204,60",
+					"textures/entity/dragon/dragon#118,4",
+					"textures/entity/dragon/dragon#118,4",
+					"textures/entity/dragon/dragon#204,81"
+				],
+				"west": [
+					"textures/entity/dragon/dragon#112,46",
+					"textures/entity/dragon/dragon#0,6",
+					"textures/entity/dragon/dragon#0,6",
+					"textures/entity/dragon/dragon#176,60",
+					"textures/entity/dragon/dragon#112,4",
+					"textures/entity/dragon/dragon#112,4",
+					"textures/entity/dragon/dragon#176,81"
+				]
+			}
+		}
+	},
+	"skull_dragon__low": {
+		"default": {
+			"uv_sizes": {
+				"up": [[ 1, 1.875 ]],
+				"down": [[ 1, 1.875 ]],
+				"north": [[ 1, 1.25 ]],
+				"south": [[ 1, 1.25 ]],
+				"east": [[ 1.875, 1.25 ]],
+				"west": [[ 1.875, 1.25 ]]
+			},
+			"offset": {
+				"up": [[ 0, 0.125 ]],
+				"down": [[ 0, 0.125 ]],
+				"north": [[ 0, 0.25 ]],
+				"south": [[ 0, 0.25 ]],
+				"east": [[ 0.125, 0.25 ]],
+				"west": [[ 0.125, 0.25 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/dragon/dragon#128,30"
+				],
+				"down": [
+					"textures/entity/dragon/dragon#144,30"
+				],
+				"north": [
+					"textures/entity/dragon/dragon#160,46"
+				],
+				"south": [
+					"textures/entity/dragon/dragon#128,46"
+				],
+				"east": [
+					"textures/entity/dragon/dragon#144,46"
+				],
+				"west": [
+					"textures/entity/dragon/dragon#112,46"
+				]
+			}
+		}
+	},
+	"skull_piglin__low": {
+		"default": {
+			"uv_sizes": {
+				"up": [[ 0.625, 0.5625 ]],
+				"down": [[ 0.625, 0.5625 ]],
+				"north": [[ 0.625, 0.5 ]],
+				"south": [[ 0.625, 0.5 ]],
+				"east": [[ 0.5625, 0.5 ]],
+				"west": [[ 0.5625, 0.5 ]]
+			},
+			"offset": {
+				"up": [[ 0.1875, 0.25 ]],
+				"down": [[ 0.1875, 0.25 ]],
+				"north": [[ 0.1875, 0.5 ]],
+				"south": [[ 0.1875, 0.5 ]],
+				"east": [[ 0.25, 0.5 ]],
+				"west": [[ 0.25, 0.5 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/entity/piglin/piglin#8,0"
+				],
+				"down": [
+					"textures/entity/piglin/piglin#18,0"
+				],
+				"north": [
+					"textures/entity/piglin/piglin#26,8"
+				],
+				"south": [
+					"textures/entity/piglin/piglin#8,8"
+				],
+				"east": [
+					"textures/entity/piglin/piglin#18,8"
+				],
+				"west": [
+					"textures/entity/piglin/piglin#0,8"
 				]
 			}
 		}

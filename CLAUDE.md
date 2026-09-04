@@ -741,6 +741,7 @@ python tools/make_growth_forms.py                      crops, eggs, compost, cor
 python tools/make_furniture_forms.py                   beds, lecterns, conduits
 python tools/make_head_forms.py                        the mob heads
 python tools/make_container_forms.py                   shulker boxes and banners
+python tools/make_banner_textures.py                   the sixteen dyed banners
 ```
 
 `lookups/` and `Vanilla_Resource_Pack/` are opened by relative path, so all of

@@ -204,17 +204,39 @@ Geometry numbers and UV values can be checked here. How they look cannot.
 - **Two block tall flowers** take the block's `down` texture on the lower half
   and `up` on the upper. Bedrock's `side` texture for these is a different
   plant's back and should never be used.
-- **A banner is drawn undyed, without its patterns.** Vanilla tints one white
-  sheet at run time and lays the patterns over it, and a ghost block can do
-  neither: the colour and the patterns are in the block entity, and the textures
-  to draw them with would have to be built.
+- **A banner is drawn in its colour but without its patterns.** The colour is
+  the block entity's `Base`, counted in the same order as wool, and
+  `tools/make_banner_textures.py` dyes the sheet once per colour so each has a
+  texture to read: vanilla tints one white sheet at run time and a ghost block
+  cannot tint. Patterns are a different matter. A banner may carry six, each
+  with a colour of its own, which is more combinations than could be written to
+  disk, so they would have to be composited while a pack is built and handed to
+  the atlas as a picture rather than a file.
+- **A head standing on the floor turns with its block entity.** The states say
+  only which of the six faces it is fixed to; the sixteen steps round are the
+  `Rotation` field, which `core.ENTITY_ROTATIONS` reads and hands over as
+  `spinN`, named apart from the facings because those are numbers too.
 - **A conduit is drawn closed.** Bedrock gives the block no state for being
   active, because whether it is depends on the frame of prismarine around it at
   run time, so a structure file cannot say. The open form is written and
   reachable if a state ever appears.
-- **A player head, a dragon head and a piglin head are still skipped.** A player
-  head wears whatever skin the player has, and neither of the other two has a
-  sheet in the pack this reads.
+- **A player head is always Steve.** A skin is the player's own and a resource
+  pack cannot know it, so every player head wears the default one.
+- **Every head is the model the game draws it with.** `entity/skull.entity.json`
+  names four geometries, one per kind of head, and the community submodule ships
+  them: `geometry.mob_head` and `geometry.player_head` in `models/mobs.json`
+  alongside `geometry.dragon_head`, and `geometry.piglin` as a file of its own.
+  So the piglin keeps its snout, its tusks and its ears, and the dragon all
+  seven of its pieces, at the sizes and UV corners Mojang drew.
+- **A dragon head is bigger than the block it is placed on**, and is drawn that
+  way: sixteen across, twenty tall and thirty deep, with the snout a whole block
+  out the front and the jaw hanging below the floor. Shrinking it to fit would
+  put the ghost block somewhere the real one will not be. It is the one head
+  that leaves its block.
+- **A head is placed about its pivot**, which sits at the middle of the block's
+  floor: a mob head's cube runs from y24 to y32 and appears in the bottom half
+  of its block. A head on a wall is the same model four pixels higher and four
+  further back.
 - **The compost heights, the egg positions and the cocoa sizes** are plausible
   rather than measured from the game. The counts and the stages are right; where
   exactly each egg sits in its clutch is not knowable from here.

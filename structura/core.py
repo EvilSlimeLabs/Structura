@@ -23,7 +23,18 @@ debug=False
 ## Which field of a block entity names the form its block takes. A block entity
 ## carries a great deal that has nothing to do with how a block looks, such as a
 ## chest's contents or a sign's text, so only the fields named here are read.
-ENTITY_SHAPES = {"CopperGolemStatue": "Pose"}
+ENTITY_SHAPES = {"CopperGolemStatue": "Pose", "Banner": "Base"}
+
+## Which field turns its block, for the blocks whose states do not say. A head
+## standing on the floor can face any of sixteen ways and keeps that in the
+## block entity, the way a sign keeps its text; the states carry only which of
+## the six faces it is fixed to. The number beside the field is the facing that
+## means "standing on the floor", because a head on a wall is turned by the wall
+## it is on and the entity reads zero.
+ENTITY_ROTATIONS = {"Skull": ("Rotation", 1)}
+
+## a head turns in sixteen steps, the same as a sign
+SPIN_STEP = 22.5
 
 
 def _plain(value):
@@ -444,11 +455,22 @@ class Structura:
             rot = int(states["facing_direction"])
 
         ## and what the block entity says outranks both: it is the only record
-        ## of the pose a statue was placed in
+        ## of the pose a statue was placed in, of a banner's colour, and of the
+        ## way a head standing on the floor is turned
         if entity:
             marker = ENTITY_SHAPES.get(str(entity.get("id","")))
             if marker is not None and marker in entity:
                 data = _plain(entity[marker])
+            spin = ENTITY_ROTATIONS.get(str(entity.get("id","")))
+            if spin is not None and spin[0] in entity and rot == spin[1]:
+                try:
+                    ## named apart from the facings, which are numbers too: a
+                    ## head fixed to the north wall reads 2, and so would the
+                    ## second of sixteen steps round
+                    step = int(round(float(entity[spin[0]]) / SPIN_STEP)) % 16
+                    rot = "spin%d" % step
+                except (TypeError, ValueError):
+                    pass
 
         if "wood_type" in block["states"].keys():
             variant = ["wood_type",block["states"]["wood_type"]]

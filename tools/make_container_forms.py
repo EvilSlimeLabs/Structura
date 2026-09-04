@@ -16,11 +16,13 @@ The sheets are copied out of the community submodule into `textures/entity/`.
 Only the top left 16x16 of a texture becomes a tile, so every face names the
 window it reads.
 
-**A banner's colour and its patterns are not drawn.** Vanilla tints one white
-sheet at run time and lays the patterns over it, and a ghost block cannot tint
-anything: what is here is the undyed base. The colour is in the block entity
-beside the block, so it could be read one day, but the textures to draw it with
-would still have to be built.
+**A banner is drawn in its colour but without its patterns.** The colour is in
+the block entity, as `Base`, and `tools/make_banner_textures.py` dyes the sheet
+once per colour so that each has a texture to read: vanilla tints one white
+sheet at run time and a ghost block cannot tint. Patterns are a different
+matter. A banner may carry six, each with a colour of its own, which is more
+combinations than could be written to disk, so they would have to be composited
+while a pack is built and handed to the atlas as a picture rather than a file.
 
 Nothing here is needed at run time. Re-run `tools/make_low_geometry.py`
 afterwards.
@@ -86,18 +88,52 @@ def shulker(colour):
 # and the pole up its right, and the cloth is a plane rather than a box: a
 # banner is one pixel thick and reading a box unwrap onto it would put the back
 # of the cloth on its front.
-BANNER = "textures/entity/banner/banner_base"
+BANNER = "textures/entity/banner/banner_%s"
 CLOTH = {face: (0, 0, 16, 16) for face in
          ("up", "down", "north", "south", "east", "west")}
 POLE = {face: (11, 0, 4, 16) for face in
         ("up", "down", "north", "south", "east", "west")}
 
-STANDING = {"default": [
-    Cube((2, 14, 2), (7, 0, 7), BANNER, window=POLE),
-    Cube((14, 16, 0.4), (1, 14, 7.8), BANNER, window=CLOTH)]}
-WALL = {"default": [
-    Cube((16, 2, 2), (0, 14, 0), BANNER, window=POLE),
-    Cube((14, 16, 0.4), (1, 0, 2), BANNER, window=CLOTH)]}
+## The colour is in the block entity, as `Base`, counted in the same order as
+## wool, and `core.ENTITY_SHAPES` hands it over as the form to draw. Each form
+## names the sheet `tools/make_banner_textures.py` dyed for that colour, because
+## the game tints one white sheet at run time and a ghost block cannot tint.
+BANNER_COLOURS = ["white", "orange", "magenta", "light_blue", "yellow", "lime",
+                  "pink", "gray", "silver", "cyan", "purple", "blue", "brown",
+                  "green", "red", "black"]
+
+
+def standing(sheet):
+    """On the floor: a pole up the middle with the cloth hanging in front.
+
+    Vanilla's banner is nearer two blocks tall and stands up out of the one it
+    belongs to. This one is kept inside its own block, because a ghost block is
+    read as a mark on the place a block goes, and one that leans into its
+    neighbours makes a row of banners hard to tell apart.
+    """
+    return [Cube((2, 16, 2), (7, 0, 7), sheet, window=POLE),
+            Cube((14, 13, 0.4), (1, 2, 8.6), sheet, window=CLOTH)]
+
+
+def wall(sheet):
+    """On a wall: the pole lies across the top and the cloth hangs below it.
+
+    Against the block behind it, at z 0, the way a wall sign sits.
+    """
+    return [Cube((16, 2, 2), (0, 14, 0), sheet, window=POLE),
+            Cube((14, 14, 0.4), (1, 0, 2), sheet, window=CLOTH)]
+
+
+def dyed(shape):
+    """One form per colour, and white for a banner with no entity beside it."""
+    forms = {str(n): shape(BANNER % colour)
+             for n, colour in enumerate(BANNER_COLOURS)}
+    forms["default"] = shape(BANNER % "white")
+    return forms
+
+
+STANDING = dyed(standing)
+WALL = dyed(wall)
 
 ## a standing banner turns in sixteen steps, a wall banner in four
 SIXTEEN = {str(n): [0, round(n * 22.5, 1), 0] for n in range(16)}
@@ -142,7 +178,7 @@ def main():
     write("wall_banner", WALL, FOUR)
     define(["standing_banner"], "standing_banner")
     define(["wall_banner"], "wall_banner")
-    print("   standing and wall, undyed")
+    print("   standing and wall, %d colours" % len(BANNER_COLOURS))
     print("now re-run tools/make_low_geometry.py")
 
 
