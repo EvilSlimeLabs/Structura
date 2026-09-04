@@ -140,25 +140,60 @@ CONDUIT["default"] = CONDUIT["0"]
 
 # --- beds -------------------------------------------------------------------
 #
-# Two blocks, head and foot, each a mattress nine pixels up on two legs. The
-# textures are per part and per face, and Bedrock tells the halves apart with
-# `head_piece_bit`, which arrives as the shape variant.
-def bed(part):
+# Two blocks, head and foot, each a mattress on two legs. Bedrock tells the
+# halves apart with `head_piece_bit`, which arrives as the shape variant.
+#
+# **A bed lies along x, with its head at x16.** The tiles say so: on
+# `bed_head_top` and `bed_head_side` the pillow is the right half of the
+# picture, and on `bed_head_side` the leg is the last three pixels of it, so the
+# picture runs foot to head across its own width. A face's window runs along x
+# on the top and along the block's own axis on the sides, so a bed lying along z
+# has its pillow painted down one side of the mattress instead of across the
+# head of it.
+#
+# **Two legs a block, not four.** `bed_feet_end` carries a leg at each corner,
+# which is one end of the bed seen from outside, and `bed_feet_side` carries one,
+# at the foot. Four to a block puts eight under a bed.
+#
+# The legs are drawn from the bed's own tile too, off the three by three patch
+# under the mattress, rather than from planks.
+BED_TALL = 6
+BED_UP = 3
+LEG = 3
+BED_FACE = (0, 7, 16, BED_TALL)         # the mattress, on the side and the end
+BED_LEG = (0, 16 - LEG, LEG, LEG)       # the leg, under it
+
+
+def bed(part, head):
+    """One block of a bed: the mattress, and the two legs at its outer end.
+
+    `head` says which end of the block the legs stand at, which is the end away
+    from the other half.
+    """
     top = BLOCKS % ("bed_%s_top" % part)
     side = BLOCKS % ("bed_%s_side" % part)
     end = BLOCKS % ("bed_%s_end" % part)
-    mattress = Cube((16, 6, 16), (0, 3, 0), texture={
+    mattress = Cube((16, BED_TALL, 16), (0, BED_UP, 0), texture={
         "up": top, "down": BLOCKS % "planks_oak",
-        "north": end, "south": end, "east": side, "west": side})
-    legs = [Cube((3, 3, 3), (0, 0, 0), BLOCKS % "planks_oak"),
-            Cube((3, 3, 3), (13, 0, 0), BLOCKS % "planks_oak"),
-            Cube((3, 3, 3), (0, 0, 13), BLOCKS % "planks_oak"),
-            Cube((3, 3, 3), (13, 0, 13), BLOCKS % "planks_oak")]
+        ## the bed lies along x, so its ends are the x faces and its long sides
+        ## the z ones
+        "east": end, "west": end, "north": side, "south": side},
+        window={"up": (0, 0, 16, 16), "down": (0, 0, 16, 16),
+                "east": BED_FACE, "west": BED_FACE,
+                "north": BED_FACE, "south": BED_FACE})
+    legs = [Cube((LEG, BED_UP, LEG), (head, 0, z), side,
+                 window={face: BED_LEG for face in FACES})
+            for z in (0, 16 - LEG)]
     return [mattress] + legs
 
 
-BEDS = {"0": bed("feet"), "1": bed("head")}
+BEDS = {"0": bed("feet", 0), "1": bed("head", 16 - LEG)}
 BEDS["default"] = BEDS["0"]
+
+## The model lies along x while the tables put a block at rest facing south, so
+## every facing carries the quarter turn that takes +x round to +z.
+BED_FACING = {name: [0, (turn[1] + 270) % 360, 0]
+              for name, turn in FACING.items()}
 
 
 def main():
@@ -176,7 +211,7 @@ def main():
     write("bed", BEDS)
     ## a lectern and a bed both face somewhere; an enchanting table does not
     turns("lectern", FACING)
-    turns("bed", FACING)
+    turns("bed", BED_FACING)
     print("now re-run tools/make_low_geometry.py")
 
 

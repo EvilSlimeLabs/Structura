@@ -89,6 +89,25 @@ forms that use them, and `2` means something different in each numbering.
 **Which way "facing 0" actually points is not knowable from here.** The tables
 follow the convention every existing entry uses; confirm a new one in a world.
 
+**A mounting is the same piece run further, not a second piece bolted on.** A
+hanging sign on a wall was written as the form fixed under a block plus an arm
+running back into the wall, and the arm read as a post nobody asked for. The bar
+it already has goes out to the edges of the block instead, the way a bell's beam
+spans two walls.
+
+**A family turns about the middle of its block.** `center` in
+`block_shapes.json` is that pivot, and a family whose cubes all sit at one edge
+is tempting to pivot on that edge instead. Doing so takes the block out of its
+own block: a door pivoted on the plane of its own panel, a quarter turn round,
+ended up half in the block beside it. Only a family whose parts really do turn
+about something other than the middle — a grindstone's wheel, a campfire's
+fire — should say so, and then only in the axis it needs.
+
+**A door's panel sits on the side it faces**, at `z` 13 when it faces south, the
+way it does in the game: place a door standing to its south and the panel is on
+the side nearest you. It was at `z` 0, so every door was drawn against the far
+side of its own block.
+
 ---
 
 ## One texture per cube, not per block
@@ -166,6 +185,21 @@ shape. Add to that mapping to support another one. A block entity carries a
 great deal that has nothing to do with how a block looks, so only the named
 fields are read.
 
+**A block entity may hold another whole block.** What is planted in a flower pot
+is kept beside the block as `PlantBlock`, a compound with a name and states of
+its own, and nothing about it is in the pot's states. `core.ENTITY_HOLDS` names
+that field, and `core.Structura._drawn_at` turns one position into the pot plus
+the plant, so the plant is drawn where the pot is and by whatever family it
+belongs to. That is what makes every pottable plant work without a variant
+apiece; the cost is that a plant Structura cannot draw lands in the skipped list
+while the pot around it is still drawn.
+
+Two things follow from it. The plant is drawn at its own full size rather than
+shrunk into the pot, because a family cannot be scaled from outside, so its
+lower half is inside the pot. And the plant is **not** in the block list: that
+is counted off the structure's palette, which the pot's contents are not part
+of.
+
 ---
 
 ## High and low geometry
@@ -187,9 +221,21 @@ simple form will still be the old one's outline.
 
 Geometry numbers and UV values can be checked here. How they look cannot.
 
-- **Copper golem statue poses** are built from the same three pieces moved and
-  leaned, not remodelled. They are distinguishable and upright; whether each
-  matches the pose the game draws is unverified. `tools/make_statue_poses.py`.
+- **A copper golem statue's four poses are four geometry files.** The community
+  submodule ships `copper_golem`, `copper_golem_sitting`, `copper_golem_running`
+  and `copper_golem_star`, and each is the golem's nine or eleven cubes with the
+  arms and the legs turned where that pose puts them. Which `Pose` number goes
+  with which file is the guess left in it: the order below is the order the game
+  numbers them in, and only a world settles that. `tools/make_statue_poses.py`.
+- **The statue is taller than the block it stands on**, twenty four pixels to
+  the top of its pompom, and is drawn at that size. Shrinking it would put the
+  ghost somewhere the real statue will not be, which is the same reason a dragon
+  head keeps its own size.
+- **The eight oxidation stages all wear the unweathered sheet.** Every one of
+  them declares the same texture name in `blocks.json`, and nothing in the block
+  says which stage it is, so one family answers for all eight. The community
+  pack ships `copper_golem_exposed`, `_weathered` and `_oxidized` beside it if
+  that is ever worth eight families.
 - **Which side a wall mounting attaches to** is taken from the convention
   `wall_sign` uses: at 0° a block faces south, so the wall is behind it at
   `z=0`, and a bell's beam, a grindstone's legs and a hanging sign's arm all run
@@ -201,6 +247,18 @@ Geometry numbers and UV values can be checked here. How they look cannot.
 - **The campfire's fire** is two quads crossed through the middle of the block,
   the way vanilla draws a flame, textured from frame 0 of the flipbook. It does
   not animate: a ghost block has no flipbook.
+- **A campfire's log tile is three pictures stacked.** `campfire_log` holds the
+  bark across its top four rows, the cut end of a log beside it in the next
+  four, and the ash the fire sits in across the bottom half; `campfire_log_lit`
+  is the same layout, four frames deep, with the embers glowing. A face taking
+  the whole tile wears all three. The ash is a plate one pixel deep across the
+  floor with the logs standing in it, so it shows through the square between
+  them. Two things are approximations: the ash reads a 16×8 window on a 16×16
+  face, so it is stretched twice over, the way vanilla's own model stretches it;
+  and a log lying along `z` has a top four across and sixteen deep while the
+  bark is drawn the other way round, and a window cannot be turned, so those two
+  faces take the bark as it is. Both are under the logs above them or on the
+  floor.
 - **Two block tall flowers** take the block's `down` texture on the lower half
   and `up` on the upper. Bedrock's `side` texture for these is a different
   plant's back and should never be used.
@@ -212,10 +270,28 @@ Geometry numbers and UV values can be checked here. How they look cannot.
   with a colour of its own, which is more combinations than could be written to
   disk, so they would have to be composited while a pack is built and handed to
   the atlas as a picture rather than a file.
+- **Only a banner's cloth is dyed.** The post up the right of the sheet from
+  `x44` and the bar across the bottom of the cloth from `y42` are wood, and
+  `make_banner_textures.py` leaves both alone: dyeing the whole sheet gives every
+  banner a post in its own colour, which is what it did. The post and the bar
+  name those corners of the sheet, and the post reads a sixteen tall slice of a
+  strip the sheet draws forty two tall, because only that much of a texture
+  becomes a tile and the post is one colour all the way down.
+- **A banner is two blocks tall and stands out of its own block**, the way the
+  game draws one and the way a dragon head and a copper golem statue do here. A
+  wall banner hangs the other way, down past its own floor. Kept inside one
+  block a banner reads as half a banner, which is what it did.
 - **A head standing on the floor turns with its block entity.** The states say
   only which of the six faces it is fixed to; the sixteen steps round are the
   `Rotation` field, which `core.ENTITY_ROTATIONS` reads and hands over as
   `spinN`, named apart from the facings because those are numbers too.
+  **That numbering starts half a turn from the block convention.** A block at
+  rest faces south and a skull whose `Rotation` is zero faces north, so
+  `make_head_forms.FLOOR` adds 180 to the plain facing and to every one of the
+  sixteen steps. Without it every head in a build faced away from where it was
+  placed. The wall facings do not carry it: those come from `facing_direction`,
+  which names the way the head looks, and the wall form is already built
+  sitting against the wall behind it.
 - **A conduit is drawn closed.** Bedrock gives the block no state for being
   active, because whether it is depends on the frame of prismarine around it at
   run time, so a structure file cannot say. The open form is written and
@@ -228,6 +304,14 @@ Geometry numbers and UV values can be checked here. How they look cannot.
   alongside `geometry.dragon_head`, and `geometry.piglin` as a file of its own.
   So the piglin keeps its snout, its tusks and its ears, and the dragon all
   seven of its pieces, at the sizes and UV corners Mojang drew.
+- **A bone that turns has to be turned on the way in.** The piglin's ears are
+  bones the game leans thirty degrees about pivots of their own, and a head
+  built from the cubes alone leaves them flat against the skull. Structura turns
+  a cube about the cube's own middle, so `make_head_forms.on_its_own` moves the
+  middle to where the bone's pivot would have put it and keeps the same turn on
+  the cube, which comes to the same thing. Bedrock's angles run the other way
+  round from the usual mathematical ones, and the ears are what settles that:
+  only one of the two signs takes them away from the head rather than into it.
 - **A dragon head is bigger than the block it is placed on**, and is drawn that
   way: sixteen across, twenty tall and thirty deep, with the snout a whole block
   out the front and the jaw hanging below the floor. Shrinking it to fit would
@@ -237,9 +321,55 @@ Geometry numbers and UV values can be checked here. How they look cannot.
   floor: a mob head's cube runs from y24 to y32 and appears in the bottom half
   of its block. A head on a wall is the same model four pixels higher and four
   further back.
+- **A brewing stand's three plates are placed from the sockets on its base
+  tile.** Bedrock ships no model for this block and `brewing_stand_base` is
+  opaque across the whole of its tile, so nothing in the pack says where one
+  plate ends and the next begins except the three bottle sockets drawn on it, at
+  (3.5, 3.5), (3.5, 11.5) and (12, 7.5). Each plate is the part of the tile its
+  socket sits in the middle of: the whole of one side, and the other side
+  halved, with the two pixel channel between them that the rod stands in. The
+  arrangement is right; whether vanilla leaves more of a gap between them is not
+  knowable from here.
+- **The bottles a brewing stand is holding are not drawn.**
+  `brewing_stand_slot_a_bit` and its two fellows say which of the three slots
+  are full, and the arms that hold them are drawn either side of the rod on the
+  same tile, but the bottles themselves come from the block entity.
 - **The compost heights, the egg positions and the cocoa sizes** are plausible
   rather than measured from the game. The counts and the stages are right; where
   exactly each egg sits in its clutch is not knowable from here.
+- **A shelf's compartments are cut, not painted.** Vanilla paints the three
+  openings into the front texture and leaves the block a plain box, which reads
+  as a shelf while the block is opaque and as a box once it is half
+  transparent. The frame and the two uprights are geometry here, so the openings
+  are openings. The back panel keeps the painted front, which is what gives the
+  compartments their shading inside. A sculk shrieker gets the same treatment
+  from the other end: it is half a block tall with a plate under the lid, since
+  its top texture is four corner blobs with a hole between them.
+- **String is drawn with a tile of its own.** Vanilla's `trip_wire` is a scatter
+  of faint single pixels across a quarter of the tile, drawn on a quad turned to
+  face the way the wire runs and lit at full brightness. On a half-transparent
+  plate lying flat in its block it cannot be seen from more than a few blocks
+  away, so `tools/make_string_texture.py` writes a cross of solid lines instead.
+  **A cross because the direction is not in the block:** `trip_wire` carries
+  `attached_bit`, `disarmed_bit`, `powered_bit` and `suspended_bit` and nothing
+  saying which way the wire runs, so the game works that out from the blocks
+  beside it while it draws and a structure file cannot say.
+- **`blocks.json` names texture slots, not faces.** For nearly every block the
+  two are the same. `big_dripleaf` is where they part: it reads `up:
+  big_dripleaf_side2`, `down: big_dripleaf_side1` and the leaf on three of the
+  sides, because the engine picks from those slots for a model of its own.
+  Read as faces, the leaf's top wears four rows of edge profile over an empty
+  tile and the block is very nearly invisible from above, which is what it was.
+  Its faces name their textures outright now. A family whose block has this
+  shape of entry has to do the same.
+- **One dripleaf block id is two different things.** `big_dripleaf_head` says
+  whether a block is the leaf you stand on or a length of the stalk holding one
+  up. It is read as a shape state, so the two are separate forms. Both put the
+  stalk in the same place, so a dripleaf several blocks tall lines up.
+- **`small_dripleaf_block` is still `ignore`**, and is drawn as nothing. Its
+  textures are the odd ones out in the pack: `small_dripleaf_top` has its art in
+  an 8x8 corner of a 16x16 file and `small_dripleaf_side` has four pixels in its
+  top row, so what those tiles are meant to be read as is not settled.
 
 The forms a block takes from how it is mounted are written by
 `tools/make_block_forms.py`, which owns the shapes and the UV windows for
@@ -248,11 +378,20 @@ different list of cubes rather than the same list moved:
 
 | Family | The forms, and what carries the block |
 | --- | --- |
-| `bell` | `standing` a beam across two stone posts, `multiple` the beam alone between two walls, `side` half a beam out of one wall, `hanging` no beam at all |
-| `grindstone` | `standing` legs to the floor, `hanging` legs to the block above, `side` legs into the wall behind, `multiple` legs into both |
-| `hanging_sign` | `0-1` chains, `1-1` a bar under the block it is fixed to, `0-0` a bar with an arm back to the wall. Named by `attached_bit` and `hanging`, joined the way `core.py` joins shape states |
-| `campfire` | `0` four logs and the fire, `1` the logs alone |
-| `shelf` | one box, 16 wide by 16 tall by 8 deep, with a different picture on each face |
+| `bell` | the bell in two pieces, the narrow body over its flared lip, and then `standing` a beam across two stone posts, `multiple` the beam alone between two walls, `side` half a beam out of one wall, `hanging` a short bar up to the block above |
+| `grindstone` | a wheel twelve by twelve by eight with a pivot each side, and `standing` legs to the floor, `hanging` legs to the block above, `side` legs into the wall behind, `multiple` legs into both. The wheel takes three quarters of the block, so where it sits is what the mounting decides |
+| `hanging_sign` | `0-1` chains, `1-1` a bar under the block it is fixed to, `0-0` the same bar run out to the edges so it reaches the wall. Named by `attached_bit` and `hanging`, joined the way `core.py` joins shape states |
+| `campfire` | a plate of ash across the floor with two logs standing in it and two more across those, and `0` the fire over them, `1` without |
+| `door` | `default` shut, on the side the door faces, `open` and `open_hinged` folded back against the wall on whichever side the hinge is, `top` nothing at all because the lower block draws both halves. Its four thin faces read the frame down the side of the tile, not the whole door squeezed into three pixels |
+| `shelf` | a back panel against the wall, a rail across the top and the bottom, and two uprights, so the three compartments are openings |
+| `tripwire_hook` | `0` the hook hanging loose off its plate, `1` the hook held out level by the wire tied to it. Named by `attached_bit` |
+| `sculk_shrieker` | half a block tall, with a second plate under the lid so there is something down the throat |
+| `tripwire` | one flat plate a pixel and a half off the floor, wearing a tile drawn for it |
+| `flower_pot` | four terracotta walls a pixel thick with the soil sunk inside them, six across and six tall |
+| `decorated_pot` | a body fourteen across and twelve tall with an eight by four neck on top of it, every face naming its own part of the 32x32 sheet |
+| `brewing_stand` | a two by fourteen rod standing in the channel between three stone plates, each reading its own part of the base tile |
+| `heavy_core` | one eight by eight by eight cube, its top, its bottom and its four walls reading the three pictures its file holds |
+| `dried_ghast` | a ten by ten by ten body on the floor with six tentacles lying flat around it, all of it keeping the block's own faces so it follows `rehydration_level` |
 
 Three more scripts write the families whose form follows a state:
 
@@ -280,6 +419,91 @@ fern a tuft of grass, and every mushroom block wear the inside face.
 Those sheets live in `textures/entity/` and are copied out of the community
 submodule, because the trimmed pack carries only terrain tiles. Each face names
 the 16×16 window it reads.
+
+**And a block drawn with an entity's model reads that model's sheet the same
+way.** A copper golem statue is drawn with the geometry the game gives the mob,
+so `make_statue_poses.py` unwraps each of its cubes the way Bedrock lays a box
+out — up and down across the top, then west, front, east and back in a strip —
+and each face names its corner of the 64×64 sheet. `make_block_forms.unwrap` is
+that layout and `make_block_forms.spun` is the turn a bone or a cube carries;
+the mob heads use both. A model built from boxes measured off a picture instead
+comes out as a blob wearing terrain tiles, which is what the statue was.
+
+**A dried ghast is twenty four small pictures in full sized files.** Every one
+of its six faces has four textures, one per `rehydration_level`, and all
+twenty four are 10×10 pictures in 16×16 files. Drawn as a 14×14 cube with faces
+working their own windows out, each read x1 to x15 of a picture that stops at
+x10, so five sixths of every face was the empty part of the file and the block
+came out as slivers. It is the cube those pictures were drawn for, standing on
+the floor of the block with **six tentacles lying flat on the ground around
+it**: two out of each of its three blank sides and none out of the face, which
+is south. Each is three long, two across and one deep, and they sit a pixel in
+from the corners of the body. Nothing in the pack says any of that — Bedrock
+ships no model for this block and there is no tentacle texture in the trimmed
+pack, so they take a patch of the underside for their colour. Everything keeps
+the block's own faces, so the whole thing still follows the rehydration level.
+
+**A tile can hold one picture drawn several times over.** A turtle egg's tile is
+an egg's side down the left of it with more eggs across and beside it, and a
+cocoa pod's is the pod's top in the corner, its side to the right and the stalk
+drawn diagonally between them. A face working its own window out from where its
+cube sits reads whatever happens to line up with it: a clutch of eggs came out
+as pale boxes with the corners of other eggs on them, and a cocoa pod came out
+as bark. Every face takes a picture the size of that face instead, and the pod's
+top and side move as it ripens so each stage names its own.
+
+**A bed lies along `x`, with its head at `x16`, because its tiles say so.** On
+`bed_head_top` and `bed_head_side` the pillow is the right half of the picture,
+and on `bed_head_side` the leg is the last three pixels, so the picture runs
+foot to head across its own width. A face's window runs along `x` on the top and
+along the block's own axis on the sides, so a bed lying along `z` has its pillow
+painted down one side of the mattress rather than across the head of it. The
+model lying a quarter turn from the convention is why `bed`'s rotation entry
+carries that quarter turn in every facing; if beds come out across the way they
+should lie, that is the number to move. **Two legs a block, not four**:
+`bed_feet_end` carries a leg at each corner, which is one end seen from outside,
+and four to a block puts eight under a bed.
+
+**A texture's own size says how big the part it covers is.** `grindstone_side`
+is 12×12 and `grindstone_round` is 8×12, which is one wheel twelve wide, twelve
+tall and eight deep, seen face on and then edge on. The wheel was drawn 12×8×4,
+a third of the stone that should be there, and no measurement of the block would
+have said so — the pictures do.
+
+**Several small pictures in one full sized file is the same trap again.**
+`heavy_core.png` is 16×16 and holds three 8×8 pictures: the top with its rings
+at (0,0), the bottom beside it at (8,0), and the side under them at (0,8), which
+all four walls wear. The last quarter of the file is empty. A face working its
+own window out from where the cube sits reads the middle of the file, which
+straddles all three pictures and that empty quarter, so the core comes out as
+mismatched plates.
+
+**A small picture in a full sized file is the same trap.** `bell_side` is a
+16×16 file with the bell drawn in an 8×9 corner of it: the narrow body six
+across and seven down, over the flared lip eight across and two down. A face
+left to work its own window out from where its cube sits reads the middle of the
+file, which is empty, and the bell comes out as a flat plate with a sliver of
+metal on it. Both pieces of the bell name their rows. `bell_top` and
+`bell_bottom` are the 8×8 faces at each end and are read the same way.
+
+**What holds a block up is not the block.** A bell declares four different
+things across its six faces — the bell on north and south, its crown on up, its
+rim on down, the beam's dark oak on east and the posts' stone on west — so one
+entry serves every mounting without naming a texture. The pieces that carry it
+have to say which of those they want: the short bar under a ceiling was left on
+the bell's own crown and came out gold.
+
+**A sheet can also sit in `textures/blocks/` and look like a tile.**
+`decorated_pot_base.png` is 32×32 and holds the unwrap of the pot's neck across
+the top with the body's top and bottom under it, and `flower_pot.png` holds the
+rim over the wall in one 16×16 file. A face left to work its window out from
+where its cube sits reads those as if they were one picture: the decorated pot
+came out with holes through it, because the body's top landed on the neck's
+unwrap and on the empty row between the two. `make_block_forms.on_sheet` is what
+turns a region of a sheet into a texture reference and a window, pulling the
+tile corner back far enough that the region fits inside it and never past the
+edge of the sheet. Two regions may share a corner, which is why the last face of
+a strip reads from a corner sixteen pixels in.
 
 **A shelf is a box against the wall behind it.** Its texture is a 32×32 sheet
 holding four different things: the front with three compartments painted into

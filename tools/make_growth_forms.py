@@ -107,10 +107,35 @@ CROPS = {
 # A cocoa pod grows on the side of a jungle log and gets larger as it ripens,
 # so both the box and the texture change. The sizes are vanilla's: 4, 6 and 8
 # across, hanging from the top of the block and standing off the log it grew on.
+#
+# Each stage's tile holds three pictures rather than one: the pod's top in the
+# corner, the pod's side to the right of it, and the stalk it hangs by drawn
+# diagonally between them. A face working its own window out from where the pod
+# sits reads across all three and comes out as bark, which is what a cocoa pod
+# was drawn with.
+#
+# The corner and the side move as the pod grows, so each stage names its own.
+COCOA_ART = {
+    ## stage: the pod's top, then the pod's side
+    "0": ((0, 0, 4, 4), (11, 4, 4, 5)),
+    "1": ((0, 0, 6, 6), (9, 4, 6, 7)),
+    "2": ((0, 0, 7, 7), (7, 4, 8, 9)),
+}
+
+
+def pod(size, at, stage):
+    """One cocoa pod, its top and bottom off the corner of the tile and its
+    four sides off the picture beside it."""
+    cap, side = COCOA_ART[stage]
+    return Cube(size, at, BLOCKS % ("cocoa_stage_%s" % stage), window={
+        "up": cap, "down": cap,
+        "north": side, "south": side, "east": side, "west": side})
+
+
 COCOA = {
-    "0": [Cube((4, 5, 4), (6, 7, 11), BLOCKS % "cocoa_stage_0")],
-    "1": [Cube((6, 7, 6), (5, 5, 9), BLOCKS % "cocoa_stage_1")],
-    "2": [Cube((8, 9, 8), (4, 3, 7), BLOCKS % "cocoa_stage_2")],
+    "0": [pod((4, 5, 4), (6, 7, 11), "0")],
+    "1": [pod((6, 7, 6), (5, 5, 9), "1")],
+    "2": [pod((8, 9, 8), (4, 3, 7), "2")],
 }
 COCOA["default"] = COCOA["2"]
 
@@ -121,15 +146,36 @@ COCOA["default"] = COCOA["2"]
 # is 4 by 7 by 4 and a small one 4 by 5 by 4; vanilla mixes them as the clutch
 # grows. The cracking is the texture rather than the shape, and comes through
 # `variants.json`, because turtle_egg's terrain texture is a list of three.
+#
+# The tile holds an egg drawn several times over rather than one picture: the
+# side of one down the left of it, four across the top of that, and the smaller
+# egg's own to the right. A face working its own window out from where the egg
+# stands reads whichever eggs happen to line up with it, which is why a clutch
+# came out as pale boxes with corners of other eggs on them. Every face takes an
+# egg the size of that face instead.
 BIG = (4, 7, 4)
 SMALL = (4, 5, 4)
+## the side of an egg down the left of the tile, and the end of one under it
+EGG_SIDE = (0, 0)
+EGG_CAP = (0, 7, 4, 4)
+
+
+def egg(size, at):
+    """One egg, every face reading an egg rather than a slice of the block."""
+    wide, tall, deep = size
+    side = (EGG_SIDE[0], EGG_SIDE[1], wide, tall)
+    return Cube(size, at, window={
+        "north": side, "south": side, "east": side, "west": side,
+        "up": EGG_CAP, "down": EGG_CAP})
+
+
 TURTLE_EGGS = {
-    "one_egg": [Cube(BIG, (6, 0, 6))],
-    "two_egg": [Cube(BIG, (3, 0, 6)), Cube(SMALL, (9, 0, 7))],
-    "three_egg": [Cube(BIG, (2, 0, 5)), Cube(SMALL, (8, 0, 3)),
-                  Cube(SMALL, (7, 0, 9))],
-    "four_egg": [Cube(BIG, (2, 0, 5)), Cube(SMALL, (8, 0, 3)),
-                 Cube(SMALL, (7, 0, 9)), Cube(SMALL, (11, 0, 8))],
+    "one_egg": [egg(BIG, (6, 0, 6))],
+    "two_egg": [egg(BIG, (3, 0, 6)), egg(SMALL, (9, 0, 7))],
+    "three_egg": [egg(BIG, (2, 0, 5)), egg(SMALL, (8, 0, 3)),
+                  egg(SMALL, (7, 0, 9))],
+    "four_egg": [egg(BIG, (2, 0, 5)), egg(SMALL, (8, 0, 3)),
+                 egg(SMALL, (7, 0, 9)), egg(SMALL, (11, 0, 8))],
 }
 TURTLE_EGGS["default"] = TURTLE_EGGS["one_egg"]
 
@@ -199,6 +245,68 @@ CORAL_TURNS = {"0": [0, 0, 0], "1": [0, 90, 0], "2": [0, 180, 0],
                "3": [0, 270, 0]}
 
 
+# --- big dripleaves ---------------------------------------------------------
+#
+# One block id is two different things. `big_dripleaf_head` says whether a block
+# is the leaf you stand on or a length of the stalk holding one up, and nothing
+# was reading it, so both were drawn as a near cube of whatever texture
+# `blocks.json` happened to hand over.
+#
+# **Its faces are texture slots, not faces.** The entry reads `up:
+# big_dripleaf_side2`, `down: big_dripleaf_side1`, `north: big_dripleaf_stem`
+# and the leaf on the other three, because the game picks from those slots for
+# its own model rather than painting them on the six sides of a cube. Taken
+# literally, the leaf's top wears `side2`, which is four rows of edge profile
+# over an empty tile, and the leaf is very nearly invisible from above. Every
+# face here names the texture it wants outright.
+LEAF_TOP = BLOCKS % "big_dripleaf_top"
+LEAF_EDGE = BLOCKS % "big_dripleaf_side2"
+LEAF_STEM = BLOCKS % "big_dripleaf_stem"
+
+LEAF_THICK = 2
+LEAF_AT = 13        # the surface you stand on, near the top of the block
+STALK = 4           # the stalk is square and runs down the back of the leaf
+
+
+def leaf():
+    """The platform, textured top and bottom and edged with its own profile.
+
+    The edge strip is the top four rows of `big_dripleaf_side2`; the rest of
+    that tile is empty, so a face reading the whole of it shows nothing.
+    """
+    return Cube((16, LEAF_THICK, 16), (0, LEAF_AT, 0), texture={
+        "up": LEAF_TOP, "down": LEAF_TOP,
+        "north": LEAF_EDGE, "south": LEAF_EDGE,
+        "east": LEAF_EDGE, "west": LEAF_EDGE}, window={
+        "up": (0, 0, 16, 16), "down": (0, 0, 16, 16),
+        "north": (0, 0, 16, LEAF_THICK), "south": (0, 0, 16, LEAF_THICK),
+        "east": (0, 0, 16, LEAF_THICK), "west": (0, 0, 16, LEAF_THICK)})
+
+
+def stalk(tall, at):
+    """A length of stem, against the back of the block where the leaf hangs
+    off it. A stalk block and the stub under a leaf stand in the same place, so
+    a dripleaf several blocks tall lines up."""
+    middle = (16 - STALK) // 2
+    return Cube((STALK, tall, STALK), (middle, at, 0), texture=LEAF_STEM,
+                window={face: (0, 0, 16, 16) for face in FACES})
+
+
+BIG_DRIPLEAF = {
+    ## big_dripleaf_head: the leaf, with a stub of stalk under it
+    "1": [leaf(), stalk(LEAF_AT, 0)],
+    ## and a plain length of the stalk
+    "0": [stalk(16, 0)],
+}
+BIG_DRIPLEAF["default"] = BIG_DRIPLEAF["1"]
+
+## minecraft:cardinal_direction, which the leaf hangs off the far side of
+DRIPLEAF_TURNS = {"south": [0, 0, 0], "west": [0, 90, 0],
+                  "north": [0, 180, 0], "east": [0, 270, 0],
+                  "0": [0, 0, 0], "1": [0, 90, 0],
+                  "2": [0, 180, 0], "3": [0, 270, 0]}
+
+
 def turns(family, table):
     lookup_writer.put(os.path.join(LOOKUPS, "block_rotation.json"),
                       family, table, tight=True)
@@ -224,6 +332,10 @@ def main():
     write("coral_fan_wall", CORAL_WALL_FAN)
     turns("coral_fan", CORAL_TURNS)
     turns("coral_fan_wall", CORAL_TURNS)
+
+    write("big_dripleaf", BIG_DRIPLEAF)
+    turns("big_dripleaf", DRIPLEAF_TURNS)
+    define(["big_dripleaf"], "big_dripleaf")
     print("re-run tools/make_low_geometry.py if any of these grew past two cubes")
 
 

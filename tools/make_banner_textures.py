@@ -49,15 +49,24 @@ def dye(colour):
                  for band in bands)
 
 
+## Where the cloth is on the sheet, and nothing else. The post is up the right
+## of it from x44 and the bar it hangs from is across the bottom from y42, and
+## both of those are wood: the game tints only the cloth, so dyeing the whole
+## sheet gives a banner a coloured post to stand on.
+CLOTH = (0, 0, 42, 42)
+
+
 def tint(sheet, colour):
-    """The sheet multiplied by a dye, the way the game tints it."""
+    """The sheet's cloth multiplied by a dye, the way the game tints it."""
     out = sheet.copy()
-    red, green, blue, alpha = out.split()
+    cloth = out.crop(CLOTH)
+    red, green, blue, alpha = cloth.split()
     scale = dye(colour)
     red = red.point(lambda v: v * scale[0] // 255)
     green = green.point(lambda v: v * scale[1] // 255)
     blue = blue.point(lambda v: v * scale[2] // 255)
-    return Image.merge("RGBA", (red, green, blue, alpha))
+    out.paste(Image.merge("RGBA", (red, green, blue, alpha)), CLOTH)
+    return out
 
 
 def main():

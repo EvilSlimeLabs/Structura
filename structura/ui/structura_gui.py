@@ -786,6 +786,144 @@ class ResultDialog(ctk.CTkToplevel):
             pass
 
 
+class QuestionDialog(ctk.CTkToplevel):
+    """A dialog the build stops on, with the answer read once it closes.
+
+    The two below are the same shape: a heading, some lines of explanation, and
+    a row of buttons where the last one is the one to press. `answer` is what
+    the caller reads after wait_window, and closing the window leaves it as it
+    started, which is why every one of these treats None as cancel.
+    """
+
+    def __init__(self, app, title):
+        super().__init__(app)
+        self.app = app
+        self.answer = None
+        self.title(title)
+        self.resizable(False, False)
+        self.configure(fg_color=SURFACE)
+        self.grid_columnconfigure(0, weight=1)
+        self.after(220, lambda: apply_icon(self))
+        self.row = 0
+        self.heading(title)
+
+    def heading(self, text):
+        ctk.CTkLabel(self, text=text, font=font(size=17, weight="bold"),
+                     text_color=TEXT).grid(row=self.row, column=0, sticky="w",
+                                           padx=20, pady=(18, 6))
+        self.row += 1
+
+    def line(self, text, colour=MUTED):
+        ctk.CTkLabel(self, text=text, text_color=colour, justify="left",
+                     anchor="w", wraplength=420).grid(
+            row=self.row, column=0, sticky="ew", padx=20, pady=1)
+        self.row += 1
+
+    def buttons(self, choices):
+        """Right to left as they are given, so the last is the rightmost and
+        the only one drawn in the accent colour."""
+        frame = ctk.CTkFrame(self, fg_color="transparent")
+        frame.grid(row=self.row, column=0, sticky="e", padx=16, pady=(16, 16))
+        self.row += 1
+        for index, (label, command) in enumerate(choices):
+            last = index == len(choices) - 1
+            ctk.CTkButton(
+                frame, text=label, width=120, height=32, corner_radius=8,
+                fg_color=AMBER if last else "transparent",
+                hover_color=AMBER_HOVER if last else BORDER,
+                text_color=ON_AMBER if last else TEXT,
+                border_width=0 if last else 1, border_color=BORDER,
+                command=command).pack(side="left", padx=(8, 0))
+
+    def show(self):
+        ## transient ties the dialog to the window, so it can never end up
+        ## behind it while the build waits on the answer
+        self.transient(self.app)
+        self.after(60, self._centre)
+        self.after(120, self.grab_set)
+        self.bind("<Escape>", lambda _e: self.destroy())
+
+    def _centre(self):
+        centre_on(self, self.app)
+        self.lift()
+        self.attributes("-topmost", True)
+        self.after(400, lambda: self.attributes("-topmost", False))
+        self.focus_force()
+
+    def settle(self, answer):
+        self.answer = answer
+        self.destroy()
+
+
+def free_name(folder, name):
+    """`name` with a number after it, the first that nothing in the folder
+    answers to. A name that already carries one is counted on rather than
+    given a second."""
+    stem = re.sub(r"\s*\(\d+\)$", "", name).strip() or name
+    number = 2
+    while os.path.exists(os.path.join(folder, "%s (%d)%s"
+                                      % (stem, number, core.PACK_SUFFIX))):
+        number += 1
+    return "%s (%d)" % (stem, number)
+
+
+class OverwriteDialog(QuestionDialog):
+    """A build that would write over files that are already there.
+
+    Answers "overwrite", or "rename" with the name in `chosen`, or None.
+    """
+
+    def __init__(self, app, folder, name, clashes):
+        super().__init__(app, app.text("overwrite title"))
+        self.chosen = ""
+        self.line(app.text("overwrite body", os.path.basename(folder) or folder))
+        for path in clashes[:6]:
+            self.line(os.path.basename(path), colour=TEXT)
+        if len(clashes) > 6:
+            self.line("...")
+        self.line(app.text("overwrite ask"))
+
+        self.new_name = ctk.StringVar(value=free_name(folder, name))
+        ctk.CTkLabel(self, text=app.text("new pack name"), text_color=MUTED,
+                     anchor="w").grid(row=self.row, column=0, sticky="ew",
+                                      padx=20, pady=(12, 2))
+        self.row += 1
+        entry = ctk.CTkEntry(self, textvariable=self.new_name, height=34,
+                             corner_radius=8, border_color=BORDER,
+                             fg_color=SURFACE, text_color=TEXT)
+        entry.grid(row=self.row, column=0, sticky="ew", padx=20)
+        self.row += 1
+        entry.bind("<Return>", lambda _e: self.rename())
+
+        self.buttons([(app.text("cancel"), self.destroy),
+                      (app.text("rename"), self.rename),
+                      (app.text("overwrite"), lambda: self.settle("overwrite"))])
+        self.show()
+        self.bind("<Return>", lambda _e: self.settle("overwrite"))
+
+    def rename(self):
+        wanted = self.new_name.get().strip()
+        if not wanted:
+            return
+        self.chosen = wanted
+        self.settle("rename")
+
+
+class RetryDialog(QuestionDialog):
+    """A file the build could not write. Answers True to try it again."""
+
+    def __init__(self, app, path, exc):
+        super().__init__(app, app.text("write failed title"))
+        self.line(app.text("write failed body", os.path.basename(path)),
+                  colour=TEXT)
+        self.line(str(exc), colour=DANGER)
+        self.line(app.text("write failed hint"))
+        self.buttons([(app.text("cancel"), self.destroy),
+                      (app.text("retry"), lambda: self.settle(True))])
+        self.show()
+        self.bind("<Return>", lambda _e: self.settle(True))
+
+
 class AboutDialog(ctk.CTkToplevel):
     """Who made this, and where to go next."""
 
@@ -1229,6 +1367,9 @@ class App(ctk.CTk):
         self.rows = []
         self.selected = None
         self.building = False
+        ## set when the user answers a write question with cancel, so the
+        ## failure that follows is reported as a choice rather than a fault
+        self.cancelled = False
         self.sticky_status = False
         self.events = queue.Queue()
         self.default_icon = paths.lookup("pack_icon.png")
@@ -2277,11 +2418,49 @@ class App(ctk.CTk):
 
     # --- building ---------------------------------------------------------
 
+    def list_tags(self):
+        """The name tags the block list files would be written under.
+
+        The worker names an untagged model after its position, so the files it
+        writes are only predictable if the same rule is applied here.
+        """
+        models = [row for row in self.rows if row.path]
+        if self.big_build.get():
+            ## a big build is one model and one list, and it carries no tag
+            return None
+        return [row.tag or ("" if len(models) == 1 else str(index))
+                for index, row in enumerate(models)]
+
+    def settle_collisions(self, folder, name):
+        """Ask before writing over anything, and hand back the name to build
+        under. None means the build was called off.
+
+        A renamed pack is checked again, since the name typed in may collide
+        with something too.
+        """
+        big = bool(self.big_build.get())
+        lists = bool(self.block_lists.get())
+        tags = self.list_tags() or []
+        while True:
+            target = os.path.join(folder, name)
+            clashes = [path for path in core.outputs(target, tags, lists, big)
+                       if os.path.exists(path)]
+            if not clashes:
+                return name
+            dialog = OverwriteDialog(self, folder, name, clashes)
+            self.wait_window(dialog)
+            if dialog.answer == "overwrite":
+                return name
+            if dialog.answer == "rename":
+                name = dialog.chosen
+                self.pack_name_var.set(name)
+                self.revalidate()
+                continue
+            return None
+
     def make_pack(self):
         if self.building or not self.revalidate():
             return
-        self.building = True
-        self.make_button.configure(state="disabled")
         ## structura() takes a path, and the last part of it is the pack name,
         ## so the chosen folder simply prefixes it. The folder is created here
         ## rather than in the worker so a permissions problem is reported before
@@ -2290,13 +2469,22 @@ class App(ctk.CTk):
         try:
             os.makedirs(folder, exist_ok=True)
         except OSError as exc:
-            self.building = False
             self.set_status(self.text("status failed", exc), warn=True)
             self.revalidate()
             return
+        ## asked before the build starts rather than at the end of it, so a
+        ## build nobody wanted is never run
+        name = self.settle_collisions(folder, self.pack_name_var.get().strip())
+        if not name:
+            self.set_status(self.text("status cancelled"), warn=True,
+                            sticky=True)
+            return
+        self.building = True
+        self.cancelled = False
+        self.make_button.configure(state="disabled")
         job = {
             "folder": folder,
-            "pack_name": self.pack_name_var.get().strip(),
+            "pack_name": name,
             "description": self.desc_var.get().strip(),
             "list header": self.text("list header"),
             "list footer": self.text("list footer"),
@@ -2318,6 +2506,9 @@ class App(ctk.CTk):
         try:
             pack = core.Structura(
                 os.path.join(job["folder"], job["pack_name"]))
+            ## a file another program holds open stops the build rather than
+            ## losing it; the question is answered on the main thread
+            pack.set_retry(self._ask_to_retry)
             pack.set_opacity(job["alpha"])
             pack.set_description(job["description"])
             pack.set_list_labels(job["list header"], job["list footer"])
@@ -2352,7 +2543,22 @@ class App(ctk.CTk):
         except Exception as exc:
             if pack is not None:
                 pack.cleanup()
-            self.events.put(("failed", "%s: %s" % (type(exc).__name__, exc)))
+            if self.cancelled:
+                self.events.put(("cancelled", None))
+            else:
+                self.events.put(("failed", "%s: %s" % (type(exc).__name__, exc)))
+
+    def _ask_to_retry(self, exc, path):
+        """Called on the worker thread, answered on the main one.
+
+        Tk is not thread safe, so the question goes through the same queue
+        everything else does and the worker waits on a queue of its own for the
+        answer. Nothing is drained while the dialog is up, which is what the
+        build wants: it is stopped on this one file until the user says.
+        """
+        answer = queue.Queue(maxsize=1)
+        self.events.put(("ask", (exc, path, answer)))
+        return answer.get()
 
     def _drain_events(self):
         """The worker's messages, applied on the main thread where Tk wants them."""
@@ -2363,6 +2569,27 @@ class App(ctk.CTk):
                     self.set_status(payload)
                 elif kind == "done":
                     self._build_finished(*payload)
+                elif kind == "ask":
+                    exc, path, answer = payload
+                    again = False
+                    try:
+                        dialog = RetryDialog(self, path, exc)
+                        self.wait_window(dialog)
+                        again = bool(dialog.answer)
+                    finally:
+                        ## the worker is waiting on this and nothing else will
+                        ## release it, so it is answered even if the dialog
+                        ## could not be put on screen
+                        ##
+                        ## the worker will raise the write's own error; the flag
+                        ## is what tells the failure handler it was asked for
+                        self.cancelled = not again
+                        answer.put(again)
+                elif kind == "cancelled":
+                    self.building = False
+                    self.set_status(self.text("status cancelled"), warn=True,
+                                    sticky=True)
+                    self.revalidate()
                 elif kind == "failed":
                     self.building = False
                     self.set_status(self.text("status failed", payload), warn=True)

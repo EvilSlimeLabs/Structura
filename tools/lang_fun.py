@@ -93,6 +93,12 @@ PIRATE = {
     "place": "berth", "arrived": "made port", "start": "cast off",
     "thrown": "cast", "away": "overboard", "antivirus": "ship's surgeon",
     "administrator": "cap'n", "rename": "re-christen", "finish": "make an end",
+    ## the words the overwrite and retry questions brought in
+    "cancel": "call off", "overwrite": "scrawl o'er", "already": "a'ready",
+    "there": "yonder", "try": "have a go", "again": "anew",
+    "write": "scrawl", "another": "some other", "open": "flung open",
+    "holds": "carries", "these": "these here", "stopped": "belayed",
+    "new": "fresh", "may": "might", "them": "'em",
 }
 
 
@@ -148,6 +154,11 @@ LOLCAT = {
     "place": "spot", "arrived": "showd up", "start": "go",
     "thrown": "chukd", "away": "away", "antivirus": "scaredy cat",
     "administrator": "big boss", "rename": "renaem", "finish": "finish",
+    ## the words the overwrite and retry questions brought in
+    "cancel": "nevr mind", "overwrite": "rite ovr", "already": "alreddy",
+    "there": "ovr thar", "try": "tri", "again": "agin", "write": "rite",
+    "another": "anuthr", "open": "opun", "holds": "haz", "these": "deez",
+    "stopped": "stoppd", "new": "shiny", "may": "mite", "them": "dem",
 }
 
 
@@ -207,6 +218,12 @@ SHAKESPEARE = {
     "thrown": "cast", "away": "aside", "antivirus": "warder",
     "administrator": "steward", "rename": "christen anew",
     "finish": "conclude",
+    ## the words the overwrite and retry questions brought in
+    "cancel": "abandon", "overwrite": "o'erwrite", "already": "e'en now",
+    "try": "essay", "again": "once more", "write": "inscribe",
+    "another": "some other", "open": "unsealed", "holds": "harbours",
+    "these": "these same", "stopped": "stay'd", "new": "newly wrought",
+    "may": "may perchance", "them": "them",
 }
 
 

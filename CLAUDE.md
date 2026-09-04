@@ -121,7 +121,8 @@ tools/                   one-off and maintenance scripts, not shipped
                           make_statue_poses.py, fix_problem_blocks.py,
                           make_block_forms.py, make_growth_forms.py,
                           make_furniture_forms.py, make_head_forms.py,
-                          make_container_forms.py, stage_tech_pack.py,
+                          make_container_forms.py, make_banner_textures.py,
+                          make_string_texture.py, stage_tech_pack.py,
                           lang_fun.py, make_special_languages.py)
 tests/                   unittest suite
 test_structures/         .mcstructure files to generate against
@@ -194,6 +195,17 @@ Things worth knowing before changing it:
   thread may touch a widget.
 - **The status line is always saying something.** A finished build's message is
   `sticky` so re-validating does not wipe the one line that says it worked.
+- **Nothing is written over without being asked about, and the asking happens
+  before the build runs.** `settle_collisions` compares `core.outputs` against
+  the output folder and offers overwrite, a suggested free name, or stopping;
+  a rename is checked again, because the name typed in may collide too. Doing
+  this at the end would mean running a build nobody wanted.
+- **A write that fails is a question, not a lost build.** The worker hands
+  `core.set_retry` a callback that puts the question on the same queue every
+  other message uses and waits on a queue of its own; `_drain_events` opens the
+  dialog on the main thread. Nothing else is drained while it is up, which is
+  what the build wants. A cancel sets `App.cancelled`, so the error the write
+  then raises is reported as a choice rather than as a fault.
 - **Big build mode borrows the offset fields and the name tags.** Their values
   are stashed and handed back when it is switched off, so flipping it twice
   leaves the window exactly as it was. Anything else that mode takes over has to
@@ -495,11 +507,28 @@ as well as as a file, because a service wants the former:
 | `get_skipped(write_file=False)` | `{block: {variant: count}}` that could not be built |
 | `get_unique_blocks_count()` | how many distinct blocks the pack covers |
 | `get_lookup_version()` | which build of the tables produced it |
+| `core.outputs(target, tags, block_lists, big)` | every file a build under that name would write |
 
 Settings a caller can pass before generating: `set_opacity`, `set_description`,
 `set_icon`, `set_model_offset`, `set_list_labels`, `set_low_geometry` and
 `set_tech_pack`. Every one of them is in the fingerprint, so two packs that
-differ by any of them are different packs.
+differ by any of them are different packs. `set_retry` is the exception: it
+describes what to do when a write fails rather than what the pack contains, so
+it is not part of the fingerprint.
+
+**`core.outputs` has to agree with what the build writes.** It is what a front
+end asks before it starts, and it never looks again, so a file the build writes
+without being named there is one that gets written over with nobody asked. Both
+sides go through `pack_file` and `block_list_file`, and
+`tests/test_overwrite.py` builds a real pack and compares the folder against
+the list.
+
+**A failed write is handed back, not thrown.** `set_retry` takes a callback
+given the `OSError` and the path, and returning True runs the same write again.
+Windows refuses to write a file another program holds open, and a pack the
+player still has loaded is exactly that. With no callback the write raises,
+which is what the command line wants: it refuses by name and points at
+`--overwrite`.
 
 Keep it that way. A hosted version of Structura belongs in its own project that
 imports this one; anything that knows about a queue, a bucket, a bot or a user
@@ -565,6 +594,21 @@ in four poses share one palette entry. `structure_reader.get_block_entity` reads
 reading — a block entity carries a great deal that has nothing to do with how a
 block looks.
 
+**A block drawn with an entity's model takes the model, not a box measured off a
+picture.** `make_block_forms.unwrap` is the way Bedrock lays a box out on a
+sheet and `make_block_forms.spun` is the turn a bone or a cube carries; the mob
+heads and the copper golem statue both go through them. The statue's four poses
+are four geometry files in the community submodule — `copper_golem`,
+`copper_golem_sitting`, `copper_golem_running`, `copper_golem_star` — not one
+shape leaned four ways.
+
+**A block entity may hold another whole block, and then one position draws
+two.** A flower pot keeps what is planted in it as `PlantBlock`, a compound with
+a name and states of its own; `core.ENTITY_HOLDS` names that field and
+`core.Structura._drawn_at` returns the pot and the plant. The plant is then
+drawn by its own family with its own textures, which is why every pottable plant
+works without a variant apiece.
+
 **A rotation table needs every form of the value.** Bedrock gives some blocks a
 numeric `direction` and others a `minecraft:cardinal_direction` string, and a
 table with no entry for the value a block carries draws it unrotated, silently.
@@ -578,25 +622,81 @@ the block above it turns with `ground_sign_direction` in sixteen steps, and
 swinging or wall mounted it turns with `facing_direction` in four, so 2 means
 something different in each. `core._process_block` picks the state.
 
+**A family turns about the middle of its block.** `center` in
+`block_shapes.json` is that pivot. A family whose cubes all sit at one edge is
+tempting to pivot on that edge instead, and that takes the block out of its own
+block: a door pivoted on the plane of its own panel ended up half in the block
+beside it a quarter turn round.
+
 **One texture per cube, not per block.** A block built from several cubes cannot
 use Bedrock's six face textures directly; every cube would get the same six. The
 `overwrite` entry in `block_uv.json` gives a texture per cube per face, and a
 value written `@up` or `@down` means "whatever this block declares for that
 face", which is how one entry serves every wood a sign comes in.
 
+**A small picture in a full sized file is the same trap.** `bell_side` is a
+16×16 file with the bell drawn in an 8×9 corner of it, so a face working its own
+window out from where its cube sits reads empty space and the bell is a flat
+plate. Both pieces of the bell name their rows. `heavy_core.png` is the version
+of that with three 8×8 pictures in one 16×16 file — top, bottom, side — and a
+quarter of it empty. Every one of a dried ghast's twenty four textures is a
+10×10 picture in a 16×16 file, four to a face, one per `rehydration_level`.
+
+**A sheet in `textures/blocks/` still looks like a tile.**
+`decorated_pot_base.png` is 32×32 and holds the neck's unwrap over the body's
+top and bottom; `flower_pot.png` holds the rim over the wall. Faces left to work
+their window out from where their cube sits read those as one picture, which is
+how a decorated pot ends up with holes through it.
+`make_block_forms.on_sheet` turns a region of a sheet into a texture reference
+and a window, pulling the tile corner back far enough that the region fits and
+never past the edge of the sheet.
+
 **Only the top left 16×16 of a texture becomes a tile.** A larger one is cropped,
-never scaled, so its pixels keep their size. A block drawn from an entity sized
+never scaled, so its pixels keep their size. **So a tile saved at the wrong scale
+is a hole in the model, not a blurry block.** `fern` and `short_grass` were both
+saved as ten times upscales, 160×160, and the corner Structura reads was empty,
+so both drew nothing and neither reached the skipped list.
+`tests/test_block_coverage.TileTests` fails on a supported block whose tile has
+no pixels in it. A block drawn from an entity sized
 sheet says which part it needs by writing `#x,y` after the texture's name, and
 the window travels with an `@` reference: `"@north#0,12"` is the board half of
 whatever sheet that wood has. Each window is a tile of its own, and one that
 falls outside the texture is ignored.
 
 **How a block is mounted is a different shape, not the same shape moved.**
-`tools/make_block_forms.py` owns `hanging_sign`, `bell`, `grindstone`, `campfire`
-and `shelf` in both tables, and gives each mounting its own list of cubes. It also
+`tools/make_block_forms.py` owns `hanging_sign`, `bell`, `grindstone`, `campfire`,
+`shelf`, `tripwire_hook`, `sculk_shrieker`, `tripwire`, `flower_pot`,
+`decorated_pot`, `brewing_stand`, `heavy_core`, `dried_ghast` and `door` in
+both
+tables, and gives each mounting its own list
+of cubes. It also
 gives a lit campfire its fire, which is the only thing telling it from a dead one
-and a soul campfire from an ordinary one, and gives a shelf a different picture
-on each face, since its sheet holds four.
+and a soul campfire from an ordinary one, gives a shelf a different picture
+on each face, since its sheet holds four, and gives a tripwire hook the two
+arrangements `attached_bit` names.
+
+**A ghost block is not a solid one, so vanilla's own trick is not always the
+answer.** Vanilla paints a shelf's three compartments into its front texture and
+leaves the block a plain box, which reads correctly when the block is opaque and
+reads as nothing at all when it is half transparent. The compartments are cut as
+geometry here instead. The same reasoning gives a sculk shrieker its throat, and
+`tools/make_string_texture.py` draws string a tile of its own because vanilla's
+is a scatter of single faint pixels that disappears on a see-through plate.
+
+**`blocks.json` names texture slots, not faces.** For most blocks the two are the
+same, but `big_dripleaf` reads `up: big_dripleaf_side2`, `down:
+big_dripleaf_side1` and the leaf on three of the sides, because the engine picks
+from those slots for a model of its own. Taken literally, the leaf's top wears
+four rows of edge profile over an empty tile and the block is invisible from
+above. A family whose slots do not line up with its faces names its textures
+outright in `overwrite`.
+
+**The UV lists run in the shape list's order, cube for cube.** A family whose
+entry was written beside another family's has to have its lists reordered to
+match its own cubes, not only its numbers changed. `lightning_rod` was copied
+from `end_rod`, whose two cubes are the same two the other way round, so the
+base wore the rod's long stripe and the base's square was stretched along the
+rod. Nothing reports this: both lists were the right length.
 
 **A wall mounting sits at z 0.** `wall_sign` is the family to copy: its board is
 at `z` 0 to 2, so the wall is the block behind it and the face looks along +z,
@@ -791,14 +891,15 @@ python tools/make_icon.py                              regenerate both icons
 python tools/make_fonts.py                             rebuild the bundled faces
 python tools/make_low_geometry.py                      the simplified shapes
 python tools/make_bookshelf.py                         the bookshelf's 64 states
-python tools/make_statue_poses.py                      the copper golem's poses
+python tools/make_statue_poses.py                      the copper golem's four models
 python tools/make_special_languages.py                    the five generated languages
-python tools/make_block_forms.py                       the mounted forms, and the fire
+python tools/make_block_forms.py                       the mounted forms, the fire and the shelf
 python tools/make_growth_forms.py                      crops, eggs, compost, coral
 python tools/make_furniture_forms.py                   beds, lecterns, conduits
 python tools/make_head_forms.py                        the mob heads
 python tools/make_container_forms.py                   shulker boxes and banners
 python tools/make_banner_textures.py                   the sixteen dyed banners
+python tools/make_string_texture.py                    the string tile a ghost can be seen with
 ```
 
 `lookups/` and `Vanilla_Resource_Pack/` are opened by relative path, so all of

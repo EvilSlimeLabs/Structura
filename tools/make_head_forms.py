@@ -39,7 +39,7 @@ sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 
 import lookup_writer
-from make_block_forms import Cube, build
+from make_block_forms import Cube, build, spun
 from structura import jsonc
 
 LOOKUPS = os.path.join(ROOT, "structura", "lookups")
@@ -59,6 +59,26 @@ MOBS = os.path.join(COMMUNITY, "mobs.json")
 PIVOT_Y = 24
 WALL_LIFT = 4
 WALL_BACK = 4
+
+
+def on_its_own(cube, pivot, rotation):
+    """A cube of a turned bone, as a cube that turns on its own.
+
+    A bone turns its cubes about the bone's pivot; Structura turns a cube about
+    the cube's own middle. Moving the middle to where the bone would have put it
+    and keeping the same turn on the cube comes to the same thing, and it is
+    what leaves the piglin's ears splayed out rather than flat against its head.
+    """
+    if not rotation or not any(rotation):
+        return cube
+    middle = [at + size / 2.0
+              for at, size in zip(cube["origin"], cube["size"])]
+    moved = spun(middle, pivot, rotation)
+    turned = dict(cube)
+    turned["origin"] = [at - size / 2.0
+                        for at, size in zip(moved, cube["size"])]
+    turned["rotation"] = list(rotation)
+    return turned
 
 
 def convert(sheet, cube, lift, back):
@@ -95,7 +115,12 @@ def convert(sheet, cube, lift, back):
 
     ## and the box itself, turned half about the middle of the block
     at = (8 - ox - w, oy - PIVOT_Y + lift, 8 - oz - d - back)
-    return Cube((w, h, d), at, texture=texture, window=window)
+    ## a turn the cube carries has to be turned along with the model: after a
+    ## half turn about Y its X and Z axes both run the other way
+    spin = cube.get("rotation")
+    if spin:
+        spin = [-spin[0], spin[1], -spin[2]]
+    return Cube((w, h, d), at, texture=texture, window=window, rotation=spin)
 
 
 def from_mobs(identifier, bones=None):
@@ -118,8 +143,11 @@ def from_mobs(identifier, bones=None):
         geo = body["minecraft:geometry"][0]
     found = []
     for bone in geo["bones"]:
-        if bones is None or bone["name"] in bones:
-            found.extend(bone.get("cubes", []))
+        if bones is not None and bone["name"] not in bones:
+            continue
+        for cube in bone.get("cubes", []):
+            found.append(on_its_own(cube, bone.get("pivot"),
+                                    bone.get("rotation")))
     return found
 
 
@@ -174,10 +202,18 @@ def head(sheet, cubes):
 ## entity rather than the states, so `core.py` hands it over as `spinN`. Named
 ## apart from the facings so that the second step round is not read as the north
 ## wall. A floor head with no entity beside it keeps the plain 1.
-TURNS = {"1": [0, 0, 0],
+##
+## The entity's own numbering starts half a turn from the block convention: a
+## block at rest faces south, and a skull whose Rotation is zero faces north, so
+## every floor turn carries the extra half. The wall facings do not: those come
+## from facing_direction, which names the way the head looks, and the wall form
+## is already built sitting against the wall behind it.
+FLOOR = 180
+TURNS = {"1": [0, FLOOR, 0],
          "wall:2": [0, 180, 0], "wall:3": [0, 0, 0],
          "wall:4": [0, 90, 0], "wall:5": [0, 270, 0]}
-TURNS.update({"spin%d" % n: [0, round(n * 22.5, 1), 0] for n in range(16)})
+TURNS.update({"spin%d" % n: [0, round((n * 22.5 + FLOOR) % 360, 1), 0]
+              for n in range(16)})
 
 
 def define(blocks, family):

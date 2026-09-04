@@ -88,11 +88,32 @@ def shulker(colour):
 # and the pole up its right, and the cloth is a plane rather than a box: a
 # banner is one pixel thick and reading a box unwrap onto it would put the back
 # of the cloth on its front.
+#
+# **The pole is wood and it has to read the wood.** Both were reading a window
+# in the cloth's corner of the sheet, so a banner was a coloured post with a
+# coloured cloth on it. The post is up the right of the sheet at x44 and the bar
+# across the bottom of the cloth at y42, and `make_banner_textures.py` leaves
+# both of them alone when it dyes a sheet.
+#
+# **And a banner is two blocks tall.** It stands up out of the block it belongs
+# to, the way the game draws it and the way a dragon head and a copper golem
+# statue do here.
 BANNER = "textures/entity/banner/banner_%s"
+POLE_ART = "#44,2"          # the post, up the right of the sheet
+BAR_ART = "#0,42"           # the bar it hangs from, under the cloth
 CLOTH = {face: (0, 0, 16, 16) for face in
          ("up", "down", "north", "south", "east", "west")}
-POLE = {face: (11, 0, 4, 16) for face in
-        ("up", "down", "north", "south", "east", "west")}
+## the post is two across and the sheet draws it forty two down, which is more
+## than a tile holds; it is one colour, so a sixteen tall slice of it serves
+POLE = {"north": (0, 0, 2, 16), "south": (0, 0, 2, 16),
+        "east": (0, 0, 2, 16), "west": (0, 0, 2, 16),
+        "up": (0, 0, 2, 2), "down": (0, 0, 2, 2)}
+BAR = {face: (0, 0, 16, 4) for face in
+       ("up", "down", "north", "south", "east", "west")}
+
+POLE_TALL = 30              # nearly two blocks, which is where vanilla stops
+CLOTH_TALL = 27
+CLOTH_WIDE = 14
 
 ## The colour is in the block entity, as `Base`, counted in the same order as
 ## wool, and `core.ENTITY_SHAPES` hands it over as the form to draw. Each form
@@ -104,24 +125,26 @@ BANNER_COLOURS = ["white", "orange", "magenta", "light_blue", "yellow", "lime",
 
 
 def standing(sheet):
-    """On the floor: a pole up the middle with the cloth hanging in front.
+    """On the floor: a post up the middle with the cloth hanging in front.
 
-    Vanilla's banner is nearer two blocks tall and stands up out of the one it
-    belongs to. This one is kept inside its own block, because a ghost block is
-    read as a mark on the place a block goes, and one that leans into its
-    neighbours makes a row of banners hard to tell apart.
+    It stands out of its own block, the way the game draws one. A ghost block is
+    read as a mark on the place a block goes, and a banner that stopped at the
+    top of its own block read as half a banner.
     """
-    return [Cube((2, 16, 2), (7, 0, 7), sheet, window=POLE),
-            Cube((14, 13, 0.4), (1, 2, 8.6), sheet, window=CLOTH)]
+    return [Cube((2, POLE_TALL, 2), (7, 0, 7), sheet + POLE_ART, window=POLE),
+            Cube((CLOTH_WIDE, CLOTH_TALL, 0.4), (1, 2, 8.6), sheet,
+                 window=CLOTH)]
 
 
 def wall(sheet):
-    """On a wall: the pole lies across the top and the cloth hangs below it.
+    """On a wall: the bar lies across the top and the cloth hangs below it.
 
-    Against the block behind it, at z 0, the way a wall sign sits.
+    Against the block behind it, at z 0, the way a wall sign sits, and the cloth
+    hangs down past the block's own floor.
     """
-    return [Cube((16, 2, 2), (0, 14, 0), sheet, window=POLE),
-            Cube((14, 14, 0.4), (1, 0, 2), sheet, window=CLOTH)]
+    return [Cube((16, 2, 2), (0, 14, 0), sheet + BAR_ART, window=BAR),
+            Cube((CLOTH_WIDE, CLOTH_TALL, 0.4), (1, 14 - CLOTH_TALL, 2), sheet,
+                 window=CLOTH)]
 
 
 def dyed(shape):

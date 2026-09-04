@@ -185,6 +185,8 @@ Structura.exe --structure path/to/build.mcstructure --pack_name "CLI Pack" --ove
 
 `--opacity` (1–100, the inverse of the window's transparency slider), `--description`, `--icon`, `--output`, `--offset x,y,z`, `--low_geometry`, `--tech_pack none|compatibility|full` and `--overwrite` are all available. `--help` lists them. Without `--output` the pack lands in the same folder the window uses.
 
+A pack that is already there stops the build and names the file, because the command line has nobody to ask. `--overwrite` is how you say to write over it.
+
 ### Installing it instead
 
 On Windows you do not need to, because the executables need nothing installed. On **macOS and Linux the package is how you run Structura**, and it is also the easier route on Windows for scripting and for anything that wants to `import structura`. Any platform with **Python 3.11 or newer** will do:

@@ -28,9 +28,13 @@ def build(args):
     os.makedirs(folder, exist_ok=True)
     target = os.path.join(folder, args.pack_name)
 
-    finished = "{}.mcpack".format(target)
-    if args.overwrite and os.path.isfile(finished):
-        os.remove(finished)
+    ## the window asks; a command line has nobody to ask, so it refuses by name
+    ## and points at the flag that says otherwise
+    if not args.overwrite:
+        already = [path for path in core.outputs(target) if os.path.exists(path)]
+        if already:
+            raise SystemExit("{} already exists. Pass --overwrite to write over "
+                             "it, or build under another name.".format(already[0]))
 
     pack = core.Structura(target)
     pack.set_opacity(min(max(opacity, 1), 100) / 100)

@@ -25,6 +25,13 @@ debug=False
 ## chest's contents or a sign's text, so only the fields named here are read.
 ENTITY_SHAPES = {"CopperGolemStatue": "Pose", "Banner": "Base"}
 
+## Which field of a block entity holds another whole block. A flower pot keeps
+## whatever is planted in it beside the block rather than in its states, as a
+## block with a name and states of its own, so the plant is drawn as a second
+## block in the same place and by its own family. That is what makes every
+## pottable plant work without a variant apiece.
+ENTITY_HOLDS = {"FlowerPot": "PlantBlock"}
+
 ## Which field turns its block, for the blocks whose states do not say. A head
 ## standing on the floor can face any of sixteen ways and keeps that in the
 ## block entity, the way a sign keeps its text; the states carry only which of
@@ -35,6 +42,43 @@ ENTITY_ROTATIONS = {"Skull": ("Rotation", 1)}
 
 ## a head turns in sixteen steps, the same as a sign
 SPIN_STEP = 22.5
+
+PACK_SUFFIX = ".mcpack"
+
+
+def pack_file(target):
+    """The pack a build under this name writes."""
+    return "{}{}".format(target, PACK_SUFFIX)
+
+
+def block_list_file(target, name_tag=None):
+    """Where a block list lands. A big build writes one, and it has no tag."""
+    if name_tag is None:
+        return "{} block list.txt".format(target)
+    return "{}-{} block list.txt".format(target, name_tag)
+
+
+def skipped_file(target):
+    """Where the list of blocks that could not be built lands."""
+    return "{} skipped.txt".format(target)
+
+
+def outputs(target, name_tags=(), block_lists=False, big=False):
+    """Every file a build under this name would write.
+
+    A front end asks for these before it starts, so it can offer to write over
+    what is already there or to build under another name. The methods below
+    write to these same paths, so the answer cannot disagree with the build.
+    The skipped list is not among them: whether there is one is only known once
+    the structures have been read.
+    """
+    files = [pack_file(target)]
+    if block_lists:
+        if big:
+            files.append(block_list_file(target))
+        else:
+            files.extend(block_list_file(target, tag) for tag in name_tags)
+    return files
 
 
 def _plain(value):
@@ -109,6 +153,27 @@ class Structura:
         self.low_geometry=False
         ## only set when a big build is made; part of the fingerprint either way
         self.big_offset=None
+        ## nothing to ask by default, so a failed write raises; see set_retry
+        self._retry=None
+    def set_retry(self,ask):
+        """What to do when a file the build writes cannot be written.
+
+        `ask` is handed the OSError and the path, and returns True to try the
+        same write again. Windows refuses to write a file another program holds
+        open, and a pack the player still has loaded is exactly that, so the
+        answer worth offering is to close it and carry on rather than to throw
+        the whole build away. With no callback the write raises, which is what
+        the command line wants.
+        """
+        self._retry=ask
+    def _writing(self,path,call):
+        """Run a write, asking again for as long as the front end says to."""
+        while True:
+            try:
+                return call()
+            except OSError as exc:
+                if self._retry is None or not self._retry(exc,path):
+                    raise
     def cleanup(self):
         """Drop the working tree. Safe to call twice; callers may use it in
         a finally so a failed build leaves nothing behind."""
@@ -229,21 +294,23 @@ class Structura:
             self.LIST_FOOTER = footer
 
     def _write_block_list(self, file_name, blocks, title=None):
-        with open(file_name, "w+", encoding="utf-8") as text_file:
-            text_file.write("{}\n".format(title or self.LIST_HEADER))
-            text_file.write("_" * 30 + "\n")
-            for name in blocks.keys():
-                commonName = name.replace("minecraft:", "")
-                text_file.write("{}: {}\n".format(commonName, blocks[name]))
-            text_file.write("_" * 30 + "\n")
-            text_file.write("{} {}\n".format(self.LIST_FOOTER,
-                                             self.get_lookup_version()))
+        def write():
+            with open(file_name, "w+", encoding="utf-8") as text_file:
+                text_file.write("{}\n".format(title or self.LIST_HEADER))
+                text_file.write("_" * 30 + "\n")
+                for name in blocks.keys():
+                    commonName = name.replace("minecraft:", "")
+                    text_file.write("{}: {}\n".format(commonName, blocks[name]))
+                text_file.write("_" * 30 + "\n")
+                text_file.write("{} {}\n".format(self.LIST_FOOTER,
+                                                 self.get_lookup_version()))
+        self._writing(file_name, write)
 
     def make_nametag_block_lists(self):
         ## consider temp file
         file_names=[]
         for model_name in self.structure_files.keys():
-            file_name="{}-{} block list.txt".format(self.pack_name,model_name)
+            file_name=block_list_file(self.pack_name,model_name)
             file_names.append(file_name)
             self._write_block_list(
                 file_name, self.structure_files[model_name]["block_list"],
@@ -252,9 +319,29 @@ class Structura:
         return file_names
     def make_big_blocklist(self):
         ## consider temp file
-        file_name="{} block list.txt".format(self.pack_name)
+        file_name=block_list_file(self.pack_name)
         self._write_block_list(file_name, self.all_blocks)
         return file_name
+
+    @staticmethod
+    def _drawn_at(block, entity):
+        """Everything to draw at one position, as (block, its own entity).
+
+        Usually just the block. A flower pot's contents are a whole block kept
+        in the block entity beside it, with a name and states of its own, so it
+        is drawn where the pot is and by whatever family it belongs to. Nothing
+        is carried over from the pot's entity: the plant's own states are all
+        it has.
+        """
+        drawn = [(block, entity)]
+        held = ENTITY_HOLDS.get(str(entity.get("id","")) if entity else "")
+        if held is not None and held in entity:
+            inside = entity[held]
+            name = inside.get("name") if hasattr(inside,"get") else None
+            if name:
+                drawn.append(({"name": str(name),
+                               "states": inside.get("states", {})}, {}))
+        return drawn
 
     def _add_blocks_to_geo(self,struct2make,model_name,export_big=False):
         [xlen, ylen, zlen] = struct2make.get_size()
@@ -290,31 +377,35 @@ class Structura:
                 entity={}
                 if hasattr(struct2make,"get_block_entity"):
                     entity=struct2make.get_block_entity(x, y, z)
-                blockProp=self._process_block(block, entity)
-                rot = blockProp[0]
-                top = blockProp[1]
-                variant = blockProp[2]
-                open_bit = blockProp[3]
-                data = blockProp[4]
-                hinge = blockProp[5]
-                if debug:
-                    armorstand.make_block(x, y, z, blk_name, rot = rot, top = top,variant = variant, trap_open=open_bit, data=data, hinge=hinge, big = export_big)
-                else:
-                    try:
+                ## one position may draw more than one block: a filled flower
+                ## pot is the pot and whatever is planted in it
+                for drawn, beside in self._drawn_at(block, entity):
+                    blk_name=drawn["name"].replace("minecraft:", "")
+                    blockProp=self._process_block(drawn, beside)
+                    rot = blockProp[0]
+                    top = blockProp[1]
+                    variant = blockProp[2]
+                    open_bit = blockProp[3]
+                    data = blockProp[4]
+                    hinge = blockProp[5]
+                    if debug:
                         armorstand.make_block(x, y, z, blk_name, rot = rot, top = top,variant = variant, trap_open=open_bit, data=data, hinge=hinge, big = export_big)
-                    except Exception as e:
-                        unsupported = UnsupportedBlock((x,y,z), block, variant)
-                        self.unsupported_blocks.append(unsupported)
-                        if block["name"] not in self.dead_blocks.keys():
-                            self.dead_blocks[block["name"]]={}
-                        if type(variant) is list:
-                            ## a variant may name a number, such as a dried
-                            ## ghast's drying stage, and nbtlib hands those back
-                            ## as Int, which will not join with a string
-                            variant="_".join(str(part) for part in variant)
-                        if variant not in self.dead_blocks[block["name"]].keys():
-                            self.dead_blocks[block["name"]][variant]=0
-                        self.dead_blocks[block["name"]][variant]+=1
+                    else:
+                        try:
+                            armorstand.make_block(x, y, z, blk_name, rot = rot, top = top,variant = variant, trap_open=open_bit, data=data, hinge=hinge, big = export_big)
+                        except Exception as e:
+                            unsupported = UnsupportedBlock((x,y,z), drawn, variant)
+                            self.unsupported_blocks.append(unsupported)
+                            if drawn["name"] not in self.dead_blocks.keys():
+                                self.dead_blocks[drawn["name"]]={}
+                            if type(variant) is list:
+                                ## a variant may name a number, such as a dried
+                                ## ghast's drying stage, and nbtlib hands those
+                                ## back as Int, which will not join with a string
+                                variant="_".join(str(part) for part in variant)
+                            if variant not in self.dead_blocks[drawn["name"]].keys():
+                                self.dead_blocks[drawn["name"]][variant]=0
+                            self.dead_blocks[drawn["name"]][variant]+=1
             ## consider temp file
         if export_big:
             armorstand.export_big(self.work_dir)
@@ -386,16 +477,23 @@ class Structura:
             if debug:
                 print("TechPack {}: {} files, {} skipped".format(
                     tech_pack.version(),written,len(skipped)))
-        shutil.make_archive("{}".format(self.pack_name), 'zip', self.work_dir)
-        if overwrite and os.path.isfile(f'{self.pack_name}.mcpack'):
-            os.remove(f'{self.pack_name}.mcpack')
-        os.rename(f'{self.pack_name}.zip',f'{self.pack_name}.mcpack')
+        archive="{}.zip".format(self.pack_name)
+        finished=pack_file(self.pack_name)
+        self._writing(archive, lambda: shutil.make_archive(
+            "{}".format(self.pack_name), 'zip', self.work_dir))
+        ## os.replace writes over the pack in one step. Removing it first and
+        ## renaming afterwards leaves a moment with neither file present, and
+        ## the rename is the operation Windows refuses while the old pack is
+        ## open. os.rename is kept for a build that was not told to overwrite,
+        ## because it raises rather than taking the file.
+        move=os.replace if overwrite else os.rename
+        self._writing(finished, lambda: move(archive,finished))
         self.cleanup()
         self.timers["finished"]=time.time()-self.timers["previous"]
         self.timers["total"]=time.time()-self.timers["start"]
 
-        
-        return f'{self.pack_name}.mcpack'
+
+        return finished
     def _process_block(self,block,entity=None):
         shape_states = []
         rot = None
@@ -505,11 +603,13 @@ class Structura:
         write_file also drops a "<pack> skipped.txt" beside the pack; a caller
         that only wants the data should pass False."""
         if write_file and len(self.unsupported_blocks)>0:
-            fileName="{} skipped.txt".format(self.pack_name)
-            with open(fileName,"w+") as text_file:
-                text_file.write("These are the skipped blocks\n")
-                for skipped in self.unsupported_blocks:
-                    text_file.write(f"{skipped}\n")
+            fileName=skipped_file(self.pack_name)
+            def write():
+                with open(fileName,"w+") as text_file:
+                    text_file.write("These are the skipped blocks\n")
+                    for skipped in self.unsupported_blocks:
+                        text_file.write(f"{skipped}\n")
+            self._writing(fileName, write)
         return self.dead_blocks
 
     def get_unique_blocks_count(self):

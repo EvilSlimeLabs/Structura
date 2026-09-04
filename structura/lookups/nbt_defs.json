@@ -57,5 +57,6 @@
 	"vine_direction_bits":"rot",
 	"height":"data",
 	"hanging": "shape",
+	"big_dripleaf_head": "shape",
 	"multi_face_direction_bits":"data"
 }
