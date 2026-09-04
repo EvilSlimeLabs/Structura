@@ -3,9 +3,14 @@
 Runs the tests, freezes both entry points with PyInstaller (`structura/__main__.py`
 through structura.spec and `structura/cli/__main__.py` through structura_cli.spec)
 and writes the release: a **single self-contained executable**, a console twin of
-it for scripts, and a zip of both for places that will not carry a bare .exe.
-Nothing has to be extracted alongside either. The lookup tables, the vanilla pack
-and the TechPack assets are all inside.
+it for scripts, a zip of both for places that will not carry a bare .exe, and a
+`SHA256SUMS.txt` covering all three. Nothing has to be extracted alongside
+either executable. The lookup tables, the vanilla pack and the TechPack assets
+are all inside.
+
+**Upload SHA256SUMS.txt with the release.** Structura checks a download against
+the fingerprint published beside it and refuses to install a build it cannot
+check, so a release uploaded without that file cannot be taken by the updater.
 
     python build.py                    full build
     python build.py --skip-tests       freeze and package without running tests
@@ -36,6 +41,10 @@ CLI_NAME = "Structura-cli.exe" if os.name == "nt" else "Structura-cli"
 ## program reads is packed *inside* it, as structura.spec lays out, so this is
 ## only the paperwork.
 LOOSE_FILES = ["LICENSE", "README.md"]
+
+## The asset Structura reads before it replaces itself. updates.SUMS is the
+## same name from the other end; the two have to agree.
+SUMS_NAME = "SHA256SUMS.txt"
 
 
 def run(cmd, what):
@@ -118,6 +127,30 @@ def package(exe, release_version):
     return write_zip(os.path.join(DIST, "Structura-%s.zip" % release_version), entries)
 
 
+def digest_of(path, block=1024 * 1024):
+    """The SHA-256 of a file, read in pieces rather than held in memory."""
+    running = hashlib.sha256()
+    with open(path, "rb") as file:
+        for chunk in iter(lambda: file.read(block), b""):
+            running.update(chunk)
+    return running.hexdigest()
+
+
+def write_sums(files):
+    """Publish a fingerprint for everything the release carries.
+
+    The format is what `sha256sum` itself writes, so the same file serves both
+    readers: `sha256sum -c SHA256SUMS.txt` checks a hand download, and Structura
+    reads it before replacing itself. A release uploaded without this file
+    cannot be installed by the updater at all.
+    """
+    where = os.path.join(DIST, SUMS_NAME)
+    with open(where, "w", encoding="utf-8", newline="\n") as file:
+        for path in files:
+            file.write("%s  %s\n" % (digest_of(path), os.path.basename(path)))
+    return where
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -144,11 +177,16 @@ def main():
 
     zip_path = package(exe, release_version)
 
-    digest = hashlib.sha256(open(zip_path, "rb").read()).hexdigest()
+    shipped = [path for path in (exe, os.path.join(DIST, CLI_NAME), zip_path)
+               if os.path.isfile(path)]
+    sums = write_sums(shipped)
+
     print("\nBuilt %s" % os.path.relpath(exe, ROOT))
     print("      %s" % os.path.relpath(zip_path, ROOT))
     print("  %.1f MB zipped" % (os.path.getsize(zip_path) / 1024 / 1024))
-    print("  sha256 %s" % digest)
+    print("\n%s, to be uploaded with them:" % os.path.relpath(sums, ROOT))
+    with open(sums, encoding="utf-8") as file:
+        print("  " + "  ".join(file.read().splitlines(True)).rstrip())
     return 0
 
 
