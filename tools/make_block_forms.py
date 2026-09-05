@@ -994,6 +994,13 @@ PLATE_WIDE, PLATE_TALL = 6, 2
 ARM_TALL = ROD_TALL + 2 - PLATE_TALL
 ARM_LONG = 4
 BOTTLE_WIDE, BOTTLE_TALL = 5, 7
+## Both planes are centred on the same line out from the rod, so the arm's face
+## and the bottle's face used to sit at the exact same depth and z-fought over
+## the stretch where the arm passes the plate. The bottle is thinner and nested
+## inside the arm's own thickness instead of alongside it, which keeps both
+## centred exactly where they were and leaves no shared plane to fight over.
+ARM_DEEP = 0.1
+BOTTLE_DEEP = 0.2
 
 ## Where the three sockets are drawn on the base tile, which is the only thing
 ## in the pack that says where a plate goes, and where each plate stands once
@@ -1069,8 +1076,8 @@ def brew_arm(angle):
     One edge is pinned at the rod and the other at the plate, and it stands from
     the top of the plate to two pixels above the rod.
     """
-    return brew_turned((ARM_LONG, ARM_TALL, 0.2),
-                       (8 - ARM_LONG, PLATE_TALL, 8 - 0.1),
+    return brew_turned((ARM_LONG, ARM_TALL, ARM_DEEP),
+                       (8 - ARM_LONG, PLATE_TALL, 8 - ARM_DEEP / 2.0),
                        angle, BREW_ROD, two_sided(ARM_ART, ARM_BACK))
 
 
@@ -1082,8 +1089,9 @@ def brew_bottle(angle, at):
     middle and the turn its arm carries.
     """
     middle = (at[0] + PLATE_WIDE / 2.0, at[1] + PLATE_WIDE / 2.0)
-    return Cube((BOTTLE_WIDE, BOTTLE_TALL, 0.2),
-                (middle[0] - BOTTLE_WIDE / 2.0, PLATE_TALL, middle[1] - 0.1),
+    return Cube((BOTTLE_WIDE, BOTTLE_TALL, BOTTLE_DEEP),
+                (middle[0] - BOTTLE_WIDE / 2.0, PLATE_TALL,
+                 middle[1] - BOTTLE_DEEP / 2.0),
                 BREW_ROD, window=two_sided(BOTTLE_ART, BOTTLE_BACK),
                 rotation=(0, -angle, 0))
 

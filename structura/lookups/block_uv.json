@@ -12498,32 +12498,32 @@
 				"up": [
 					"@down",
 					"@north",
-					"@east"
+					"@north"
 				],
 				"down": [
 					"@down",
 					"@north",
-					"@east"
+					"@north"
 				],
 				"north": [
 					"@down",
 					"@north",
-					"@east"
+					"@north"
 				],
 				"south": [
 					"@down",
 					"@north",
-					"@east"
+					"@north"
 				],
 				"east": [
 					"@down",
 					"@north",
-					"@east"
+					"@north"
 				],
 				"west": [
 					"@down",
 					"@north",
-					"@east"
+					"@north"
 				]
 			}
 		}
