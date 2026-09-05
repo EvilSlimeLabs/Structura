@@ -122,6 +122,7 @@ tools/                   one-off and maintenance scripts, not shipped
                           make_block_forms.py, make_growth_forms.py,
                           make_furniture_forms.py, make_head_forms.py,
                           make_container_forms.py, make_banner_textures.py,
+                          make_bed_textures.py,
                           make_string_texture.py, stage_tech_pack.py,
                           lang_fun.py, make_special_languages.py)
 tests/                   unittest suite
@@ -899,6 +900,7 @@ python tools/make_furniture_forms.py                   beds, lecterns, conduits
 python tools/make_head_forms.py                        the mob heads
 python tools/make_container_forms.py                   shulker boxes and banners
 python tools/make_banner_textures.py                   the sixteen dyed banners
+python tools/make_bed_textures.py                      the sixteen recoloured beds
 python tools/make_string_texture.py                    the string tile a ghost can be seen with
 ```
 

@@ -350,14 +350,22 @@ BELLS = {
 # the leg's oak on down, because those are slots the engine picks from for its
 # own model rather than the six sides of a cube, so a wheel left to the block's
 # own faces has a pivot painted on its back and a log on its underside.
+# **The wheel turns with the block, not across it.** Its round faces are the two
+# you look at, and they belong on the x sides with the axle running that way, so
+# the wheel is eight across, twelve tall and twelve deep. Drawn the other way
+# round it is the same stone seen edge on from the front.
 LEG = "@down"               # log_big_oak
 PIVOT = "@north"            # grindstone_pivot
 STONE_FACE = "@east"        # grindstone_side, the wheel face on
 STONE_EDGE = "@up"          # grindstone_round, the same wheel edge on
-WHEEL_WIDE, WHEEL_TALL, WHEEL_DEEP = 12, 12, 8
-WHEEL_AT = (16 - WHEEL_WIDE) // 2       # the pivots stand just outside it
-WHEEL_Z = (16 - WHEEL_DEEP) // 2
+WHEEL_WIDE, WHEEL_TALL, WHEEL_DEEP = 8, 12, 12
+WHEEL_AT = (16 - WHEEL_WIDE) // 2
+WHEEL_Z = (16 - WHEEL_DEEP) // 2         # the pivots stand just outside it
 PIVOT_TALL = 4
+## the pivot's picture is ten across and six down in the corner of its tile, and
+## a face left to its own window read past the bottom of that and came out half
+## drawn
+PIVOT_ART = (0, 0, 10, 6)
 LEG_ROOM = 16 - WHEEL_TALL              # what the block has left for the legs
 
 
@@ -370,34 +378,36 @@ def grindstone(floor, legs):
     middle with the legs running back into the wall.
     """
     axle = floor + WHEEL_TALL // 2
-    wheel = Cube((WHEEL_WIDE, WHEEL_TALL, WHEEL_DEEP), (WHEEL_AT, floor, WHEEL_Z),
-                 texture={"north": STONE_FACE, "south": STONE_FACE,
-                          "east": STONE_EDGE, "west": STONE_EDGE,
+    wheel = Cube((WHEEL_WIDE, WHEEL_TALL, WHEEL_DEEP),
+                 (WHEEL_AT, floor, WHEEL_Z),
+                 texture={"east": STONE_FACE, "west": STONE_FACE,
+                          "north": STONE_EDGE, "south": STONE_EDGE,
                           "up": STONE_EDGE, "down": STONE_EDGE},
-                 window={"north": (0, 0, WHEEL_WIDE, WHEEL_TALL),
-                         "south": (0, 0, WHEEL_WIDE, WHEEL_TALL),
-                         "east": (0, 0, WHEEL_DEEP, WHEEL_TALL),
+                 window={"east": (0, 0, WHEEL_DEEP, WHEEL_TALL),
                          "west": (0, 0, WHEEL_DEEP, WHEEL_TALL),
-                         "up": (0, 0, WHEEL_DEEP, WHEEL_DEEP),
-                         "down": (0, 0, WHEEL_DEEP, WHEEL_DEEP)})
-    pivots = [Cube((2, PIVOT_TALL, 4), (at, axle - PIVOT_TALL // 2, 6), PIVOT)
-              for at in (WHEEL_AT - 2, WHEEL_AT + WHEEL_WIDE)]
+                         "north": (0, 0, WHEEL_WIDE, WHEEL_TALL),
+                         "south": (0, 0, WHEEL_WIDE, WHEEL_TALL),
+                         "up": (0, 0, WHEEL_WIDE, WHEEL_DEEP),
+                         "down": (0, 0, WHEEL_WIDE, WHEEL_DEEP)})
+    pivots = [Cube((4, PIVOT_TALL, 2), (6, axle - PIVOT_TALL // 2, at), PIVOT,
+                   window={face: PIVOT_ART for face in FACES})
+              for at in (WHEEL_Z - 2, WHEEL_Z + WHEEL_DEEP)]
     return legs(floor, axle) + pivots + [wheel]
 
 
 def legs_down(_floor, _axle):
-    return [Cube((2, LEG_ROOM, 2), (at, 0, 7), LEG)
-            for at in (WHEEL_AT, 16 - WHEEL_AT - 2)]
+    return [Cube((2, LEG_ROOM, 2), (7, 0, at), LEG)
+            for at in (WHEEL_Z, 16 - WHEEL_Z - 2)]
 
 
 def legs_up(floor, _axle):
-    return [Cube((2, LEG_ROOM, 2), (at, floor + WHEEL_TALL, 7), LEG)
-            for at in (WHEEL_AT, 16 - WHEEL_AT - 2)]
+    return [Cube((2, LEG_ROOM, 2), (7, floor + WHEEL_TALL, at), LEG)
+            for at in (WHEEL_Z, 16 - WHEEL_Z - 2)]
 
 
 def legs_back(_floor, axle, sides=(0,)):
-    return [Cube((2, 2, 6), (at, axle - 1, z), LEG)
-            for z in sides for at in (WHEEL_AT, 16 - WHEEL_AT - 2)]
+    return [Cube((6, 2, 2), (x, axle - 1, at), LEG)
+            for x in sides for at in (WHEEL_Z, 16 - WHEEL_Z - 2)]
 
 
 GRINDSTONES = {
@@ -511,11 +521,20 @@ DOOR_TOP = (0, 0, 16, DOOR_THICK)           # and across the top of it
 DOOR_FOOT = (0, 16 - DOOR_THICK, 16, DOOR_THICK)
 
 
-def door_half(at, texture, along_x):
+## The whole family stands a quarter turn from where it started, and the two
+## states turn opposite ways: open wanted a quarter anticlockwise and shut a
+## quarter clockwise. One rotation table cannot hold both, so the turn is in the
+## cubes. Shut also wanted mirroring, which is not a turn at all: a door panel
+## is the same box either way round and only its picture has a side to it, so
+## the mirror is a negative window on the two faces that carry the picture.
+def door_half(at, texture, along_x, mirror=False):
     """One block of a door, its edges reading the frame and not the panel."""
+    ## a window that starts at the far edge and runs back is how Bedrock reads
+    ## a picture the other way round
+    panel = (16, 0, -16, 16) if mirror else DOOR_WHOLE
     if along_x:
         size = (16, 16, DOOR_THICK)
-        window = {"north": DOOR_WHOLE, "south": DOOR_WHOLE,
+        window = {"north": panel, "south": panel,
                   "east": DOOR_EDGE, "west": DOOR_EDGE,
                   ## a top face sixteen across and three deep cannot read a
                   ## frame three across and sixteen down without turning it, so
@@ -523,25 +542,27 @@ def door_half(at, texture, along_x):
                   "up": DOOR_TOP, "down": DOOR_FOOT}
     else:
         size = (DOOR_THICK, 16, 16)
-        window = {"east": DOOR_WHOLE, "west": DOOR_WHOLE,
+        window = {"east": panel, "west": panel,
                   "north": DOOR_EDGE, "south": DOOR_EDGE,
                   "up": DOOR_EDGE, "down": DOOR_EDGE}
     return Cube(size, at, texture, window=window)
 
 
-def door(x, z, along_x):
+def door(x, z, along_x, mirror=False):
     """Both halves of a door. The lower block draws them; the upper draws
     nothing, which is what the `top` variant is for."""
-    return [door_half((x, 0, z), DOOR_LOWER, along_x),
-            door_half((x, 16, z), DOOR_UPPER, along_x)]
+    return [door_half((x, 0, z), DOOR_LOWER, along_x, mirror),
+            door_half((x, 16, z), DOOR_UPPER, along_x, mirror)]
 
 
 DOORS = {
-    ## shut, on the side of the block the door faces
-    "default": door(0, 16 - DOOR_THICK, True),
-    ## open, folded back against the wall on whichever side the hinge is
-    "open": door(0, 0, False),
-    "open_hinged": door(16 - DOOR_THICK, 0, False),
+    ## shut: a quarter turn clockwise from the side it used to sit on, and the
+    ## picture mirrored
+    "default": door(16 - DOOR_THICK, 0, False, mirror=True),
+    ## open, folded back against the wall on whichever side the hinge is, a
+    ## quarter turn anticlockwise from the sides those used to sit on
+    "open": door(0, 0, True),
+    "open_hinged": door(0, 16 - DOOR_THICK, True),
     ## the upper block of a door draws nothing at all: a cube of nothing rather
     ## than no cube, because the tables are read by the variant existing
     "top": [Cube((0.016, 0.016, 0.016), (0, 0, 0))],
@@ -564,54 +585,46 @@ SHELF_BACK = "@north#16,0"
 SHELF_FLAT = "@north#0,16"      # the top and the bottom, one above the other
 SHELF_END = "@north#16,16"      # the two ends, side by side
 
-# The compartments are cut rather than painted. Vanilla paints them into the
-# front texture and leaves the block a plain box, which is right for a solid
-# block seen from outside and wrong for a half-transparent one: a ghost shelf
-# drawn as a box is a box, and nothing about it says shelf. The frame and the
-# two dividers are drawn instead, and the back panel keeps the painted front so
-# the compartments still have their shading inside.
-BACK_DEEP = 2       # the panel against the wall
-FRAME = 4           # the rail across the top and the bottom
-DIVIDERS = (5, 10)  # where the two uprights stand, from the front texture
+# A shelf is a C on its side: a panel against the wall with a board out of the
+# top of it and another out of the bottom, open at the front and at both ends.
+# It has been a solid box and it has been a box with two uprights cut into it,
+# and it is neither: nothing stands between the compartments, and a box that
+# thick reads as a cupboard.
+SHELF_DEEP = 8
+SHELF_THICK = 2
 
 
-def shelf_piece(size, at, front_window):
-    """One piece of the frame, reading its own slice of each part of the sheet.
+def shelf_board(at):
+    """The top or the bottom of the C, running out from the panel.
 
-    `front_window` is where the piece sits on the front, in texture pixels, and
-    the back takes the same window of the back. The flat tile holds the top over
-    the bottom and the end tile holds one end beside the other, so the faces
-    that read them take a slice the size of the face.
+    The flat tile holds the top over the bottom and the end tile holds one end
+    beside the other, so the faces that read them take a slice the size of the
+    face. The board's own front edge is plain, so it reads the planks too.
     """
-    wide, tall, deep = size
-    return Cube(size, at, texture={
-        "south": SHELF_FRONT, "north": SHELF_BACK,
+    rows = (0, SHELF_THICK) if at else (16 - SHELF_THICK, SHELF_THICK)
+    return Cube((16, SHELF_THICK, SHELF_DEEP), (0, at, 0), texture={
+        "south": SHELF_FLAT, "north": SHELF_FLAT,
         "up": SHELF_FLAT, "down": SHELF_FLAT,
         "east": SHELF_END, "west": SHELF_END}, window={
-        "south": front_window, "north": front_window,
-        "up": (at[0], 0, wide, deep), "down": (at[0], 8, wide, deep),
-        "east": (0, 16 - at[1] - tall, deep, tall),
-        "west": (8, 16 - at[1] - tall, deep, tall)})
+        "south": (0, rows[0], 16, rows[1]), "north": (0, rows[0], 16, rows[1]),
+        "up": (0, 0, 16, SHELF_DEEP), "down": (0, 8, 16, SHELF_DEEP),
+        "east": (0, rows[0], SHELF_DEEP, rows[1]),
+        "west": (8, rows[0], SHELF_DEEP, rows[1])})
 
 
 SHELVES = {"default": [
-    ## the panel against the wall, carrying the painted front so that the
-    ## compartments keep their shading behind the frame
-    Cube((16, 16, BACK_DEEP), (0, 0, 0), texture={
+    shelf_board(0),
+    shelf_board(16 - SHELF_THICK),
+    ## the panel between them, against the wall, carrying the painted front
+    Cube((16, 16 - 2 * SHELF_THICK, SHELF_THICK), (0, SHELF_THICK, 0), texture={
         "south": SHELF_FRONT, "north": SHELF_BACK,
         "up": SHELF_FLAT, "down": SHELF_FLAT,
         "east": SHELF_END, "west": SHELF_END}, window={
-        "south": (0, 0, 16, 16), "north": (0, 0, 16, 16),
-        "up": (0, 0, 16, BACK_DEEP), "down": (0, 8, 16, BACK_DEEP),
-        "east": (0, 0, BACK_DEEP, 16), "west": (8, 0, BACK_DEEP, 16)}),
-    shelf_piece((16, FRAME, 8 - BACK_DEEP), (0, 0, BACK_DEEP),
-                (0, 16 - FRAME, 16, FRAME)),
-    shelf_piece((16, FRAME, 8 - BACK_DEEP), (0, 16 - FRAME, BACK_DEEP),
-                (0, 0, 16, FRAME)),
-] + [
-    shelf_piece((1, 16 - 2 * FRAME, 8 - BACK_DEEP), (x, FRAME, BACK_DEEP),
-                (x, FRAME, 1, 16 - 2 * FRAME))
-    for x in DIVIDERS
+        "south": (0, SHELF_THICK, 16, 16 - 2 * SHELF_THICK),
+        "north": (0, SHELF_THICK, 16, 16 - 2 * SHELF_THICK),
+        "up": (0, 0, 16, SHELF_THICK), "down": (0, 8, 16, SHELF_THICK),
+        "east": (0, SHELF_THICK, SHELF_THICK, 16 - 2 * SHELF_THICK),
+        "west": (8, SHELF_THICK, SHELF_THICK, 16 - 2 * SHELF_THICK)}),
 ]}
 
 
@@ -665,43 +678,93 @@ STRINGS = {"default": [
 # trip_wire_source, which holds the hook drawn face on. That tile is the hook at
 # rest: the ring across x5 to x11 at the top, and the shaft hanging below it
 # down the middle, which is where the windows below read from.
+#
+# The plate is four across, two deep and eight tall, flat on the wall. The shaft
+# is the two by seven strip below the ring on the tile, at its own scale, and
+# runs out of the plate at an angle. The hook is the ring, six by six on the
+# tile, drawn four across so that it reads the width of the plate, and it hangs
+# square across the end of the shaft.
+#
+# Three arrangements, from `attached_bit` and `powered_bit`:
+#
+#   nothing on it   the shaft points up out of the wall at 45 degrees and the
+#                   hook hangs off the low half of its end
+#   tied to a wire  the wire pulls the shaft down to near the horizontal and the
+#                   hook comes with it
+#   engaged         the shaft drops to 45 degrees the other way and the hook
+#                   sits square on the high half of its end, level with the
+#                   ground
 HOOK = "@north"
 HOOK_RING = (5, 3, 6, 6)        # the ring, face on
-HOOK_SHAFT = (7, 9, 2, 6)       # the shaft below it
+HOOK_SHAFT = (7, 9, 2, 7)       # the shaft below it, at its own scale
 HOOK_END = (7, 9, 2, 2)         # a square of the shaft, for its small faces
 
-## the plank plate, flush against the wall. The same in both forms.
-plate = Cube((6, 6, 2), (5, 6, 0), texture="@down")
+PLATE_WIDE, PLATE_TALL, PLATE_DEEP = 4, 8, 2
+SHAFT_THICK, SHAFT_LONG = 2, 7
+RING_WIDE, RING_THICK = 4, 0.5
+## how far up the plate the shaft leaves it, and the three angles a world showed
+SHAFT_AT = 8
+LOOSE, TIED, ENGAGED = 45.0, -10.0, -45.0
+
+plate = Cube((PLATE_WIDE, PLATE_TALL, PLATE_DEEP),
+             ((16 - PLATE_WIDE) // 2, (16 - PLATE_TALL) // 2, 0),
+             texture="@down")
 
 
-def ring(at):
-    """The hook's ring, face on to whoever is looking at the block."""
-    return Cube((6, 6, 2), at, texture=HOOK, window={
-        "north": HOOK_RING, "south": HOOK_RING,
-        "east": HOOK_SHAFT, "west": HOOK_SHAFT,
-        "up": (5, 3, 6, 2), "down": (5, 3, 6, 2)})
+def leaning(angle, along, up):
+    """Where a point `along` the shaft and `up` from its middle line ends up.
 
-
-def shaft(size, at):
-    """The bar the ring hangs from, upright or reaching out.
-
-    The tile draws it upright, so the long faces read the whole strip and the
-    small square ends read a square of it.
+    The shaft leaves the plate at `SHAFT_AT`, and Bedrock's angles run the other
+    way round from the usual ones, so a positive angle lifts the far end.
     """
-    wide, tall, deep = size
-    return Cube(size, at, texture=HOOK, window={
-        face: (HOOK_SHAFT if tall > deep and face not in ("up", "down")
-               else HOOK_END)
-        for face in FACES})
+    lean = math.radians(angle)
+    out = (math.cos(lean), math.sin(lean))          # along the shaft
+    over = (-math.sin(lean), math.cos(lean))        # square across it
+    return (8,
+            SHAFT_AT + along * out[1] + up * over[1],
+            PLATE_DEEP + along * out[0] + up * over[0])
+
+
+def hook(angle, high, ring_angle=None):
+    """The shaft at an angle, and the ring across the end of it.
+
+    `high` puts the ring on the top two pixels of the shaft's end rather than
+    the bottom two, which is what tells an engaged hook from a loose one.
+    `ring_angle` is the ring's own lean: it goes with the shaft when the wire is
+    pulling on it, and sits square to the ground once the hook is engaged.
+    """
+    ring_angle = angle if ring_angle is None else ring_angle
+    middle = leaning(angle, SHAFT_LONG / 2.0, 0)
+    shaft = Cube((SHAFT_THICK, SHAFT_THICK, SHAFT_LONG),
+                 (middle[0] - SHAFT_THICK / 2.0,
+                  middle[1] - SHAFT_THICK / 2.0,
+                  middle[2] - SHAFT_LONG / 2.0),
+                 texture=HOOK, rotation=(angle, 0, 0), window={
+                     "north": HOOK_END, "south": HOOK_END,
+                     "east": HOOK_SHAFT, "west": HOOK_SHAFT,
+                     "up": HOOK_END, "down": HOOK_END})
+    ## the ring hangs from the end of the shaft, off one half of its face, and
+    ## reaches back across it: its own middle is that much further down again
+    edge = 0.5 if high else -0.5
+    at = leaning(angle, SHAFT_LONG, edge - RING_WIDE / 2.0)
+    ring = Cube((RING_WIDE, RING_WIDE, RING_THICK),
+                (at[0] - RING_WIDE / 2.0, at[1] - RING_WIDE / 2.0,
+                 at[2] - RING_THICK / 2.0),
+                texture=HOOK, rotation=(ring_angle, 0, 0), window={
+                    "north": HOOK_RING, "south": HOOK_RING,
+                    "east": (5, 3, 6, 6), "west": (5, 3, 6, 6),
+                    "up": (5, 3, 6, 6), "down": (5, 3, 6, 6)})
+    return [plate, shaft, ring]
 
 
 TRIPWIRE_HOOKS = {
-    ## nothing tied to it: the ring sits on the plate and the shaft hangs
-    "0": [plate, ring((5, 6, 2)), shaft((2, 6, 2), (7, 0, 2))],
-    ## tied to a wire, which holds the hook out level with the plate
-    "1": [plate, shaft((2, 2, 6), (7, 8, 2)), ring((5, 6, 7))],
+    ## attached_bit and powered_bit, joined the way core.py joins shape states
+    "0-0": hook(LOOSE, high=False),
+    "1-0": hook(TIED, high=False),
+    "0-1": hook(ENGAGED, high=True, ring_angle=0.0),
+    "1-1": hook(ENGAGED, high=True, ring_angle=0.0),
 }
-TRIPWIRE_HOOKS["default"] = TRIPWIRE_HOOKS["0"]
+TRIPWIRE_HOOKS["default"] = TRIPWIRE_HOOKS["0-0"]
 
 
 # --- dried ghasts -----------------------------------------------------------
@@ -878,8 +941,12 @@ def pot_wall(size, at):
     from the front, along z for the ends, and the footprint for the rim.
     """
     wide, tall, deep = size
-    x, y, z = (n - POT_AT for n in at)
-    side_y = POT_SIDE[1] + POT_TALL - y - tall
+    ## x and z are where the wall sits within the pot; y is its own height off
+    ## the floor and is not measured from the pot's corner. Taking all three
+    ## from the corner put every wall's window five rows past the bottom of the
+    ## tile, which is nothing at all.
+    x, z = at[0] - POT_AT, at[2] - POT_AT
+    side_y = POT_SIDE[1] + POT_TALL - at[1] - tall
     return Cube(size, at, texture=POT, window={
         "north": (POT_SIDE[0] + x, side_y, wide, tall),
         "south": (POT_SIDE[0] + x, side_y, wide, tall),

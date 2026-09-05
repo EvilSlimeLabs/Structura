@@ -39,7 +39,7 @@ sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 
 import lookup_writer
-from make_block_forms import Cube, build, spun
+from make_block_forms import Cube, build, on_sheet, spun
 from structura import jsonc
 
 LOOKUPS = os.path.join(ROOT, "structura", "lookups")
@@ -59,6 +59,22 @@ MOBS = os.path.join(COMMUNITY, "mobs.json")
 PIVOT_Y = 24
 WALL_LIFT = 4
 WALL_BACK = 4
+
+
+_SHEETS = {}
+
+
+def measure(sheet):
+    """How wide a sheet is, so a tile can be kept inside it."""
+    if sheet not in _SHEETS:
+        from PIL import Image
+
+        path = os.path.join(ROOT, "structura", "Vanilla_Resource_Pack",
+                            sheet + ".png")
+        if not os.path.isfile(path):
+            path = path[:-4] + ".tga"
+        _SHEETS[sheet] = Image.open(path).size[0]
+    return _SHEETS[sheet]
 
 
 def on_its_own(cube, pivot, rotation):
@@ -108,10 +124,13 @@ def convert(sheet, cube, lift, back):
         "up": (u + d, v, w, d),
         "down": (u + d + w, v, w, d),
     }
+    ## The corner is pulled back far enough that the tile fits inside the
+    ## sheet. A tile that runs off the edge is not cropped short: the loader
+    ## drops the corner altogether and reads the sheet's own top left, which is
+    ## how the piglin's right ear came out wearing the side of its head.
     texture, window = {}, {}
-    for face, (x, y, across, down) in rectangles.items():
-        texture[face] = "%s#%d,%d" % (sheet, x, y)
-        window[face] = (0, 0, across, down)
+    for face, region in rectangles.items():
+        texture[face], window[face] = on_sheet(sheet, region, measure(sheet))
 
     ## and the box itself, turned half about the middle of the block
     at = (8 - ox - w, oy - PIVOT_Y + lift, 8 - oz - d - back)

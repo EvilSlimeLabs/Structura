@@ -594,11 +594,11 @@
 		}
 	},
 	"bed": {
-		"0": {
+		"0-0": {
 			"uv_sizes": {
 				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
 				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
-				"north": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
 				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
 				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
 				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
@@ -606,41 +606,1641 @@
 			"offset": {
 				"up": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
 				"down": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
-				"north": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
 				"south": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
 				"east": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
 				"west": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]]
 			},
 			"overwrite": {
 				"up": [
-					"textures/blocks/bed_feet_top",
-					"textures/blocks/bed_feet_side",
-					"textures/blocks/bed_feet_side"
+					"textures/blocks/bed_white_feet_top",
+					"textures/blocks/bed_white_feet_side",
+					"textures/blocks/bed_white_feet_side"
 				],
 				"down": [
 					"textures/blocks/planks_oak",
-					"textures/blocks/bed_feet_side",
-					"textures/blocks/bed_feet_side"
+					"textures/blocks/bed_white_feet_side",
+					"textures/blocks/bed_white_feet_side"
 				],
 				"north": [
-					"textures/blocks/bed_feet_side",
-					"textures/blocks/bed_feet_side",
-					"textures/blocks/bed_feet_side"
+					"textures/blocks/bed_white_feet_side",
+					"textures/blocks/bed_white_feet_side",
+					"textures/blocks/bed_white_feet_side"
 				],
 				"south": [
-					"textures/blocks/bed_feet_side",
-					"textures/blocks/bed_feet_side",
-					"textures/blocks/bed_feet_side"
+					"textures/blocks/bed_white_feet_side",
+					"textures/blocks/bed_white_feet_side",
+					"textures/blocks/bed_white_feet_side"
 				],
 				"east": [
-					"textures/blocks/bed_feet_end",
-					"textures/blocks/bed_feet_side",
-					"textures/blocks/bed_feet_side"
+					"textures/blocks/bed_white_feet_end",
+					"textures/blocks/bed_white_feet_side",
+					"textures/blocks/bed_white_feet_side"
 				],
 				"west": [
-					"textures/blocks/bed_feet_end",
-					"textures/blocks/bed_feet_side",
-					"textures/blocks/bed_feet_side"
+					"textures/blocks/bed_white_feet_end",
+					"textures/blocks/bed_white_feet_side",
+					"textures/blocks/bed_white_feet_side"
+				]
+			}
+		},
+		"0-1": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_orange_feet_top",
+					"textures/blocks/bed_orange_feet_side",
+					"textures/blocks/bed_orange_feet_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_orange_feet_side",
+					"textures/blocks/bed_orange_feet_side"
+				],
+				"north": [
+					"textures/blocks/bed_orange_feet_side",
+					"textures/blocks/bed_orange_feet_side",
+					"textures/blocks/bed_orange_feet_side"
+				],
+				"south": [
+					"textures/blocks/bed_orange_feet_side",
+					"textures/blocks/bed_orange_feet_side",
+					"textures/blocks/bed_orange_feet_side"
+				],
+				"east": [
+					"textures/blocks/bed_orange_feet_end",
+					"textures/blocks/bed_orange_feet_side",
+					"textures/blocks/bed_orange_feet_side"
+				],
+				"west": [
+					"textures/blocks/bed_orange_feet_end",
+					"textures/blocks/bed_orange_feet_side",
+					"textures/blocks/bed_orange_feet_side"
+				]
+			}
+		},
+		"0-2": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_magenta_feet_top",
+					"textures/blocks/bed_magenta_feet_side",
+					"textures/blocks/bed_magenta_feet_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_magenta_feet_side",
+					"textures/blocks/bed_magenta_feet_side"
+				],
+				"north": [
+					"textures/blocks/bed_magenta_feet_side",
+					"textures/blocks/bed_magenta_feet_side",
+					"textures/blocks/bed_magenta_feet_side"
+				],
+				"south": [
+					"textures/blocks/bed_magenta_feet_side",
+					"textures/blocks/bed_magenta_feet_side",
+					"textures/blocks/bed_magenta_feet_side"
+				],
+				"east": [
+					"textures/blocks/bed_magenta_feet_end",
+					"textures/blocks/bed_magenta_feet_side",
+					"textures/blocks/bed_magenta_feet_side"
+				],
+				"west": [
+					"textures/blocks/bed_magenta_feet_end",
+					"textures/blocks/bed_magenta_feet_side",
+					"textures/blocks/bed_magenta_feet_side"
+				]
+			}
+		},
+		"0-3": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_light_blue_feet_top",
+					"textures/blocks/bed_light_blue_feet_side",
+					"textures/blocks/bed_light_blue_feet_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_light_blue_feet_side",
+					"textures/blocks/bed_light_blue_feet_side"
+				],
+				"north": [
+					"textures/blocks/bed_light_blue_feet_side",
+					"textures/blocks/bed_light_blue_feet_side",
+					"textures/blocks/bed_light_blue_feet_side"
+				],
+				"south": [
+					"textures/blocks/bed_light_blue_feet_side",
+					"textures/blocks/bed_light_blue_feet_side",
+					"textures/blocks/bed_light_blue_feet_side"
+				],
+				"east": [
+					"textures/blocks/bed_light_blue_feet_end",
+					"textures/blocks/bed_light_blue_feet_side",
+					"textures/blocks/bed_light_blue_feet_side"
+				],
+				"west": [
+					"textures/blocks/bed_light_blue_feet_end",
+					"textures/blocks/bed_light_blue_feet_side",
+					"textures/blocks/bed_light_blue_feet_side"
+				]
+			}
+		},
+		"0-4": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_yellow_feet_top",
+					"textures/blocks/bed_yellow_feet_side",
+					"textures/blocks/bed_yellow_feet_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_yellow_feet_side",
+					"textures/blocks/bed_yellow_feet_side"
+				],
+				"north": [
+					"textures/blocks/bed_yellow_feet_side",
+					"textures/blocks/bed_yellow_feet_side",
+					"textures/blocks/bed_yellow_feet_side"
+				],
+				"south": [
+					"textures/blocks/bed_yellow_feet_side",
+					"textures/blocks/bed_yellow_feet_side",
+					"textures/blocks/bed_yellow_feet_side"
+				],
+				"east": [
+					"textures/blocks/bed_yellow_feet_end",
+					"textures/blocks/bed_yellow_feet_side",
+					"textures/blocks/bed_yellow_feet_side"
+				],
+				"west": [
+					"textures/blocks/bed_yellow_feet_end",
+					"textures/blocks/bed_yellow_feet_side",
+					"textures/blocks/bed_yellow_feet_side"
+				]
+			}
+		},
+		"0-5": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_lime_feet_top",
+					"textures/blocks/bed_lime_feet_side",
+					"textures/blocks/bed_lime_feet_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_lime_feet_side",
+					"textures/blocks/bed_lime_feet_side"
+				],
+				"north": [
+					"textures/blocks/bed_lime_feet_side",
+					"textures/blocks/bed_lime_feet_side",
+					"textures/blocks/bed_lime_feet_side"
+				],
+				"south": [
+					"textures/blocks/bed_lime_feet_side",
+					"textures/blocks/bed_lime_feet_side",
+					"textures/blocks/bed_lime_feet_side"
+				],
+				"east": [
+					"textures/blocks/bed_lime_feet_end",
+					"textures/blocks/bed_lime_feet_side",
+					"textures/blocks/bed_lime_feet_side"
+				],
+				"west": [
+					"textures/blocks/bed_lime_feet_end",
+					"textures/blocks/bed_lime_feet_side",
+					"textures/blocks/bed_lime_feet_side"
+				]
+			}
+		},
+		"0-6": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_pink_feet_top",
+					"textures/blocks/bed_pink_feet_side",
+					"textures/blocks/bed_pink_feet_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_pink_feet_side",
+					"textures/blocks/bed_pink_feet_side"
+				],
+				"north": [
+					"textures/blocks/bed_pink_feet_side",
+					"textures/blocks/bed_pink_feet_side",
+					"textures/blocks/bed_pink_feet_side"
+				],
+				"south": [
+					"textures/blocks/bed_pink_feet_side",
+					"textures/blocks/bed_pink_feet_side",
+					"textures/blocks/bed_pink_feet_side"
+				],
+				"east": [
+					"textures/blocks/bed_pink_feet_end",
+					"textures/blocks/bed_pink_feet_side",
+					"textures/blocks/bed_pink_feet_side"
+				],
+				"west": [
+					"textures/blocks/bed_pink_feet_end",
+					"textures/blocks/bed_pink_feet_side",
+					"textures/blocks/bed_pink_feet_side"
+				]
+			}
+		},
+		"0-7": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_gray_feet_top",
+					"textures/blocks/bed_gray_feet_side",
+					"textures/blocks/bed_gray_feet_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_gray_feet_side",
+					"textures/blocks/bed_gray_feet_side"
+				],
+				"north": [
+					"textures/blocks/bed_gray_feet_side",
+					"textures/blocks/bed_gray_feet_side",
+					"textures/blocks/bed_gray_feet_side"
+				],
+				"south": [
+					"textures/blocks/bed_gray_feet_side",
+					"textures/blocks/bed_gray_feet_side",
+					"textures/blocks/bed_gray_feet_side"
+				],
+				"east": [
+					"textures/blocks/bed_gray_feet_end",
+					"textures/blocks/bed_gray_feet_side",
+					"textures/blocks/bed_gray_feet_side"
+				],
+				"west": [
+					"textures/blocks/bed_gray_feet_end",
+					"textures/blocks/bed_gray_feet_side",
+					"textures/blocks/bed_gray_feet_side"
+				]
+			}
+		},
+		"0-8": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_silver_feet_top",
+					"textures/blocks/bed_silver_feet_side",
+					"textures/blocks/bed_silver_feet_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_silver_feet_side",
+					"textures/blocks/bed_silver_feet_side"
+				],
+				"north": [
+					"textures/blocks/bed_silver_feet_side",
+					"textures/blocks/bed_silver_feet_side",
+					"textures/blocks/bed_silver_feet_side"
+				],
+				"south": [
+					"textures/blocks/bed_silver_feet_side",
+					"textures/blocks/bed_silver_feet_side",
+					"textures/blocks/bed_silver_feet_side"
+				],
+				"east": [
+					"textures/blocks/bed_silver_feet_end",
+					"textures/blocks/bed_silver_feet_side",
+					"textures/blocks/bed_silver_feet_side"
+				],
+				"west": [
+					"textures/blocks/bed_silver_feet_end",
+					"textures/blocks/bed_silver_feet_side",
+					"textures/blocks/bed_silver_feet_side"
+				]
+			}
+		},
+		"0-9": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_cyan_feet_top",
+					"textures/blocks/bed_cyan_feet_side",
+					"textures/blocks/bed_cyan_feet_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_cyan_feet_side",
+					"textures/blocks/bed_cyan_feet_side"
+				],
+				"north": [
+					"textures/blocks/bed_cyan_feet_side",
+					"textures/blocks/bed_cyan_feet_side",
+					"textures/blocks/bed_cyan_feet_side"
+				],
+				"south": [
+					"textures/blocks/bed_cyan_feet_side",
+					"textures/blocks/bed_cyan_feet_side",
+					"textures/blocks/bed_cyan_feet_side"
+				],
+				"east": [
+					"textures/blocks/bed_cyan_feet_end",
+					"textures/blocks/bed_cyan_feet_side",
+					"textures/blocks/bed_cyan_feet_side"
+				],
+				"west": [
+					"textures/blocks/bed_cyan_feet_end",
+					"textures/blocks/bed_cyan_feet_side",
+					"textures/blocks/bed_cyan_feet_side"
+				]
+			}
+		},
+		"0-10": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_purple_feet_top",
+					"textures/blocks/bed_purple_feet_side",
+					"textures/blocks/bed_purple_feet_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_purple_feet_side",
+					"textures/blocks/bed_purple_feet_side"
+				],
+				"north": [
+					"textures/blocks/bed_purple_feet_side",
+					"textures/blocks/bed_purple_feet_side",
+					"textures/blocks/bed_purple_feet_side"
+				],
+				"south": [
+					"textures/blocks/bed_purple_feet_side",
+					"textures/blocks/bed_purple_feet_side",
+					"textures/blocks/bed_purple_feet_side"
+				],
+				"east": [
+					"textures/blocks/bed_purple_feet_end",
+					"textures/blocks/bed_purple_feet_side",
+					"textures/blocks/bed_purple_feet_side"
+				],
+				"west": [
+					"textures/blocks/bed_purple_feet_end",
+					"textures/blocks/bed_purple_feet_side",
+					"textures/blocks/bed_purple_feet_side"
+				]
+			}
+		},
+		"0-11": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_blue_feet_top",
+					"textures/blocks/bed_blue_feet_side",
+					"textures/blocks/bed_blue_feet_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_blue_feet_side",
+					"textures/blocks/bed_blue_feet_side"
+				],
+				"north": [
+					"textures/blocks/bed_blue_feet_side",
+					"textures/blocks/bed_blue_feet_side",
+					"textures/blocks/bed_blue_feet_side"
+				],
+				"south": [
+					"textures/blocks/bed_blue_feet_side",
+					"textures/blocks/bed_blue_feet_side",
+					"textures/blocks/bed_blue_feet_side"
+				],
+				"east": [
+					"textures/blocks/bed_blue_feet_end",
+					"textures/blocks/bed_blue_feet_side",
+					"textures/blocks/bed_blue_feet_side"
+				],
+				"west": [
+					"textures/blocks/bed_blue_feet_end",
+					"textures/blocks/bed_blue_feet_side",
+					"textures/blocks/bed_blue_feet_side"
+				]
+			}
+		},
+		"0-12": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_brown_feet_top",
+					"textures/blocks/bed_brown_feet_side",
+					"textures/blocks/bed_brown_feet_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_brown_feet_side",
+					"textures/blocks/bed_brown_feet_side"
+				],
+				"north": [
+					"textures/blocks/bed_brown_feet_side",
+					"textures/blocks/bed_brown_feet_side",
+					"textures/blocks/bed_brown_feet_side"
+				],
+				"south": [
+					"textures/blocks/bed_brown_feet_side",
+					"textures/blocks/bed_brown_feet_side",
+					"textures/blocks/bed_brown_feet_side"
+				],
+				"east": [
+					"textures/blocks/bed_brown_feet_end",
+					"textures/blocks/bed_brown_feet_side",
+					"textures/blocks/bed_brown_feet_side"
+				],
+				"west": [
+					"textures/blocks/bed_brown_feet_end",
+					"textures/blocks/bed_brown_feet_side",
+					"textures/blocks/bed_brown_feet_side"
+				]
+			}
+		},
+		"0-13": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_green_feet_top",
+					"textures/blocks/bed_green_feet_side",
+					"textures/blocks/bed_green_feet_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_green_feet_side",
+					"textures/blocks/bed_green_feet_side"
+				],
+				"north": [
+					"textures/blocks/bed_green_feet_side",
+					"textures/blocks/bed_green_feet_side",
+					"textures/blocks/bed_green_feet_side"
+				],
+				"south": [
+					"textures/blocks/bed_green_feet_side",
+					"textures/blocks/bed_green_feet_side",
+					"textures/blocks/bed_green_feet_side"
+				],
+				"east": [
+					"textures/blocks/bed_green_feet_end",
+					"textures/blocks/bed_green_feet_side",
+					"textures/blocks/bed_green_feet_side"
+				],
+				"west": [
+					"textures/blocks/bed_green_feet_end",
+					"textures/blocks/bed_green_feet_side",
+					"textures/blocks/bed_green_feet_side"
+				]
+			}
+		},
+		"0-14": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_red_feet_top",
+					"textures/blocks/bed_red_feet_side",
+					"textures/blocks/bed_red_feet_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_red_feet_side",
+					"textures/blocks/bed_red_feet_side"
+				],
+				"north": [
+					"textures/blocks/bed_red_feet_side",
+					"textures/blocks/bed_red_feet_side",
+					"textures/blocks/bed_red_feet_side"
+				],
+				"south": [
+					"textures/blocks/bed_red_feet_side",
+					"textures/blocks/bed_red_feet_side",
+					"textures/blocks/bed_red_feet_side"
+				],
+				"east": [
+					"textures/blocks/bed_red_feet_end",
+					"textures/blocks/bed_red_feet_side",
+					"textures/blocks/bed_red_feet_side"
+				],
+				"west": [
+					"textures/blocks/bed_red_feet_end",
+					"textures/blocks/bed_red_feet_side",
+					"textures/blocks/bed_red_feet_side"
+				]
+			}
+		},
+		"0-15": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_black_feet_top",
+					"textures/blocks/bed_black_feet_side",
+					"textures/blocks/bed_black_feet_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_black_feet_side",
+					"textures/blocks/bed_black_feet_side"
+				],
+				"north": [
+					"textures/blocks/bed_black_feet_side",
+					"textures/blocks/bed_black_feet_side",
+					"textures/blocks/bed_black_feet_side"
+				],
+				"south": [
+					"textures/blocks/bed_black_feet_side",
+					"textures/blocks/bed_black_feet_side",
+					"textures/blocks/bed_black_feet_side"
+				],
+				"east": [
+					"textures/blocks/bed_black_feet_end",
+					"textures/blocks/bed_black_feet_side",
+					"textures/blocks/bed_black_feet_side"
+				],
+				"west": [
+					"textures/blocks/bed_black_feet_end",
+					"textures/blocks/bed_black_feet_side",
+					"textures/blocks/bed_black_feet_side"
+				]
+			}
+		},
+		"1-0": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_white_head_top",
+					"textures/blocks/bed_white_head_side",
+					"textures/blocks/bed_white_head_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_white_head_side",
+					"textures/blocks/bed_white_head_side"
+				],
+				"north": [
+					"textures/blocks/bed_white_head_side",
+					"textures/blocks/bed_white_head_side",
+					"textures/blocks/bed_white_head_side"
+				],
+				"south": [
+					"textures/blocks/bed_white_head_side",
+					"textures/blocks/bed_white_head_side",
+					"textures/blocks/bed_white_head_side"
+				],
+				"east": [
+					"textures/blocks/bed_white_head_end",
+					"textures/blocks/bed_white_head_side",
+					"textures/blocks/bed_white_head_side"
+				],
+				"west": [
+					"textures/blocks/bed_white_head_end",
+					"textures/blocks/bed_white_head_side",
+					"textures/blocks/bed_white_head_side"
+				]
+			}
+		},
+		"1-1": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_orange_head_top",
+					"textures/blocks/bed_orange_head_side",
+					"textures/blocks/bed_orange_head_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_orange_head_side",
+					"textures/blocks/bed_orange_head_side"
+				],
+				"north": [
+					"textures/blocks/bed_orange_head_side",
+					"textures/blocks/bed_orange_head_side",
+					"textures/blocks/bed_orange_head_side"
+				],
+				"south": [
+					"textures/blocks/bed_orange_head_side",
+					"textures/blocks/bed_orange_head_side",
+					"textures/blocks/bed_orange_head_side"
+				],
+				"east": [
+					"textures/blocks/bed_orange_head_end",
+					"textures/blocks/bed_orange_head_side",
+					"textures/blocks/bed_orange_head_side"
+				],
+				"west": [
+					"textures/blocks/bed_orange_head_end",
+					"textures/blocks/bed_orange_head_side",
+					"textures/blocks/bed_orange_head_side"
+				]
+			}
+		},
+		"1-2": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_magenta_head_top",
+					"textures/blocks/bed_magenta_head_side",
+					"textures/blocks/bed_magenta_head_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_magenta_head_side",
+					"textures/blocks/bed_magenta_head_side"
+				],
+				"north": [
+					"textures/blocks/bed_magenta_head_side",
+					"textures/blocks/bed_magenta_head_side",
+					"textures/blocks/bed_magenta_head_side"
+				],
+				"south": [
+					"textures/blocks/bed_magenta_head_side",
+					"textures/blocks/bed_magenta_head_side",
+					"textures/blocks/bed_magenta_head_side"
+				],
+				"east": [
+					"textures/blocks/bed_magenta_head_end",
+					"textures/blocks/bed_magenta_head_side",
+					"textures/blocks/bed_magenta_head_side"
+				],
+				"west": [
+					"textures/blocks/bed_magenta_head_end",
+					"textures/blocks/bed_magenta_head_side",
+					"textures/blocks/bed_magenta_head_side"
+				]
+			}
+		},
+		"1-3": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_light_blue_head_top",
+					"textures/blocks/bed_light_blue_head_side",
+					"textures/blocks/bed_light_blue_head_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_light_blue_head_side",
+					"textures/blocks/bed_light_blue_head_side"
+				],
+				"north": [
+					"textures/blocks/bed_light_blue_head_side",
+					"textures/blocks/bed_light_blue_head_side",
+					"textures/blocks/bed_light_blue_head_side"
+				],
+				"south": [
+					"textures/blocks/bed_light_blue_head_side",
+					"textures/blocks/bed_light_blue_head_side",
+					"textures/blocks/bed_light_blue_head_side"
+				],
+				"east": [
+					"textures/blocks/bed_light_blue_head_end",
+					"textures/blocks/bed_light_blue_head_side",
+					"textures/blocks/bed_light_blue_head_side"
+				],
+				"west": [
+					"textures/blocks/bed_light_blue_head_end",
+					"textures/blocks/bed_light_blue_head_side",
+					"textures/blocks/bed_light_blue_head_side"
+				]
+			}
+		},
+		"1-4": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_yellow_head_top",
+					"textures/blocks/bed_yellow_head_side",
+					"textures/blocks/bed_yellow_head_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_yellow_head_side",
+					"textures/blocks/bed_yellow_head_side"
+				],
+				"north": [
+					"textures/blocks/bed_yellow_head_side",
+					"textures/blocks/bed_yellow_head_side",
+					"textures/blocks/bed_yellow_head_side"
+				],
+				"south": [
+					"textures/blocks/bed_yellow_head_side",
+					"textures/blocks/bed_yellow_head_side",
+					"textures/blocks/bed_yellow_head_side"
+				],
+				"east": [
+					"textures/blocks/bed_yellow_head_end",
+					"textures/blocks/bed_yellow_head_side",
+					"textures/blocks/bed_yellow_head_side"
+				],
+				"west": [
+					"textures/blocks/bed_yellow_head_end",
+					"textures/blocks/bed_yellow_head_side",
+					"textures/blocks/bed_yellow_head_side"
+				]
+			}
+		},
+		"1-5": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_lime_head_top",
+					"textures/blocks/bed_lime_head_side",
+					"textures/blocks/bed_lime_head_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_lime_head_side",
+					"textures/blocks/bed_lime_head_side"
+				],
+				"north": [
+					"textures/blocks/bed_lime_head_side",
+					"textures/blocks/bed_lime_head_side",
+					"textures/blocks/bed_lime_head_side"
+				],
+				"south": [
+					"textures/blocks/bed_lime_head_side",
+					"textures/blocks/bed_lime_head_side",
+					"textures/blocks/bed_lime_head_side"
+				],
+				"east": [
+					"textures/blocks/bed_lime_head_end",
+					"textures/blocks/bed_lime_head_side",
+					"textures/blocks/bed_lime_head_side"
+				],
+				"west": [
+					"textures/blocks/bed_lime_head_end",
+					"textures/blocks/bed_lime_head_side",
+					"textures/blocks/bed_lime_head_side"
+				]
+			}
+		},
+		"1-6": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_pink_head_top",
+					"textures/blocks/bed_pink_head_side",
+					"textures/blocks/bed_pink_head_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_pink_head_side",
+					"textures/blocks/bed_pink_head_side"
+				],
+				"north": [
+					"textures/blocks/bed_pink_head_side",
+					"textures/blocks/bed_pink_head_side",
+					"textures/blocks/bed_pink_head_side"
+				],
+				"south": [
+					"textures/blocks/bed_pink_head_side",
+					"textures/blocks/bed_pink_head_side",
+					"textures/blocks/bed_pink_head_side"
+				],
+				"east": [
+					"textures/blocks/bed_pink_head_end",
+					"textures/blocks/bed_pink_head_side",
+					"textures/blocks/bed_pink_head_side"
+				],
+				"west": [
+					"textures/blocks/bed_pink_head_end",
+					"textures/blocks/bed_pink_head_side",
+					"textures/blocks/bed_pink_head_side"
+				]
+			}
+		},
+		"1-7": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_gray_head_top",
+					"textures/blocks/bed_gray_head_side",
+					"textures/blocks/bed_gray_head_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_gray_head_side",
+					"textures/blocks/bed_gray_head_side"
+				],
+				"north": [
+					"textures/blocks/bed_gray_head_side",
+					"textures/blocks/bed_gray_head_side",
+					"textures/blocks/bed_gray_head_side"
+				],
+				"south": [
+					"textures/blocks/bed_gray_head_side",
+					"textures/blocks/bed_gray_head_side",
+					"textures/blocks/bed_gray_head_side"
+				],
+				"east": [
+					"textures/blocks/bed_gray_head_end",
+					"textures/blocks/bed_gray_head_side",
+					"textures/blocks/bed_gray_head_side"
+				],
+				"west": [
+					"textures/blocks/bed_gray_head_end",
+					"textures/blocks/bed_gray_head_side",
+					"textures/blocks/bed_gray_head_side"
+				]
+			}
+		},
+		"1-8": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_silver_head_top",
+					"textures/blocks/bed_silver_head_side",
+					"textures/blocks/bed_silver_head_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_silver_head_side",
+					"textures/blocks/bed_silver_head_side"
+				],
+				"north": [
+					"textures/blocks/bed_silver_head_side",
+					"textures/blocks/bed_silver_head_side",
+					"textures/blocks/bed_silver_head_side"
+				],
+				"south": [
+					"textures/blocks/bed_silver_head_side",
+					"textures/blocks/bed_silver_head_side",
+					"textures/blocks/bed_silver_head_side"
+				],
+				"east": [
+					"textures/blocks/bed_silver_head_end",
+					"textures/blocks/bed_silver_head_side",
+					"textures/blocks/bed_silver_head_side"
+				],
+				"west": [
+					"textures/blocks/bed_silver_head_end",
+					"textures/blocks/bed_silver_head_side",
+					"textures/blocks/bed_silver_head_side"
+				]
+			}
+		},
+		"1-9": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_cyan_head_top",
+					"textures/blocks/bed_cyan_head_side",
+					"textures/blocks/bed_cyan_head_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_cyan_head_side",
+					"textures/blocks/bed_cyan_head_side"
+				],
+				"north": [
+					"textures/blocks/bed_cyan_head_side",
+					"textures/blocks/bed_cyan_head_side",
+					"textures/blocks/bed_cyan_head_side"
+				],
+				"south": [
+					"textures/blocks/bed_cyan_head_side",
+					"textures/blocks/bed_cyan_head_side",
+					"textures/blocks/bed_cyan_head_side"
+				],
+				"east": [
+					"textures/blocks/bed_cyan_head_end",
+					"textures/blocks/bed_cyan_head_side",
+					"textures/blocks/bed_cyan_head_side"
+				],
+				"west": [
+					"textures/blocks/bed_cyan_head_end",
+					"textures/blocks/bed_cyan_head_side",
+					"textures/blocks/bed_cyan_head_side"
+				]
+			}
+		},
+		"1-10": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_purple_head_top",
+					"textures/blocks/bed_purple_head_side",
+					"textures/blocks/bed_purple_head_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_purple_head_side",
+					"textures/blocks/bed_purple_head_side"
+				],
+				"north": [
+					"textures/blocks/bed_purple_head_side",
+					"textures/blocks/bed_purple_head_side",
+					"textures/blocks/bed_purple_head_side"
+				],
+				"south": [
+					"textures/blocks/bed_purple_head_side",
+					"textures/blocks/bed_purple_head_side",
+					"textures/blocks/bed_purple_head_side"
+				],
+				"east": [
+					"textures/blocks/bed_purple_head_end",
+					"textures/blocks/bed_purple_head_side",
+					"textures/blocks/bed_purple_head_side"
+				],
+				"west": [
+					"textures/blocks/bed_purple_head_end",
+					"textures/blocks/bed_purple_head_side",
+					"textures/blocks/bed_purple_head_side"
+				]
+			}
+		},
+		"1-11": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_blue_head_top",
+					"textures/blocks/bed_blue_head_side",
+					"textures/blocks/bed_blue_head_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_blue_head_side",
+					"textures/blocks/bed_blue_head_side"
+				],
+				"north": [
+					"textures/blocks/bed_blue_head_side",
+					"textures/blocks/bed_blue_head_side",
+					"textures/blocks/bed_blue_head_side"
+				],
+				"south": [
+					"textures/blocks/bed_blue_head_side",
+					"textures/blocks/bed_blue_head_side",
+					"textures/blocks/bed_blue_head_side"
+				],
+				"east": [
+					"textures/blocks/bed_blue_head_end",
+					"textures/blocks/bed_blue_head_side",
+					"textures/blocks/bed_blue_head_side"
+				],
+				"west": [
+					"textures/blocks/bed_blue_head_end",
+					"textures/blocks/bed_blue_head_side",
+					"textures/blocks/bed_blue_head_side"
+				]
+			}
+		},
+		"1-12": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_brown_head_top",
+					"textures/blocks/bed_brown_head_side",
+					"textures/blocks/bed_brown_head_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_brown_head_side",
+					"textures/blocks/bed_brown_head_side"
+				],
+				"north": [
+					"textures/blocks/bed_brown_head_side",
+					"textures/blocks/bed_brown_head_side",
+					"textures/blocks/bed_brown_head_side"
+				],
+				"south": [
+					"textures/blocks/bed_brown_head_side",
+					"textures/blocks/bed_brown_head_side",
+					"textures/blocks/bed_brown_head_side"
+				],
+				"east": [
+					"textures/blocks/bed_brown_head_end",
+					"textures/blocks/bed_brown_head_side",
+					"textures/blocks/bed_brown_head_side"
+				],
+				"west": [
+					"textures/blocks/bed_brown_head_end",
+					"textures/blocks/bed_brown_head_side",
+					"textures/blocks/bed_brown_head_side"
+				]
+			}
+		},
+		"1-13": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_green_head_top",
+					"textures/blocks/bed_green_head_side",
+					"textures/blocks/bed_green_head_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_green_head_side",
+					"textures/blocks/bed_green_head_side"
+				],
+				"north": [
+					"textures/blocks/bed_green_head_side",
+					"textures/blocks/bed_green_head_side",
+					"textures/blocks/bed_green_head_side"
+				],
+				"south": [
+					"textures/blocks/bed_green_head_side",
+					"textures/blocks/bed_green_head_side",
+					"textures/blocks/bed_green_head_side"
+				],
+				"east": [
+					"textures/blocks/bed_green_head_end",
+					"textures/blocks/bed_green_head_side",
+					"textures/blocks/bed_green_head_side"
+				],
+				"west": [
+					"textures/blocks/bed_green_head_end",
+					"textures/blocks/bed_green_head_side",
+					"textures/blocks/bed_green_head_side"
+				]
+			}
+		},
+		"1-14": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_red_head_top",
+					"textures/blocks/bed_red_head_side",
+					"textures/blocks/bed_red_head_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_red_head_side",
+					"textures/blocks/bed_red_head_side"
+				],
+				"north": [
+					"textures/blocks/bed_red_head_side",
+					"textures/blocks/bed_red_head_side",
+					"textures/blocks/bed_red_head_side"
+				],
+				"south": [
+					"textures/blocks/bed_red_head_side",
+					"textures/blocks/bed_red_head_side",
+					"textures/blocks/bed_red_head_side"
+				],
+				"east": [
+					"textures/blocks/bed_red_head_end",
+					"textures/blocks/bed_red_head_side",
+					"textures/blocks/bed_red_head_side"
+				],
+				"west": [
+					"textures/blocks/bed_red_head_end",
+					"textures/blocks/bed_red_head_side",
+					"textures/blocks/bed_red_head_side"
+				]
+			}
+		},
+		"1-15": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_black_head_top",
+					"textures/blocks/bed_black_head_side",
+					"textures/blocks/bed_black_head_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_black_head_side",
+					"textures/blocks/bed_black_head_side"
+				],
+				"north": [
+					"textures/blocks/bed_black_head_side",
+					"textures/blocks/bed_black_head_side",
+					"textures/blocks/bed_black_head_side"
+				],
+				"south": [
+					"textures/blocks/bed_black_head_side",
+					"textures/blocks/bed_black_head_side",
+					"textures/blocks/bed_black_head_side"
+				],
+				"east": [
+					"textures/blocks/bed_black_head_end",
+					"textures/blocks/bed_black_head_side",
+					"textures/blocks/bed_black_head_side"
+				],
+				"west": [
+					"textures/blocks/bed_black_head_end",
+					"textures/blocks/bed_black_head_side",
+					"textures/blocks/bed_black_head_side"
+				]
+			}
+		},
+		"0": {
+			"uv_sizes": {
+				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]]
+			},
+			"overwrite": {
+				"up": [
+					"textures/blocks/bed_red_feet_top",
+					"textures/blocks/bed_red_feet_side",
+					"textures/blocks/bed_red_feet_side"
+				],
+				"down": [
+					"textures/blocks/planks_oak",
+					"textures/blocks/bed_red_feet_side",
+					"textures/blocks/bed_red_feet_side"
+				],
+				"north": [
+					"textures/blocks/bed_red_feet_side",
+					"textures/blocks/bed_red_feet_side",
+					"textures/blocks/bed_red_feet_side"
+				],
+				"south": [
+					"textures/blocks/bed_red_feet_side",
+					"textures/blocks/bed_red_feet_side",
+					"textures/blocks/bed_red_feet_side"
+				],
+				"east": [
+					"textures/blocks/bed_red_feet_end",
+					"textures/blocks/bed_red_feet_side",
+					"textures/blocks/bed_red_feet_side"
+				],
+				"west": [
+					"textures/blocks/bed_red_feet_end",
+					"textures/blocks/bed_red_feet_side",
+					"textures/blocks/bed_red_feet_side"
 				]
 			}
 		},
@@ -648,49 +2248,49 @@
 			"uv_sizes": {
 				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
 				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
-				"north": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
 				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
 				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
 				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
 			},
 			"offset": {
-				"up": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
-				"down": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
-				"north": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
-				"south": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
-				"east": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
-				"west": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]]
+				"up": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"east": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]],
+				"west": [[ 0.0, 0.4375 ], [ 0.8125, 0.8125 ], [ 0.8125, 0.8125 ]]
 			},
 			"overwrite": {
 				"up": [
-					"textures/blocks/bed_head_top",
-					"textures/blocks/bed_head_side",
-					"textures/blocks/bed_head_side"
+					"textures/blocks/bed_red_head_top",
+					"textures/blocks/bed_red_head_side",
+					"textures/blocks/bed_red_head_side"
 				],
 				"down": [
 					"textures/blocks/planks_oak",
-					"textures/blocks/bed_head_side",
-					"textures/blocks/bed_head_side"
+					"textures/blocks/bed_red_head_side",
+					"textures/blocks/bed_red_head_side"
 				],
 				"north": [
-					"textures/blocks/bed_head_side",
-					"textures/blocks/bed_head_side",
-					"textures/blocks/bed_head_side"
+					"textures/blocks/bed_red_head_side",
+					"textures/blocks/bed_red_head_side",
+					"textures/blocks/bed_red_head_side"
 				],
 				"south": [
-					"textures/blocks/bed_head_side",
-					"textures/blocks/bed_head_side",
-					"textures/blocks/bed_head_side"
+					"textures/blocks/bed_red_head_side",
+					"textures/blocks/bed_red_head_side",
+					"textures/blocks/bed_red_head_side"
 				],
 				"east": [
-					"textures/blocks/bed_head_end",
-					"textures/blocks/bed_head_side",
-					"textures/blocks/bed_head_side"
+					"textures/blocks/bed_red_head_end",
+					"textures/blocks/bed_red_head_side",
+					"textures/blocks/bed_red_head_side"
 				],
 				"west": [
-					"textures/blocks/bed_head_end",
-					"textures/blocks/bed_head_side",
-					"textures/blocks/bed_head_side"
+					"textures/blocks/bed_red_head_end",
+					"textures/blocks/bed_red_head_side",
+					"textures/blocks/bed_red_head_side"
 				]
 			}
 		},
@@ -698,7 +2298,7 @@
 			"uv_sizes": {
 				"up": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
 				"down": [[ 1.0, 1.0 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
-				"north": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
+				"north": [[ -1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
 				"south": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
 				"east": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]],
 				"west": [[ 1.0, 0.375 ], [ 0.1875, 0.1875 ], [ 0.1875, 0.1875 ]]
@@ -706,41 +2306,41 @@
 			"offset": {
 				"up": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
 				"down": [[ 0.0, 0.0 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
-				"north": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
+				"north": [[ 1.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
 				"south": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
 				"east": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
 				"west": [[ 0.0, 0.4375 ], [ 0.0, 0.8125 ], [ 0.0, 0.8125 ]]
 			},
 			"overwrite": {
 				"up": [
-					"textures/blocks/bed_feet_top",
-					"textures/blocks/bed_feet_side",
-					"textures/blocks/bed_feet_side"
+					"textures/blocks/bed_red_feet_top",
+					"textures/blocks/bed_red_feet_side",
+					"textures/blocks/bed_red_feet_side"
 				],
 				"down": [
 					"textures/blocks/planks_oak",
-					"textures/blocks/bed_feet_side",
-					"textures/blocks/bed_feet_side"
+					"textures/blocks/bed_red_feet_side",
+					"textures/blocks/bed_red_feet_side"
 				],
 				"north": [
-					"textures/blocks/bed_feet_side",
-					"textures/blocks/bed_feet_side",
-					"textures/blocks/bed_feet_side"
+					"textures/blocks/bed_red_feet_side",
+					"textures/blocks/bed_red_feet_side",
+					"textures/blocks/bed_red_feet_side"
 				],
 				"south": [
-					"textures/blocks/bed_feet_side",
-					"textures/blocks/bed_feet_side",
-					"textures/blocks/bed_feet_side"
+					"textures/blocks/bed_red_feet_side",
+					"textures/blocks/bed_red_feet_side",
+					"textures/blocks/bed_red_feet_side"
 				],
 				"east": [
-					"textures/blocks/bed_feet_end",
-					"textures/blocks/bed_feet_side",
-					"textures/blocks/bed_feet_side"
+					"textures/blocks/bed_red_feet_end",
+					"textures/blocks/bed_red_feet_side",
+					"textures/blocks/bed_red_feet_side"
 				],
 				"west": [
-					"textures/blocks/bed_feet_end",
-					"textures/blocks/bed_feet_side",
-					"textures/blocks/bed_feet_side"
+					"textures/blocks/bed_red_feet_end",
+					"textures/blocks/bed_red_feet_side",
+					"textures/blocks/bed_red_feet_side"
 				]
 			}
 		}
@@ -2091,22 +3691,22 @@
 			},
 			"overwrite": {
 				"up": [
-					"textures/blocks/conduit_closed"
+					"textures/blocks/conduit_open"
 				],
 				"down": [
-					"textures/blocks/conduit_closed"
+					"textures/blocks/conduit_open"
 				],
 				"north": [
-					"textures/blocks/conduit_closed"
+					"textures/blocks/conduit_open"
 				],
 				"south": [
-					"textures/blocks/conduit_closed"
+					"textures/blocks/conduit_open"
 				],
 				"east": [
-					"textures/blocks/conduit_closed"
+					"textures/blocks/conduit_open"
 				],
 				"west": [
-					"textures/blocks/conduit_closed"
+					"textures/blocks/conduit_open"
 				]
 			}
 		},
@@ -2130,27 +3730,27 @@
 			"overwrite": {
 				"up": [
 					"textures/blocks/conduit_base",
-					"textures/blocks/conduit_open"
+					"textures/blocks/conduit_closed"
 				],
 				"down": [
 					"textures/blocks/conduit_base",
-					"textures/blocks/conduit_open"
+					"textures/blocks/conduit_closed"
 				],
 				"north": [
 					"textures/blocks/conduit_base",
-					"textures/blocks/conduit_open"
+					"textures/blocks/conduit_closed"
 				],
 				"south": [
 					"textures/blocks/conduit_base",
-					"textures/blocks/conduit_open"
+					"textures/blocks/conduit_closed"
 				],
 				"east": [
 					"textures/blocks/conduit_base",
-					"textures/blocks/conduit_open"
+					"textures/blocks/conduit_closed"
 				],
 				"west": [
 					"textures/blocks/conduit_base",
-					"textures/blocks/conduit_open"
+					"textures/blocks/conduit_closed"
 				]
 			}
 		},
@@ -2173,22 +3773,22 @@
 			},
 			"overwrite": {
 				"up": [
-					"textures/blocks/conduit_closed"
+					"textures/blocks/conduit_open"
 				],
 				"down": [
-					"textures/blocks/conduit_closed"
+					"textures/blocks/conduit_open"
 				],
 				"north": [
-					"textures/blocks/conduit_closed"
+					"textures/blocks/conduit_open"
 				],
 				"south": [
-					"textures/blocks/conduit_closed"
+					"textures/blocks/conduit_open"
 				],
 				"east": [
-					"textures/blocks/conduit_closed"
+					"textures/blocks/conduit_open"
 				],
 				"west": [
-					"textures/blocks/conduit_closed"
+					"textures/blocks/conduit_open"
 				]
 			}
 		}
@@ -2308,6 +3908,50 @@
 	"door": {
 		"default": {
 			"uv_sizes": {
+				"up": [[ 0.1875, 1.0 ], [ 0.1875, 1.0 ]],
+				"down": [[ 0.1875, 1.0 ], [ 0.1875, 1.0 ]],
+				"north": [[ 0.1875, 1.0 ], [ 0.1875, 1.0 ]],
+				"south": [[ 0.1875, 1.0 ], [ 0.1875, 1.0 ]],
+				"east": [[ -1.0, 1.0 ], [ -1.0, 1.0 ]],
+				"west": [[ -1.0, 1.0 ], [ -1.0, 1.0 ]]
+			},
+			"offset": {
+				"up": [[ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 1.0, 0.0 ], [ 1.0, 0.0 ]],
+				"west": [[ 1.0, 0.0 ], [ 1.0, 0.0 ]]
+			},
+			"overwrite": {
+				"up": [
+					"@down",
+					"@north"
+				],
+				"down": [
+					"@down",
+					"@north"
+				],
+				"north": [
+					"@down",
+					"@north"
+				],
+				"south": [
+					"@down",
+					"@north"
+				],
+				"east": [
+					"@down",
+					"@north"
+				],
+				"west": [
+					"@down",
+					"@north"
+				]
+			}
+		},
+		"open": {
+			"uv_sizes": {
 				"up": [[ 1.0, 0.1875 ], [ 1.0, 0.1875 ]],
 				"down": [[ 1.0, 0.1875 ], [ 1.0, 0.1875 ]],
 				"north": [[ 1.0, 1.0 ], [ 1.0, 1.0 ]],
@@ -2350,62 +3994,18 @@
 				]
 			}
 		},
-		"open": {
-			"uv_sizes": {
-				"up": [[ 0.1875, 1.0 ], [ 0.1875, 1.0 ]],
-				"down": [[ 0.1875, 1.0 ], [ 0.1875, 1.0 ]],
-				"north": [[ 0.1875, 1.0 ], [ 0.1875, 1.0 ]],
-				"south": [[ 0.1875, 1.0 ], [ 0.1875, 1.0 ]],
-				"east": [[ 1.0, 1.0 ], [ 1.0, 1.0 ]],
-				"west": [[ 1.0, 1.0 ], [ 1.0, 1.0 ]]
-			},
-			"offset": {
-				"up": [[ 0.0, 0.0 ], [ 0.0, 0.0 ]],
-				"down": [[ 0.0, 0.0 ], [ 0.0, 0.0 ]],
-				"north": [[ 0.0, 0.0 ], [ 0.0, 0.0 ]],
-				"south": [[ 0.0, 0.0 ], [ 0.0, 0.0 ]],
-				"east": [[ 0.0, 0.0 ], [ 0.0, 0.0 ]],
-				"west": [[ 0.0, 0.0 ], [ 0.0, 0.0 ]]
-			},
-			"overwrite": {
-				"up": [
-					"@down",
-					"@north"
-				],
-				"down": [
-					"@down",
-					"@north"
-				],
-				"north": [
-					"@down",
-					"@north"
-				],
-				"south": [
-					"@down",
-					"@north"
-				],
-				"east": [
-					"@down",
-					"@north"
-				],
-				"west": [
-					"@down",
-					"@north"
-				]
-			}
-		},
 		"open_hinged": {
 			"uv_sizes": {
-				"up": [[ 0.1875, 1.0 ], [ 0.1875, 1.0 ]],
-				"down": [[ 0.1875, 1.0 ], [ 0.1875, 1.0 ]],
-				"north": [[ 0.1875, 1.0 ], [ 0.1875, 1.0 ]],
-				"south": [[ 0.1875, 1.0 ], [ 0.1875, 1.0 ]],
-				"east": [[ 1.0, 1.0 ], [ 1.0, 1.0 ]],
-				"west": [[ 1.0, 1.0 ], [ 1.0, 1.0 ]]
+				"up": [[ 1.0, 0.1875 ], [ 1.0, 0.1875 ]],
+				"down": [[ 1.0, 0.1875 ], [ 1.0, 0.1875 ]],
+				"north": [[ 1.0, 1.0 ], [ 1.0, 1.0 ]],
+				"south": [[ 1.0, 1.0 ], [ 1.0, 1.0 ]],
+				"east": [[ 0.1875, 1.0 ], [ 0.1875, 1.0 ]],
+				"west": [[ 0.1875, 1.0 ], [ 0.1875, 1.0 ]]
 			},
 			"offset": {
 				"up": [[ 0.0, 0.0 ], [ 0.0, 0.0 ]],
-				"down": [[ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.0, 0.8125 ], [ 0.0, 0.8125 ]],
 				"north": [[ 0.0, 0.0 ], [ 0.0, 0.0 ]],
 				"south": [[ 0.0, 0.0 ], [ 0.0, 0.0 ]],
 				"east": [[ 0.0, 0.0 ], [ 0.0, 0.0 ]],
@@ -3135,10 +4735,10 @@
 			"offset": {
 				"up": [[ 0.3125, 0.3125 ], [ 0.625, 0.3125 ], [ 0.375, 0.3125 ], [ 0.375, 0.625 ], [ 0.0, 0.0 ]],
 				"down": [[ 0.3125, 0.3125 ], [ 0.625, 0.3125 ], [ 0.375, 0.3125 ], [ 0.375, 0.625 ], [ 0.0, 0.0 ]],
-				"north": [[ 0.3125, 0.9375 ], [ 0.625, 0.9375 ], [ 0.375, 0.9375 ], [ 0.375, 0.9375 ], [ 0.0, 0.0 ]],
-				"south": [[ 0.3125, 0.9375 ], [ 0.625, 0.9375 ], [ 0.375, 0.9375 ], [ 0.375, 0.9375 ], [ 0.0, 0.0 ]],
-				"east": [[ 0.3125, 0.9375 ], [ 0.3125, 0.9375 ], [ 0.3125, 0.9375 ], [ 0.625, 0.9375 ], [ 0.0, 0.0 ]],
-				"west": [[ 0.3125, 0.9375 ], [ 0.3125, 0.9375 ], [ 0.3125, 0.9375 ], [ 0.625, 0.9375 ], [ 0.0, 0.0 ]]
+				"north": [[ 0.3125, 0.625 ], [ 0.625, 0.625 ], [ 0.375, 0.625 ], [ 0.375, 0.625 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.3125, 0.625 ], [ 0.625, 0.625 ], [ 0.375, 0.625 ], [ 0.375, 0.625 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.3125, 0.625 ], [ 0.3125, 0.625 ], [ 0.3125, 0.625 ], [ 0.625, 0.625 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.3125, 0.625 ], [ 0.3125, 0.625 ], [ 0.3125, 0.625 ], [ 0.625, 0.625 ], [ 0.0, 0.0 ]]
 			},
 			"overwrite": {
 				"up": [
@@ -5305,20 +6905,20 @@
 	"grindstone": {
 		"standing": {
 			"uv_sizes": {
-				"up": [[ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.5, 0.5 ]],
-				"down": [[ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.5, 0.5 ]],
-				"north": [[ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.75, 0.75 ]],
-				"south": [[ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.75, 0.75 ]],
-				"east": [[ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.25, 0.25 ], [ 0.25, 0.25 ], [ 0.5, 0.75 ]],
-				"west": [[ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.25, 0.25 ], [ 0.25, 0.25 ], [ 0.5, 0.75 ]]
+				"up": [[ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.5, 0.75 ]],
+				"down": [[ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.5, 0.75 ]],
+				"north": [[ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.5, 0.75 ]],
+				"south": [[ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.5, 0.75 ]],
+				"east": [[ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.75, 0.75 ]],
+				"west": [[ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.75, 0.75 ]]
 			},
 			"offset": {
-				"up": [[ 0.125, 0.4375 ], [ 0.75, 0.4375 ], [ 0.0, 0.375 ], [ 0.875, 0.375 ], [ 0.0, 0.0 ]],
-				"down": [[ 0.125, 0.4375 ], [ 0.75, 0.4375 ], [ 0.0, 0.375 ], [ 0.875, 0.375 ], [ 0.0, 0.0 ]],
-				"north": [[ 0.125, 0.75 ], [ 0.75, 0.75 ], [ 0.0, 0.25 ], [ 0.875, 0.25 ], [ 0.0, 0.0 ]],
-				"south": [[ 0.125, 0.75 ], [ 0.75, 0.75 ], [ 0.0, 0.25 ], [ 0.875, 0.25 ], [ 0.0, 0.0 ]],
-				"east": [[ 0.4375, 0.75 ], [ 0.4375, 0.75 ], [ 0.375, 0.25 ], [ 0.375, 0.25 ], [ 0.0, 0.0 ]],
-				"west": [[ 0.4375, 0.75 ], [ 0.4375, 0.75 ], [ 0.375, 0.25 ], [ 0.375, 0.25 ], [ 0.0, 0.0 ]]
+				"up": [[ 0.4375, 0.125 ], [ 0.4375, 0.75 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.4375, 0.125 ], [ 0.4375, 0.75 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.4375, 0.75 ], [ 0.4375, 0.75 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.4375, 0.75 ], [ 0.4375, 0.75 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.125, 0.75 ], [ 0.75, 0.75 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.125, 0.75 ], [ 0.75, 0.75 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]]
 			},
 			"overwrite": {
 				"up": [
@@ -5340,47 +6940,47 @@
 					"@down",
 					"@north",
 					"@north",
-					"@east"
+					"@up"
 				],
 				"south": [
 					"@down",
 					"@down",
 					"@north",
 					"@north",
-					"@east"
+					"@up"
 				],
 				"east": [
 					"@down",
 					"@down",
 					"@north",
 					"@north",
-					"@up"
+					"@east"
 				],
 				"west": [
 					"@down",
 					"@down",
 					"@north",
 					"@north",
-					"@up"
+					"@east"
 				]
 			}
 		},
 		"hanging": {
 			"uv_sizes": {
-				"up": [[ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.5, 0.5 ]],
-				"down": [[ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.5, 0.5 ]],
-				"north": [[ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.75, 0.75 ]],
-				"south": [[ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.75, 0.75 ]],
-				"east": [[ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.25, 0.25 ], [ 0.25, 0.25 ], [ 0.5, 0.75 ]],
-				"west": [[ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.25, 0.25 ], [ 0.25, 0.25 ], [ 0.5, 0.75 ]]
+				"up": [[ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.5, 0.75 ]],
+				"down": [[ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.5, 0.75 ]],
+				"north": [[ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.5, 0.75 ]],
+				"south": [[ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.5, 0.75 ]],
+				"east": [[ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.75, 0.75 ]],
+				"west": [[ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.75, 0.75 ]]
 			},
 			"offset": {
-				"up": [[ 0.125, 0.4375 ], [ 0.75, 0.4375 ], [ 0.0, 0.375 ], [ 0.875, 0.375 ], [ 0.0, 0.0 ]],
-				"down": [[ 0.125, 0.4375 ], [ 0.75, 0.4375 ], [ 0.0, 0.375 ], [ 0.875, 0.375 ], [ 0.0, 0.0 ]],
-				"north": [[ 0.125, 0.0 ], [ 0.75, 0.0 ], [ 0.0, 0.5 ], [ 0.875, 0.5 ], [ 0.0, 0.0 ]],
-				"south": [[ 0.125, 0.0 ], [ 0.75, 0.0 ], [ 0.0, 0.5 ], [ 0.875, 0.5 ], [ 0.0, 0.0 ]],
-				"east": [[ 0.4375, 0.0 ], [ 0.4375, 0.0 ], [ 0.375, 0.5 ], [ 0.375, 0.5 ], [ 0.0, 0.0 ]],
-				"west": [[ 0.4375, 0.0 ], [ 0.4375, 0.0 ], [ 0.375, 0.5 ], [ 0.375, 0.5 ], [ 0.0, 0.0 ]]
+				"up": [[ 0.4375, 0.125 ], [ 0.4375, 0.75 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.4375, 0.125 ], [ 0.4375, 0.75 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.4375, 0.0 ], [ 0.4375, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.4375, 0.0 ], [ 0.4375, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.125, 0.0 ], [ 0.75, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.125, 0.0 ], [ 0.75, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]]
 			},
 			"overwrite": {
 				"up": [
@@ -5402,47 +7002,47 @@
 					"@down",
 					"@north",
 					"@north",
-					"@east"
+					"@up"
 				],
 				"south": [
 					"@down",
 					"@down",
 					"@north",
 					"@north",
-					"@east"
+					"@up"
 				],
 				"east": [
 					"@down",
 					"@down",
 					"@north",
 					"@north",
-					"@up"
+					"@east"
 				],
 				"west": [
 					"@down",
 					"@down",
 					"@north",
 					"@north",
-					"@up"
+					"@east"
 				]
 			}
 		},
 		"side": {
 			"uv_sizes": {
-				"up": [[ 0.125, 0.375 ], [ 0.125, 0.375 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.5, 0.5 ]],
-				"down": [[ 0.125, 0.375 ], [ 0.125, 0.375 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.5, 0.5 ]],
-				"north": [[ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.75, 0.75 ]],
-				"south": [[ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.75, 0.75 ]],
-				"east": [[ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.25, 0.25 ], [ 0.25, 0.25 ], [ 0.5, 0.75 ]],
-				"west": [[ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.25, 0.25 ], [ 0.25, 0.25 ], [ 0.5, 0.75 ]]
+				"up": [[ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.5, 0.75 ]],
+				"down": [[ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.5, 0.75 ]],
+				"north": [[ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.5, 0.75 ]],
+				"south": [[ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.5, 0.75 ]],
+				"east": [[ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.75, 0.75 ]],
+				"west": [[ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.75, 0.75 ]]
 			},
 			"offset": {
-				"up": [[ 0.125, 0.0 ], [ 0.75, 0.0 ], [ 0.0, 0.375 ], [ 0.875, 0.375 ], [ 0.0, 0.0 ]],
-				"down": [[ 0.125, 0.0 ], [ 0.75, 0.0 ], [ 0.0, 0.375 ], [ 0.875, 0.375 ], [ 0.0, 0.0 ]],
-				"north": [[ 0.125, 0.4375 ], [ 0.75, 0.4375 ], [ 0.0, 0.375 ], [ 0.875, 0.375 ], [ 0.0, 0.0 ]],
-				"south": [[ 0.125, 0.4375 ], [ 0.75, 0.4375 ], [ 0.0, 0.375 ], [ 0.875, 0.375 ], [ 0.0, 0.0 ]],
-				"east": [[ 0.0, 0.4375 ], [ 0.0, 0.4375 ], [ 0.375, 0.375 ], [ 0.375, 0.375 ], [ 0.0, 0.0 ]],
-				"west": [[ 0.0, 0.4375 ], [ 0.0, 0.4375 ], [ 0.375, 0.375 ], [ 0.375, 0.375 ], [ 0.0, 0.0 ]]
+				"up": [[ 0.0, 0.125 ], [ 0.0, 0.75 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.0, 0.125 ], [ 0.0, 0.75 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.0, 0.4375 ], [ 0.0, 0.4375 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.0, 0.4375 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.125, 0.4375 ], [ 0.75, 0.4375 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.125, 0.4375 ], [ 0.75, 0.4375 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]]
 			},
 			"overwrite": {
 				"up": [
@@ -5464,47 +7064,47 @@
 					"@down",
 					"@north",
 					"@north",
-					"@east"
+					"@up"
 				],
 				"south": [
 					"@down",
 					"@down",
 					"@north",
 					"@north",
-					"@east"
+					"@up"
 				],
 				"east": [
 					"@down",
 					"@down",
 					"@north",
 					"@north",
-					"@up"
+					"@east"
 				],
 				"west": [
 					"@down",
 					"@down",
 					"@north",
 					"@north",
-					"@up"
+					"@east"
 				]
 			}
 		},
 		"multiple": {
 			"uv_sizes": {
-				"up": [[ 0.125, 0.375 ], [ 0.125, 0.375 ], [ 0.125, 0.375 ], [ 0.125, 0.375 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.5, 0.5 ]],
-				"down": [[ 0.125, 0.375 ], [ 0.125, 0.375 ], [ 0.125, 0.375 ], [ 0.125, 0.375 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.5, 0.5 ]],
-				"north": [[ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.75, 0.75 ]],
-				"south": [[ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.75, 0.75 ]],
-				"east": [[ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.25, 0.25 ], [ 0.25, 0.25 ], [ 0.5, 0.75 ]],
-				"west": [[ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.25, 0.25 ], [ 0.25, 0.25 ], [ 0.5, 0.75 ]]
+				"up": [[ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.5, 0.75 ]],
+				"down": [[ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.5, 0.75 ]],
+				"north": [[ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.5, 0.75 ]],
+				"south": [[ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.5, 0.75 ]],
+				"east": [[ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.75, 0.75 ]],
+				"west": [[ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.75, 0.75 ]]
 			},
 			"offset": {
-				"up": [[ 0.125, 0.0 ], [ 0.75, 0.0 ], [ 0.125, 0.625 ], [ 0.75, 0.625 ], [ 0.0, 0.375 ], [ 0.875, 0.375 ], [ 0.0, 0.0 ]],
-				"down": [[ 0.125, 0.0 ], [ 0.75, 0.0 ], [ 0.125, 0.625 ], [ 0.75, 0.625 ], [ 0.0, 0.375 ], [ 0.875, 0.375 ], [ 0.0, 0.0 ]],
-				"north": [[ 0.125, 0.4375 ], [ 0.75, 0.4375 ], [ 0.125, 0.4375 ], [ 0.75, 0.4375 ], [ 0.0, 0.375 ], [ 0.875, 0.375 ], [ 0.0, 0.0 ]],
-				"south": [[ 0.125, 0.4375 ], [ 0.75, 0.4375 ], [ 0.125, 0.4375 ], [ 0.75, 0.4375 ], [ 0.0, 0.375 ], [ 0.875, 0.375 ], [ 0.0, 0.0 ]],
-				"east": [[ 0.0, 0.4375 ], [ 0.0, 0.4375 ], [ 0.625, 0.4375 ], [ 0.625, 0.4375 ], [ 0.375, 0.375 ], [ 0.375, 0.375 ], [ 0.0, 0.0 ]],
-				"west": [[ 0.0, 0.4375 ], [ 0.0, 0.4375 ], [ 0.625, 0.4375 ], [ 0.625, 0.4375 ], [ 0.375, 0.375 ], [ 0.375, 0.375 ], [ 0.0, 0.0 ]]
+				"up": [[ 0.0, 0.125 ], [ 0.0, 0.75 ], [ 0.625, 0.125 ], [ 0.625, 0.75 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.0, 0.125 ], [ 0.0, 0.75 ], [ 0.625, 0.125 ], [ 0.625, 0.75 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.0, 0.4375 ], [ 0.0, 0.4375 ], [ 0.625, 0.4375 ], [ 0.625, 0.4375 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.0, 0.4375 ], [ 0.0, 0.4375 ], [ 0.625, 0.4375 ], [ 0.625, 0.4375 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.125, 0.4375 ], [ 0.75, 0.4375 ], [ 0.125, 0.4375 ], [ 0.75, 0.4375 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.125, 0.4375 ], [ 0.75, 0.4375 ], [ 0.125, 0.4375 ], [ 0.75, 0.4375 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]]
 			},
 			"overwrite": {
 				"up": [
@@ -5532,7 +7132,7 @@
 					"@down",
 					"@north",
 					"@north",
-					"@east"
+					"@up"
 				],
 				"south": [
 					"@down",
@@ -5541,7 +7141,7 @@
 					"@down",
 					"@north",
 					"@north",
-					"@east"
+					"@up"
 				],
 				"east": [
 					"@down",
@@ -5550,7 +7150,7 @@
 					"@down",
 					"@north",
 					"@north",
-					"@up"
+					"@east"
 				],
 				"west": [
 					"@down",
@@ -5559,26 +7159,26 @@
 					"@down",
 					"@north",
 					"@north",
-					"@up"
+					"@east"
 				]
 			}
 		},
 		"default": {
 			"uv_sizes": {
-				"up": [[ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.5, 0.5 ]],
-				"down": [[ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.5, 0.5 ]],
-				"north": [[ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.75, 0.75 ]],
-				"south": [[ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.75, 0.75 ]],
-				"east": [[ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.25, 0.25 ], [ 0.25, 0.25 ], [ 0.5, 0.75 ]],
-				"west": [[ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.25, 0.25 ], [ 0.25, 0.25 ], [ 0.5, 0.75 ]]
+				"up": [[ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.5, 0.75 ]],
+				"down": [[ 0.125, 0.125 ], [ 0.125, 0.125 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.5, 0.75 ]],
+				"north": [[ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.5, 0.75 ]],
+				"south": [[ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.5, 0.75 ]],
+				"east": [[ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.75, 0.75 ]],
+				"west": [[ 0.125, 0.25 ], [ 0.125, 0.25 ], [ 0.625, 0.375 ], [ 0.625, 0.375 ], [ 0.75, 0.75 ]]
 			},
 			"offset": {
-				"up": [[ 0.125, 0.4375 ], [ 0.75, 0.4375 ], [ 0.0, 0.375 ], [ 0.875, 0.375 ], [ 0.0, 0.0 ]],
-				"down": [[ 0.125, 0.4375 ], [ 0.75, 0.4375 ], [ 0.0, 0.375 ], [ 0.875, 0.375 ], [ 0.0, 0.0 ]],
-				"north": [[ 0.125, 0.75 ], [ 0.75, 0.75 ], [ 0.0, 0.25 ], [ 0.875, 0.25 ], [ 0.0, 0.0 ]],
-				"south": [[ 0.125, 0.75 ], [ 0.75, 0.75 ], [ 0.0, 0.25 ], [ 0.875, 0.25 ], [ 0.0, 0.0 ]],
-				"east": [[ 0.4375, 0.75 ], [ 0.4375, 0.75 ], [ 0.375, 0.25 ], [ 0.375, 0.25 ], [ 0.0, 0.0 ]],
-				"west": [[ 0.4375, 0.75 ], [ 0.4375, 0.75 ], [ 0.375, 0.25 ], [ 0.375, 0.25 ], [ 0.0, 0.0 ]]
+				"up": [[ 0.4375, 0.125 ], [ 0.4375, 0.75 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.4375, 0.125 ], [ 0.4375, 0.75 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.4375, 0.75 ], [ 0.4375, 0.75 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.4375, 0.75 ], [ 0.4375, 0.75 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.125, 0.75 ], [ 0.75, 0.75 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.125, 0.75 ], [ 0.75, 0.75 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]]
 			},
 			"overwrite": {
 				"up": [
@@ -5600,28 +7200,28 @@
 					"@down",
 					"@north",
 					"@north",
-					"@east"
+					"@up"
 				],
 				"south": [
 					"@down",
 					"@down",
 					"@north",
 					"@north",
-					"@east"
+					"@up"
 				],
 				"east": [
 					"@down",
 					"@down",
 					"@north",
 					"@north",
-					"@up"
+					"@east"
 				],
 				"west": [
 					"@down",
 					"@down",
 					"@north",
 					"@north",
-					"@up"
+					"@east"
 				]
 			}
 		}
@@ -8071,22 +9671,22 @@
 		}
 	},
 	"tripwire_hook": {
-		"0": {
+		"0-0": {
 			"uv_sizes": {
-				"up": [[ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.125, 0.125 ]],
-				"down": [[ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.125, 0.125 ]],
-				"north": [[ 0.375, 0.375 ], [ 0.375, 0.375 ], [ 0.125, 0.375 ]],
-				"south": [[ 0.375, 0.375 ], [ 0.375, 0.375 ], [ 0.125, 0.375 ]],
-				"east": [[ 0.125, 0.375 ], [ 0.125, 0.375 ], [ 0.125, 0.375 ]],
-				"west": [[ 0.125, 0.375 ], [ 0.125, 0.375 ], [ 0.125, 0.375 ]]
+				"up": [[ 0.25, 0.125 ], [ 0.125, 0.125 ], [ 0.375, 0.375 ]],
+				"down": [[ 0.25, 0.125 ], [ 0.125, 0.125 ], [ 0.375, 0.375 ]],
+				"north": [[ 0.25, 0.5 ], [ 0.125, 0.125 ], [ 0.375, 0.375 ]],
+				"south": [[ 0.25, 0.5 ], [ 0.125, 0.125 ], [ 0.375, 0.375 ]],
+				"east": [[ 0.125, 0.5 ], [ 0.125, 0.4375 ], [ 0.375, 0.375 ]],
+				"west": [[ 0.125, 0.5 ], [ 0.125, 0.4375 ], [ 0.375, 0.375 ]]
 			},
 			"offset": {
-				"up": [[ 0.3125, 0.0 ], [ 0.3125, 0.1875 ], [ 0.4375, 0.5625 ]],
-				"down": [[ 0.3125, 0.0 ], [ 0.3125, 0.1875 ], [ 0.4375, 0.5625 ]],
-				"north": [[ 0.3125, 0.25 ], [ 0.3125, 0.1875 ], [ 0.4375, 0.5625 ]],
-				"south": [[ 0.3125, 0.25 ], [ 0.3125, 0.1875 ], [ 0.4375, 0.5625 ]],
-				"east": [[ 0.0, 0.25 ], [ 0.4375, 0.5625 ], [ 0.4375, 0.5625 ]],
-				"west": [[ 0.0, 0.25 ], [ 0.4375, 0.5625 ], [ 0.4375, 0.5625 ]]
+				"up": [[ 0.375, 0.0 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"down": [[ 0.375, 0.0 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"north": [[ 0.375, 0.25 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"south": [[ 0.375, 0.25 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"east": [[ 0.0, 0.25 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"west": [[ 0.0, 0.25 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]]
 			},
 			"overwrite": {
 				"up": [
@@ -8121,22 +9721,122 @@
 				]
 			}
 		},
-		"1": {
+		"1-0": {
 			"uv_sizes": {
-				"up": [[ 0.375, 0.125 ], [ 0.125, 0.125 ], [ 0.375, 0.125 ]],
-				"down": [[ 0.375, 0.125 ], [ 0.125, 0.125 ], [ 0.375, 0.125 ]],
-				"north": [[ 0.375, 0.375 ], [ 0.125, 0.125 ], [ 0.375, 0.375 ]],
-				"south": [[ 0.375, 0.375 ], [ 0.125, 0.125 ], [ 0.375, 0.375 ]],
-				"east": [[ 0.125, 0.375 ], [ 0.125, 0.125 ], [ 0.125, 0.375 ]],
-				"west": [[ 0.125, 0.375 ], [ 0.125, 0.125 ], [ 0.125, 0.375 ]]
+				"up": [[ 0.25, 0.125 ], [ 0.125, 0.125 ], [ 0.375, 0.375 ]],
+				"down": [[ 0.25, 0.125 ], [ 0.125, 0.125 ], [ 0.375, 0.375 ]],
+				"north": [[ 0.25, 0.5 ], [ 0.125, 0.125 ], [ 0.375, 0.375 ]],
+				"south": [[ 0.25, 0.5 ], [ 0.125, 0.125 ], [ 0.375, 0.375 ]],
+				"east": [[ 0.125, 0.5 ], [ 0.125, 0.4375 ], [ 0.375, 0.375 ]],
+				"west": [[ 0.125, 0.5 ], [ 0.125, 0.4375 ], [ 0.375, 0.375 ]]
 			},
 			"offset": {
-				"up": [[ 0.3125, 0.0 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
-				"down": [[ 0.3125, 0.0 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
-				"north": [[ 0.3125, 0.25 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
-				"south": [[ 0.3125, 0.25 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
-				"east": [[ 0.0, 0.25 ], [ 0.4375, 0.5625 ], [ 0.4375, 0.5625 ]],
-				"west": [[ 0.0, 0.25 ], [ 0.4375, 0.5625 ], [ 0.4375, 0.5625 ]]
+				"up": [[ 0.375, 0.0 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"down": [[ 0.375, 0.0 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"north": [[ 0.375, 0.25 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"south": [[ 0.375, 0.25 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"east": [[ 0.0, 0.25 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"west": [[ 0.0, 0.25 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]]
+			},
+			"overwrite": {
+				"up": [
+					"@down",
+					"@north",
+					"@north"
+				],
+				"down": [
+					"@down",
+					"@north",
+					"@north"
+				],
+				"north": [
+					"@down",
+					"@north",
+					"@north"
+				],
+				"south": [
+					"@down",
+					"@north",
+					"@north"
+				],
+				"east": [
+					"@down",
+					"@north",
+					"@north"
+				],
+				"west": [
+					"@down",
+					"@north",
+					"@north"
+				]
+			}
+		},
+		"0-1": {
+			"uv_sizes": {
+				"up": [[ 0.25, 0.125 ], [ 0.125, 0.125 ], [ 0.375, 0.375 ]],
+				"down": [[ 0.25, 0.125 ], [ 0.125, 0.125 ], [ 0.375, 0.375 ]],
+				"north": [[ 0.25, 0.5 ], [ 0.125, 0.125 ], [ 0.375, 0.375 ]],
+				"south": [[ 0.25, 0.5 ], [ 0.125, 0.125 ], [ 0.375, 0.375 ]],
+				"east": [[ 0.125, 0.5 ], [ 0.125, 0.4375 ], [ 0.375, 0.375 ]],
+				"west": [[ 0.125, 0.5 ], [ 0.125, 0.4375 ], [ 0.375, 0.375 ]]
+			},
+			"offset": {
+				"up": [[ 0.375, 0.0 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"down": [[ 0.375, 0.0 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"north": [[ 0.375, 0.25 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"south": [[ 0.375, 0.25 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"east": [[ 0.0, 0.25 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"west": [[ 0.0, 0.25 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]]
+			},
+			"overwrite": {
+				"up": [
+					"@down",
+					"@north",
+					"@north"
+				],
+				"down": [
+					"@down",
+					"@north",
+					"@north"
+				],
+				"north": [
+					"@down",
+					"@north",
+					"@north"
+				],
+				"south": [
+					"@down",
+					"@north",
+					"@north"
+				],
+				"east": [
+					"@down",
+					"@north",
+					"@north"
+				],
+				"west": [
+					"@down",
+					"@north",
+					"@north"
+				]
+			}
+		},
+		"1-1": {
+			"uv_sizes": {
+				"up": [[ 0.25, 0.125 ], [ 0.125, 0.125 ], [ 0.375, 0.375 ]],
+				"down": [[ 0.25, 0.125 ], [ 0.125, 0.125 ], [ 0.375, 0.375 ]],
+				"north": [[ 0.25, 0.5 ], [ 0.125, 0.125 ], [ 0.375, 0.375 ]],
+				"south": [[ 0.25, 0.5 ], [ 0.125, 0.125 ], [ 0.375, 0.375 ]],
+				"east": [[ 0.125, 0.5 ], [ 0.125, 0.4375 ], [ 0.375, 0.375 ]],
+				"west": [[ 0.125, 0.5 ], [ 0.125, 0.4375 ], [ 0.375, 0.375 ]]
+			},
+			"offset": {
+				"up": [[ 0.375, 0.0 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"down": [[ 0.375, 0.0 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"north": [[ 0.375, 0.25 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"south": [[ 0.375, 0.25 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"east": [[ 0.0, 0.25 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"west": [[ 0.0, 0.25 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]]
 			},
 			"overwrite": {
 				"up": [
@@ -8173,20 +9873,20 @@
 		},
 		"default": {
 			"uv_sizes": {
-				"up": [[ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.125, 0.125 ]],
-				"down": [[ 0.375, 0.125 ], [ 0.375, 0.125 ], [ 0.125, 0.125 ]],
-				"north": [[ 0.375, 0.375 ], [ 0.375, 0.375 ], [ 0.125, 0.375 ]],
-				"south": [[ 0.375, 0.375 ], [ 0.375, 0.375 ], [ 0.125, 0.375 ]],
-				"east": [[ 0.125, 0.375 ], [ 0.125, 0.375 ], [ 0.125, 0.375 ]],
-				"west": [[ 0.125, 0.375 ], [ 0.125, 0.375 ], [ 0.125, 0.375 ]]
+				"up": [[ 0.25, 0.125 ], [ 0.125, 0.125 ], [ 0.375, 0.375 ]],
+				"down": [[ 0.25, 0.125 ], [ 0.125, 0.125 ], [ 0.375, 0.375 ]],
+				"north": [[ 0.25, 0.5 ], [ 0.125, 0.125 ], [ 0.375, 0.375 ]],
+				"south": [[ 0.25, 0.5 ], [ 0.125, 0.125 ], [ 0.375, 0.375 ]],
+				"east": [[ 0.125, 0.5 ], [ 0.125, 0.4375 ], [ 0.375, 0.375 ]],
+				"west": [[ 0.125, 0.5 ], [ 0.125, 0.4375 ], [ 0.375, 0.375 ]]
 			},
 			"offset": {
-				"up": [[ 0.3125, 0.0 ], [ 0.3125, 0.1875 ], [ 0.4375, 0.5625 ]],
-				"down": [[ 0.3125, 0.0 ], [ 0.3125, 0.1875 ], [ 0.4375, 0.5625 ]],
-				"north": [[ 0.3125, 0.25 ], [ 0.3125, 0.1875 ], [ 0.4375, 0.5625 ]],
-				"south": [[ 0.3125, 0.25 ], [ 0.3125, 0.1875 ], [ 0.4375, 0.5625 ]],
-				"east": [[ 0.0, 0.25 ], [ 0.4375, 0.5625 ], [ 0.4375, 0.5625 ]],
-				"west": [[ 0.0, 0.25 ], [ 0.4375, 0.5625 ], [ 0.4375, 0.5625 ]]
+				"up": [[ 0.375, 0.0 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"down": [[ 0.375, 0.0 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"north": [[ 0.375, 0.25 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"south": [[ 0.375, 0.25 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"east": [[ 0.0, 0.25 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]],
+				"west": [[ 0.0, 0.25 ], [ 0.4375, 0.5625 ], [ 0.3125, 0.1875 ]]
 			},
 			"overwrite": {
 				"up": [
@@ -10719,25 +12419,23 @@
 	"shelf": {
 		"default": {
 			"uv_sizes": {
-				"up": [[ 1.0, 0.125 ], [ 1.0, 0.375 ], [ 1.0, 0.375 ], [ 0.0625, 0.375 ], [ 0.0625, 0.375 ]],
-				"down": [[ 1.0, 0.125 ], [ 1.0, 0.375 ], [ 1.0, 0.375 ], [ 0.0625, 0.375 ], [ 0.0625, 0.375 ]],
-				"north": [[ 1.0, 1.0 ], [ 1.0, 0.25 ], [ 1.0, 0.25 ], [ 0.0625, 0.5 ], [ 0.0625, 0.5 ]],
-				"south": [[ 1.0, 1.0 ], [ 1.0, 0.25 ], [ 1.0, 0.25 ], [ 0.0625, 0.5 ], [ 0.0625, 0.5 ]],
-				"east": [[ 0.125, 1.0 ], [ 0.375, 0.25 ], [ 0.375, 0.25 ], [ 0.375, 0.5 ], [ 0.375, 0.5 ]],
-				"west": [[ 0.125, 1.0 ], [ 0.375, 0.25 ], [ 0.375, 0.25 ], [ 0.375, 0.5 ], [ 0.375, 0.5 ]]
+				"up": [[ 1.0, 0.5 ], [ 1.0, 0.5 ], [ 1.0, 0.125 ]],
+				"down": [[ 1.0, 0.5 ], [ 1.0, 0.5 ], [ 1.0, 0.125 ]],
+				"north": [[ 1.0, 0.125 ], [ 1.0, 0.125 ], [ 1.0, 0.75 ]],
+				"south": [[ 1.0, 0.125 ], [ 1.0, 0.125 ], [ 1.0, 0.75 ]],
+				"east": [[ 0.5, 0.125 ], [ 0.5, 0.125 ], [ 0.125, 0.75 ]],
+				"west": [[ 0.5, 0.125 ], [ 0.5, 0.125 ], [ 0.125, 0.75 ]]
 			},
 			"offset": {
-				"up": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.3125, 0.0 ], [ 0.625, 0.0 ]],
-				"down": [[ 0.0, 0.5 ], [ 0.0, 0.5 ], [ 0.0, 0.5 ], [ 0.3125, 0.5 ], [ 0.625, 0.5 ]],
-				"north": [[ 0.0, 0.0 ], [ 0.0, 0.75 ], [ 0.0, 0.0 ], [ 0.3125, 0.25 ], [ 0.625, 0.25 ]],
-				"south": [[ 0.0, 0.0 ], [ 0.0, 0.75 ], [ 0.0, 0.0 ], [ 0.3125, 0.25 ], [ 0.625, 0.25 ]],
-				"east": [[ 0.0, 0.0 ], [ 0.0, 0.75 ], [ 0.0, 0.0 ], [ 0.0, 0.25 ], [ 0.0, 0.25 ]],
-				"west": [[ 0.5, 0.0 ], [ 0.5, 0.75 ], [ 0.5, 0.0 ], [ 0.5, 0.25 ], [ 0.5, 0.25 ]]
+				"up": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.0, 0.5 ], [ 0.0, 0.5 ], [ 0.0, 0.5 ]],
+				"north": [[ 0.0, 0.875 ], [ 0.0, 0.0 ], [ 0.0, 0.125 ]],
+				"south": [[ 0.0, 0.875 ], [ 0.0, 0.0 ], [ 0.0, 0.125 ]],
+				"east": [[ 0.0, 0.875 ], [ 0.0, 0.0 ], [ 0.0, 0.125 ]],
+				"west": [[ 0.5, 0.875 ], [ 0.5, 0.0 ], [ 0.5, 0.125 ]]
 			},
 			"overwrite": {
 				"up": [
-					"@north#0,16",
-					"@north#0,16",
 					"@north#0,16",
 					"@north#0,16",
 					"@north#0,16"
@@ -10745,34 +12443,24 @@
 				"down": [
 					"@north#0,16",
 					"@north#0,16",
-					"@north#0,16",
-					"@north#0,16",
 					"@north#0,16"
 				],
 				"north": [
-					"@north#16,0",
-					"@north#16,0",
-					"@north#16,0",
-					"@north#16,0",
+					"@north#0,16",
+					"@north#0,16",
 					"@north#16,0"
 				],
 				"south": [
-					"@north#0,0",
-					"@north#0,0",
-					"@north#0,0",
-					"@north#0,0",
+					"@north#0,16",
+					"@north#0,16",
 					"@north#0,0"
 				],
 				"east": [
 					"@north#16,16",
 					"@north#16,16",
-					"@north#16,16",
-					"@north#16,16",
 					"@north#16,16"
 				],
 				"west": [
-					"@north#16,16",
-					"@north#16,16",
 					"@north#16,16",
 					"@north#16,16",
 					"@north#16,16"
@@ -11677,20 +13365,20 @@
 	"grindstone__low": {
 		"default": {
 			"uv_sizes": {
-				"up": [[ 1, 0.5 ]],
-				"down": [[ 1, 0.5 ]],
-				"north": [[ 1, 1 ]],
-				"south": [[ 1, 1 ]],
-				"east": [[ 0.5, 1 ]],
-				"west": [[ 0.5, 1 ]]
+				"up": [[ 0.5, 1 ]],
+				"down": [[ 0.5, 1 ]],
+				"north": [[ 0.5, 1 ]],
+				"south": [[ 0.5, 1 ]],
+				"east": [[ 1, 1 ]],
+				"west": [[ 1, 1 ]]
 			},
 			"offset": {
-				"up": [[ 0, 0.25 ]],
-				"down": [[ 0, 0.25 ]],
-				"north": [[ 0, 0 ]],
-				"south": [[ 0, 0 ]],
-				"east": [[ 0.25, 0 ]],
-				"west": [[ 0.25, 0 ]]
+				"up": [[ 0.25, 0 ]],
+				"down": [[ 0.25, 0 ]],
+				"north": [[ 0.25, 0 ]],
+				"south": [[ 0.25, 0 ]],
+				"east": [[ 0, 0 ]],
+				"west": [[ 0, 0 ]]
 			},
 			"overwrite": {
 				"up": [
@@ -11700,16 +13388,16 @@
 					"@up"
 				],
 				"north": [
-					"@east"
+					"@up"
 				],
 				"south": [
-					"@east"
+					"@up"
 				],
 				"east": [
-					"@up"
+					"@east"
 				],
 				"west": [
-					"@up"
+					"@east"
 				]
 			}
 		}
@@ -11817,20 +13505,20 @@
 	"tripwire_hook__low": {
 		"default": {
 			"uv_sizes": {
-				"up": [[ 0.375, 0.25 ]],
-				"down": [[ 0.375, 0.25 ]],
-				"north": [[ 0.375, 0.75 ]],
-				"south": [[ 0.375, 0.75 ]],
-				"east": [[ 0.25, 0.75 ]],
-				"west": [[ 0.25, 0.75 ]]
+				"up": [[ 0.25, 0.56047 ]],
+				"down": [[ 0.25, 0.56047 ]],
+				"north": [[ 0.25, 0.573874 ]],
+				"south": [[ 0.25, 0.573874 ]],
+				"east": [[ 0.56047, 0.573874 ]],
+				"west": [[ 0.56047, 0.573874 ]]
 			},
 			"offset": {
-				"up": [[ 0.3125, 0 ]],
-				"down": [[ 0.3125, 0 ]],
-				"north": [[ 0.3125, 0.25 ]],
-				"south": [[ 0.3125, 0.25 ]],
-				"east": [[ 0, 0.25 ]],
-				"west": [[ 0, 0.25 ]]
+				"up": [[ 0.375, 0 ]],
+				"down": [[ 0.375, 0 ]],
+				"north": [[ 0.375, 0.176126 ]],
+				"south": [[ 0.375, 0.176126 ]],
+				"east": [[ 0, 0.176126 ]],
+				"west": [[ 0, 0.176126 ]]
 			},
 			"overwrite": {
 				"up": [
@@ -15018,22 +16706,22 @@
 			},
 			"overwrite": {
 				"up": [
-					"textures/blocks/bed_feet_top"
+					"textures/blocks/bed_red_feet_top"
 				],
 				"down": [
 					"textures/blocks/planks_oak"
 				],
 				"north": [
-					"textures/blocks/bed_feet_side"
+					"textures/blocks/bed_red_feet_side"
 				],
 				"south": [
-					"textures/blocks/bed_feet_side"
+					"textures/blocks/bed_red_feet_side"
 				],
 				"east": [
-					"textures/blocks/bed_feet_end"
+					"textures/blocks/bed_red_feet_end"
 				],
 				"west": [
-					"textures/blocks/bed_feet_end"
+					"textures/blocks/bed_red_feet_end"
 				]
 			}
 		}
@@ -17801,12 +19489,12 @@
 				"west": [[ 0.5, 0.5 ], [ 0.0625, 0.25 ], [ 0.0625, 0.125 ], [ 0.0625, 0.125 ], [ 0.25, 0.3125 ], [ 0.25, 0.3125 ]]
 			},
 			"offset": {
-				"up": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
-				"down": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
-				"north": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
-				"south": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
-				"east": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
-				"west": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]]
+				"up": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.4375, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.5, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.75, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.4375, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.5, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.1875, 0.0 ], [ 0.0, 0.0 ]]
 			},
 			"overwrite": {
 				"up": [
@@ -17814,7 +19502,7 @@
 					"textures/entity/piglin/piglin#32,1",
 					"textures/entity/piglin/piglin#3,4",
 					"textures/entity/piglin/piglin#3,0",
-					"textures/entity/piglin/piglin#55,6",
+					"textures/entity/piglin/piglin#48,6",
 					"textures/entity/piglin/piglin#43,6"
 				],
 				"down": [
@@ -17822,7 +19510,7 @@
 					"textures/entity/piglin/piglin#36,1",
 					"textures/entity/piglin/piglin#4,4",
 					"textures/entity/piglin/piglin#4,0",
-					"textures/entity/piglin/piglin#56,6",
+					"textures/entity/piglin/piglin#48,6",
 					"textures/entity/piglin/piglin#44,6"
 				],
 				"north": [
@@ -17830,7 +19518,7 @@
 					"textures/entity/piglin/piglin#37,2",
 					"textures/entity/piglin/piglin#5,5",
 					"textures/entity/piglin/piglin#5,1",
-					"textures/entity/piglin/piglin#60,10",
+					"textures/entity/piglin/piglin#48,10",
 					"textures/entity/piglin/piglin#48,10"
 				],
 				"south": [
@@ -17838,7 +19526,7 @@
 					"textures/entity/piglin/piglin#32,2",
 					"textures/entity/piglin/piglin#3,5",
 					"textures/entity/piglin/piglin#3,1",
-					"textures/entity/piglin/piglin#55,10",
+					"textures/entity/piglin/piglin#48,10",
 					"textures/entity/piglin/piglin#43,10"
 				],
 				"east": [
@@ -17846,7 +19534,7 @@
 					"textures/entity/piglin/piglin#36,2",
 					"textures/entity/piglin/piglin#4,5",
 					"textures/entity/piglin/piglin#4,1",
-					"textures/entity/piglin/piglin#56,10",
+					"textures/entity/piglin/piglin#48,10",
 					"textures/entity/piglin/piglin#44,10"
 				],
 				"west": [
@@ -17854,7 +19542,7 @@
 					"textures/entity/piglin/piglin#31,2",
 					"textures/entity/piglin/piglin#2,5",
 					"textures/entity/piglin/piglin#2,1",
-					"textures/entity/piglin/piglin#51,10",
+					"textures/entity/piglin/piglin#48,10",
 					"textures/entity/piglin/piglin#39,10"
 				]
 			}
@@ -17869,12 +19557,12 @@
 				"west": [[ 0.5, 0.5 ], [ 0.0625, 0.25 ], [ 0.0625, 0.125 ], [ 0.0625, 0.125 ], [ 0.25, 0.3125 ], [ 0.25, 0.3125 ]]
 			},
 			"offset": {
-				"up": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
-				"down": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
-				"north": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
-				"south": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
-				"east": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]],
-				"west": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ]]
+				"up": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.4375, 0.0 ], [ 0.0, 0.0 ]],
+				"down": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.5, 0.0 ], [ 0.0, 0.0 ]],
+				"north": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.75, 0.0 ], [ 0.0, 0.0 ]],
+				"south": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.4375, 0.0 ], [ 0.0, 0.0 ]],
+				"east": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.5, 0.0 ], [ 0.0, 0.0 ]],
+				"west": [[ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.0, 0.0 ], [ 0.1875, 0.0 ], [ 0.0, 0.0 ]]
 			},
 			"overwrite": {
 				"up": [
@@ -17882,7 +19570,7 @@
 					"textures/entity/piglin/piglin#32,1",
 					"textures/entity/piglin/piglin#3,4",
 					"textures/entity/piglin/piglin#3,0",
-					"textures/entity/piglin/piglin#55,6",
+					"textures/entity/piglin/piglin#48,6",
 					"textures/entity/piglin/piglin#43,6"
 				],
 				"down": [
@@ -17890,7 +19578,7 @@
 					"textures/entity/piglin/piglin#36,1",
 					"textures/entity/piglin/piglin#4,4",
 					"textures/entity/piglin/piglin#4,0",
-					"textures/entity/piglin/piglin#56,6",
+					"textures/entity/piglin/piglin#48,6",
 					"textures/entity/piglin/piglin#44,6"
 				],
 				"north": [
@@ -17898,7 +19586,7 @@
 					"textures/entity/piglin/piglin#37,2",
 					"textures/entity/piglin/piglin#5,5",
 					"textures/entity/piglin/piglin#5,1",
-					"textures/entity/piglin/piglin#60,10",
+					"textures/entity/piglin/piglin#48,10",
 					"textures/entity/piglin/piglin#48,10"
 				],
 				"south": [
@@ -17906,7 +19594,7 @@
 					"textures/entity/piglin/piglin#32,2",
 					"textures/entity/piglin/piglin#3,5",
 					"textures/entity/piglin/piglin#3,1",
-					"textures/entity/piglin/piglin#55,10",
+					"textures/entity/piglin/piglin#48,10",
 					"textures/entity/piglin/piglin#43,10"
 				],
 				"east": [
@@ -17914,7 +19602,7 @@
 					"textures/entity/piglin/piglin#36,2",
 					"textures/entity/piglin/piglin#4,5",
 					"textures/entity/piglin/piglin#4,1",
-					"textures/entity/piglin/piglin#56,10",
+					"textures/entity/piglin/piglin#48,10",
 					"textures/entity/piglin/piglin#44,10"
 				],
 				"west": [
@@ -17922,7 +19610,7 @@
 					"textures/entity/piglin/piglin#31,2",
 					"textures/entity/piglin/piglin#2,5",
 					"textures/entity/piglin/piglin#2,1",
-					"textures/entity/piglin/piglin#51,10",
+					"textures/entity/piglin/piglin#48,10",
 					"textures/entity/piglin/piglin#39,10"
 				]
 			}

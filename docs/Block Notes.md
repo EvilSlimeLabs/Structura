@@ -262,6 +262,16 @@ Geometry numbers and UV values can be checked here. How they look cannot.
 - **Two block tall flowers** take the block's `down` texture on the lower half
   and `up` on the upper. Bedrock's `side` texture for these is a different
   plant's back and should never be used.
+- **A bed is drawn in its colour, and the colour is a second set of tiles.**
+  It is in the block entity, as `color`, and which half the block is is in its
+  states, so `core.ENTITY_ADDS` joins the two and a variant is named
+  `<head_piece_bit>-<colour>`. That is the one field of a block entity that goes
+  *with* a shape state rather than instead of it. The game holds a model per
+  colour rather than tinting anything, so `tools/make_bed_textures.py` recolours
+  the red tiles the pack ships: only the blanket, which is the only strongly red
+  part, and each pixel keeps how bright it is against an ordinary blanket pixel
+  in its own tile. Multiplying a red tile by a dye gives mud. A bed with no
+  entity beside it falls back to red.
 - **A banner is drawn in its colour but without its patterns.** The colour is
   the block entity's `Base`, counted in the same order as wool, and
   `tools/make_banner_textures.py` dyes the sheet once per colour so each has a
@@ -379,12 +389,12 @@ different list of cubes rather than the same list moved:
 | Family | The forms, and what carries the block |
 | --- | --- |
 | `bell` | the bell in two pieces, the narrow body over its flared lip, and then `standing` a beam across two stone posts, `multiple` the beam alone between two walls, `side` half a beam out of one wall, `hanging` a short bar up to the block above |
-| `grindstone` | a wheel twelve by twelve by eight with a pivot each side, and `standing` legs to the floor, `hanging` legs to the block above, `side` legs into the wall behind, `multiple` legs into both. The wheel takes three quarters of the block, so where it sits is what the mounting decides |
+| `grindstone` | a wheel eight across, twelve tall and twelve deep, its round faces on the x sides where the axle runs, with a pivot each side, and `standing` legs to the floor, `hanging` legs to the block above, `side` legs into the wall behind, `multiple` legs into both. The wheel takes three quarters of the block, so where it sits is what the mounting decides |
 | `hanging_sign` | `0-1` chains, `1-1` a bar under the block it is fixed to, `0-0` the same bar run out to the edges so it reaches the wall. Named by `attached_bit` and `hanging`, joined the way `core.py` joins shape states |
 | `campfire` | a plate of ash across the floor with two logs standing in it and two more across those, and `0` the fire over them, `1` without |
-| `door` | `default` shut, on the side the door faces, `open` and `open_hinged` folded back against the wall on whichever side the hinge is, `top` nothing at all because the lower block draws both halves. Its four thin faces read the frame down the side of the tile, not the whole door squeezed into three pixels |
-| `shelf` | a back panel against the wall, a rail across the top and the bottom, and two uprights, so the three compartments are openings |
-| `tripwire_hook` | `0` the hook hanging loose off its plate, `1` the hook held out level by the wire tied to it. Named by `attached_bit` |
+| `door` | `default` shut, on the x side with its picture mirrored, `open` and `open_hinged` folded back against the wall on whichever side the hinge is, `top` nothing at all because the lower block draws both halves. Its four thin faces read the frame down the side of the tile, not the whole door squeezed into three pixels |
+| `shelf` | a C on its side: a panel against the wall with a board out of the top and another out of the bottom, open at the front and at both ends. It has been a solid box and a box with two uprights cut into it, and it is neither |
+| `tripwire_hook` | a plate four across and eight tall on the wall, a shaft out of it, and the ring square across the shaft's end. `0-0` the shaft up at 45 degrees with the ring on the low half of its end, `1-0` the wire pulling it down near the horizontal, `1-1` engaged, the shaft down at 45 degrees with the ring on the high half and square to the ground. Named by `attached_bit` and `powered_bit` |
 | `sculk_shrieker` | half a block tall, with a second plate under the lid so there is something down the throat |
 | `tripwire` | one flat plate a pixel and a half off the floor, wearing a tile drawn for it |
 | `flower_pot` | four terracotta walls a pixel thick with the soil sunk inside them, six across and six tall |
@@ -463,6 +473,21 @@ carries that quarter turn in every facing; if beds come out across the way they
 should lie, that is the number to move. **Two legs a block, not four**:
 `bed_feet_end` carries a leg at each corner, which is one end seen from outside,
 and four to a block puts eight under a bed.
+
+**A tile that runs off the edge of its sheet is not cropped short.**
+`extend_uv_image` drops the corner altogether and reads the sheet's own top
+left, so the face comes out wearing something else entirely with nothing to say
+it did. The piglin's right ear asked for a tile at `x60` of a 64 wide sheet and
+came out wearing the side of its head. Pull the corner back far enough that the
+tile fits, which is what `make_block_forms.on_sheet` does and what
+`make_head_forms` reads every face through now.
+
+**A mirrored picture is a window that runs backwards.** Bedrock reads a negative
+`uv_size` from the far edge back, so a face that needs its picture the other way
+round takes `(16, v, -16, h)` rather than `(0, v, 16, h)`. A door shut wanted
+that, and so does one long side of a bed: the two faces of a box opposite each
+other run their windows in opposite directions, so a picture with a side to it
+comes out right on one and reversed on the other.
 
 **A texture's own size says how big the part it covers is.** `grindstone_side`
 is 12×12 and `grindstone_round` is 8×12, which is one wheel twelve wide, twelve

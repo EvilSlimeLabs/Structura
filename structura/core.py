@@ -25,6 +25,12 @@ debug=False
 ## chest's contents or a sign's text, so only the fields named here are read.
 ENTITY_SHAPES = {"CopperGolemStatue": "Pose", "Banner": "Base"}
 
+## Which field of a block entity names something that goes *with* the block's
+## own shape state rather than instead of it. A bed keeps its colour beside the
+## block and which half it is in its states, and the shape wants both, so the
+## two are joined the way two shape states are.
+ENTITY_ADDS = {"Bed": "color"}
+
 ## Which field of a block entity holds another whole block. A flower pot keeps
 ## whatever is planted in it beside the block rather than in its states, as a
 ## block with a name and states of its own, so the plant is drawn as a second
@@ -559,6 +565,9 @@ class Structura:
             marker = ENTITY_SHAPES.get(str(entity.get("id","")))
             if marker is not None and marker in entity:
                 data = _plain(entity[marker])
+            joined = ENTITY_ADDS.get(str(entity.get("id","")))
+            if joined is not None and joined in entity:
+                data = "{}-{}".format(data, _plain(entity[joined]))
             spin = ENTITY_ROTATIONS.get(str(entity.get("id","")))
             if spin is not None and spin[0] in entity and rot == spin[1]:
                 try:

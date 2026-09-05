@@ -47,6 +47,7 @@
 	"extinguished":"shape",
 	"attachment":"shape",
 	"attached_bit":"shape",
+	"powered_bit":"shape",
 	"ground_sign_direction":"rot",
 	"upper_block_bit":"top",
 	"bite_counter":"data",

@@ -247,8 +247,14 @@ class MountingTests(unittest.TestCase):
         # out of its block entirely
         shapes = load("block_shapes")["door"]
         shut = shapes["default"]
-        self.assertEqual([off[2] for off in shut["offsets"]],
-                         [0.8125, 0.8125], "the panel is on the far side")
+        # a quarter turn clockwise from the side it used to sit on, which a
+        # world showed was where it belongs
+        self.assertEqual([off[0] for off in shut["offsets"]],
+                         [0.8125, 0.8125], "the panel is not on the x side")
+        for variant in ("open", "open_hinged"):
+            self.assertEqual([size[2] for size in shapes[variant]["size"]],
+                             [0.1875, 0.1875],
+                             "%s is not a quarter turn round" % variant)
         for variant, form in shapes.items():
             self.assertEqual([form["center"][0], form["center"][2]], [0.5, 0.5],
                              "%s turns about something other than the middle"
@@ -260,15 +266,15 @@ class MountingTests(unittest.TestCase):
         # row of panels down each edge and across the top
         entry = load("block_uv")["door"]["default"]
         for index in (0, 1):
-            for face in ("north", "south"):
-                self.assertEqual(entry["uv_sizes"][face][index], [1.0, 1.0],
-                                 "the panel does not read the whole picture")
+            # shut, the panel is on the x faces and its picture is mirrored: a
+            # window that starts at the far edge and runs back
             for face in ("east", "west"):
+                self.assertEqual(entry["uv_sizes"][face][index], [-1.0, 1.0],
+                                 "the panel is not read the other way round")
+                self.assertEqual(entry["offset"][face][index], [1.0, 0.0])
+            for face in ("north", "south", "up", "down"):
                 self.assertEqual(entry["uv_sizes"][face][index], [0.1875, 1.0],
                                  "%s reads more than the frame" % face)
-            for face in ("up", "down"):
-                self.assertEqual(entry["uv_sizes"][face][index], [1.0, 0.1875],
-                                 "%s reads more than the door's own edge" % face)
         # the two halves have a picture each, and neither is left to the block's
         # own faces, which would put the lower one on the top of the door
         self.assertEqual(entry["overwrite"]["up"], ["@down", "@north"])
@@ -441,7 +447,9 @@ class MountingTests(unittest.TestCase):
         shapes = load("block_shapes")["grindstone"]
         for variant, form in shapes.items():
             wheel = max(form["size"], key=lambda size: size[0] * size[1] * size[2])
-            self.assertEqual(wheel, [0.75, 0.75, 0.5],
+            # its round faces are the two you look at and they belong on the
+            # x sides, so the wheel is eight across, twelve tall, twelve deep
+            self.assertEqual(wheel, [0.5, 0.75, 0.75],
                              "%s has the wrong wheel" % variant)
 
         # and it names its faces: blocks.json puts the pivot's texture on north
@@ -530,12 +538,39 @@ class MountingTests(unittest.TestCase):
         self.assertEqual(len(self.cubes("iron_door", rot=1, top=True)), 1)
         self.assertEqual(len(self.cubes("iron_door", rot=1, trap_open=True)), 2)
 
+    def test_a_bed_is_drawn_in_the_colour_its_block_entity_names(self):
+        # a bed's colour is in the block entity and which half it is in its
+        # states, and the shape wants both, so the two are joined the way two
+        # shape states are. There is one set of tiles per colour: the game holds
+        # a model each rather than tinting anything, and a ghost block has
+        # nothing to tint at run time either.
+        from structura import core
+
+        pack = core.Structura.__new__(core.Structura)
+        for half, base, colour in ((0, 11, "blue"), (1, 5, "lime")):
+            data = core.Structura._process_block(
+                pack, {"name": "minecraft:bed",
+                       "states": {"head_piece_bit": half, "direction": 0}},
+                {"id": "Bed", "color": base})[4]
+            self.assertEqual(data, "%d-%d" % (half, base))
+            self.geo.blocks = {}
+            self.geo.uv_map = {}
+            self.geo.uv_array = None
+            self.geo.make_block(0, 0, 0, "bed", data=data)
+            worn = {n.split("/")[-1] for n in self.geo.uv_map if "bed_" in n}
+            self.assertEqual(len(worn), 3, "a bed reads three of its tiles")
+            for name in worn:
+                self.assertTrue(name.startswith("bed_%s_" % colour), name)
+        # and a bed with no entity beside it keeps its half
+        plain = self.cubes("bed", data="1")
+        self.assertEqual(len(plain), 3)
+
     def test_a_bed_has_two_legs_and_wears_its_own_tile(self):
         # four legs a block puts eight under a bed. `bed_feet_end` carries a leg
         # at each corner, which is one end seen from outside, so a block has two
         # and they stand at the end away from the other half.
         shapes = load("block_shapes")["bed"]
-        for variant, at in (("0", 0.0), ("1", 0.8125)):
+        for variant, at in (("0-14", 0.0), ("1-14", 0.8125)):
             form = shapes[variant]
             self.assertEqual(len(form["size"]), 3, "a mattress and two legs")
             legs = [off for off, size in zip(form["offsets"], form["size"])
@@ -545,7 +580,7 @@ class MountingTests(unittest.TestCase):
                 self.assertEqual(leg[0], at,
                                  "the legs of %s are at the wrong end" % variant)
 
-        written = load("block_uv")["bed"]["0"]["overwrite"]
+        written = load("block_uv")["bed"]["0-14"]["overwrite"]
         for face, textures in written.items():
             for index, texture in enumerate(textures):
                 if face == "down":
@@ -748,7 +783,8 @@ class MountingTests(unittest.TestCase):
         self.geo.blocks = {}
         self.geo.make_block(0, 0, 0, "oak_shelf", rot="south")
         cubes = list(self.geo.blocks.values())[0]["cubes"]
-        cube = cubes[0]
+        # the panel is the piece with the front and the back on it
+        cube = min(cubes, key=lambda one: one["size"][2])
         # a face's v runs from the top of the tile it reads, so the whole part
         # of it names the tile and the fraction is the window within it
         tiles = {face: int(cube["uv"][face]["uv"][1])
@@ -760,27 +796,25 @@ class MountingTests(unittest.TestCase):
         self.assertEqual(tiles["up"], tiles["down"], "both planks, one tile")
         self.assertEqual(tiles["east"], tiles["west"], "both ends, one tile")
 
-    def test_a_shelf_has_its_compartments_cut_rather_than_painted(self):
-        # vanilla paints the three openings into the front texture, which reads
-        # as a shelf on a solid block and as a plain box on a half-transparent
-        # one. The frame and the two uprights are drawn, so the openings are
-        # openings.
+    def test_a_shelf_is_a_c_on_its_side(self):
+        # a panel against the wall with a board out of the top of it and another
+        # out of the bottom, open at the front and at both ends. It has been a
+        # solid box and it has been a box with two uprights cut into it, and it
+        # is neither: nothing stands between the compartments.
         self.geo.blocks = {}
         self.geo.make_block(0, 0, 0, "oak_shelf", rot="south")
         cubes = list(self.geo.blocks.values())[0]["cubes"]
-        self.assertEqual(len(cubes), 5,
-                         "a back panel, a rail top and bottom, two uprights")
+        self.assertEqual(len(cubes), 3, "two boards and the panel between them")
         deep = max(cube["origin"][2] + cube["size"][2] for cube in cubes)
         near = min(cube["origin"][2] for cube in cubes)
         self.assertEqual(deep - near, 0.5,
                          "a shelf is a full block wide and tall, half deep")
-        # the uprights stand between the rails and reach neither the floor of
-        # the block nor its ceiling, which is what leaves three openings
-        uprights = [cube for cube in cubes if cube["size"][0] < 0.5]
-        self.assertEqual(len(uprights), 2)
-        for upright in uprights:
-            self.assertGreater(upright["origin"][1], min(
-                cube["origin"][1] for cube in cubes))
+        boards = [cube for cube in cubes if cube["size"][2] > 0.25]
+        self.assertEqual(len(boards), 2, "the boards are the deep ones")
+        panel = [cube for cube in cubes if cube not in boards][0]
+        for board in boards:
+            self.assertEqual(board["size"][1], 0.125, "a board is two thick")
+        self.assertGreater(panel["size"][1], 0.5, "the panel spans between them")
 
     def test_a_window_larger_than_its_texture_is_ignored(self):
         # every wood has its own sheet, and a block whose texture is a plain
@@ -819,25 +853,29 @@ class MountingTests(unittest.TestCase):
         shapes = load("block_shapes")
         for family, variant in (("wall_sign", "default"), ("shelf", "default"),
                                 ("bell", "side"), ("grindstone", "side"),
-                                ("tripwire_hook", "0"),
-                                ("tripwire_hook", "1")):
+                                ("tripwire_hook", "0-0"),
+                                ("tripwire_hook", "1-1")):
             form = shapes[family][variant]
             nearest = min(off[2] for off in form["offsets"])
             self.assertEqual(nearest, 0,
                              "%s %s is mounted on the far wall"
                              % (family, variant))
 
-    def test_a_tripwire_hook_shows_whether_anything_is_tied_to_it(self):
-        # attached_bit is a shape state, so the hook hanging loose off its plate
-        # and the hook held out level by a wire are two lists of cubes rather
-        # than one turned. The plate is the same in both.
-        loose = self.cubes("tripwire_hook", data="0")
-        tied = self.cubes("tripwire_hook", data="1")
-        self.assertNotEqual(loose, tied, "both states draw the same hook")
-        self.assertEqual(loose[0], tied[0], "the plate moved between states")
-        # the hook reaches out from the wall only once there is a wire on it
-        self.assertGreater(max(origin[2] + size[2] for origin, size in tied),
-                           max(origin[2] + size[2] for origin, size in loose))
+    def test_a_tripwire_hook_leans_by_what_is_tied_to_it(self):
+        # attached_bit and powered_bit are both shape states, so a hook with
+        # nothing on it, one with a wire pulling on it and one engaged are three
+        # lists of cubes rather than one turned. The plate is the same in all
+        # three, and the shaft is what leans.
+        shapes = load("block_shapes")["tripwire_hook"]
+        leans = {name: form["rotation"][1][0]
+                 for name, form in shapes.items() if name != "default"}
+        self.assertEqual(len(set(leans.values())), 3,
+                         "two of the three forms lean the same way")
+        self.assertGreater(leans["0-0"], 0, "a loose hook points down")
+        self.assertLess(leans["1-1"], leans["1-0"],
+                        "an engaged hook does not drop past a tied one")
+        plates = {tuple(form["offsets"][0]) for form in shapes.values()}
+        self.assertEqual(len(plates), 1, "the plate moved between states")
 
     def test_a_rod_wears_its_own_texture_on_each_of_its_pieces(self):
         # a lightning rod is a wide base with a thin rod out of it, and the two

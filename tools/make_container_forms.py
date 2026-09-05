@@ -132,7 +132,9 @@ def standing(sheet):
     top of its own block read as half a banner.
     """
     return [Cube((2, POLE_TALL, 2), (7, 0, 7), sheet + POLE_ART, window=POLE),
-            Cube((CLOTH_WIDE, CLOTH_TALL, 0.4), (1, 2, 8.6), sheet,
+            ## a pixel clear of the post's own face, which the cloth used to
+            ## end exactly on, so the two fought over the same plane
+            Cube((CLOTH_WIDE, CLOTH_TALL, 0.4), (1, 2, 9.6), sheet,
                  window=CLOTH)]
 
 
@@ -143,7 +145,8 @@ def wall(sheet):
     hangs down past the block's own floor.
     """
     return [Cube((16, 2, 2), (0, 14, 0), sheet + BAR_ART, window=BAR),
-            Cube((CLOTH_WIDE, CLOTH_TALL, 0.4), (1, 14 - CLOTH_TALL, 2), sheet,
+            ## and a pixel clear of the bar, for the same reason
+            Cube((CLOTH_WIDE, CLOTH_TALL, 0.4), (1, 14 - CLOTH_TALL, 3), sheet,
                  window=CLOTH)]
 
 

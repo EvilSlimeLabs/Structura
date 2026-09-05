@@ -129,13 +129,23 @@ CLOSED = BLOCKS % "conduit_closed"
 OPEN = BLOCKS % "conduit_open"
 SHELL = {face: (0, 0, 8, 8) for face in FACES}
 
+## The two shells are the other way round from the way their names read: what
+## `conduit_closed` draws is the opened one, which is the shell a conduit only
+## wears once it is running, and a conduit in a structure is not.
 CONDUIT = {
-    "0": [Cube((6, 6, 6), (5, 5, 5), CLOSED, window=SHELL)],
+    "0": [Cube((6, 6, 6), (5, 5, 5), OPEN, window=SHELL)],
     "1": [Cube((4, 4, 4), (6, 6, 6), CONDUIT_BASE,
                window={face: (0, 0, 8, 8) for face in FACES}),
-          Cube((8, 8, 8), (4, 4, 4), OPEN, window=SHELL)],
+          Cube((8, 8, 8), (4, 4, 4), CLOSED, window=SHELL)],
 }
 CONDUIT["default"] = CONDUIT["0"]
+
+## A conduit has no direction in its states, so nothing turns it today. The
+## table is here so that a state which does turn up finds an entry rather than
+## leaving the block unrotated and silent: both the four cardinals and the
+## sixteen steps a sign uses.
+CONDUIT_TURNS = dict(FACING)
+CONDUIT_TURNS.update({str(n): [0, round(n * 22.5, 1), 0] for n in range(16)})
 
 
 # --- beds -------------------------------------------------------------------
@@ -160,19 +170,39 @@ CONDUIT["default"] = CONDUIT["0"]
 BED_TALL = 6
 BED_UP = 3
 LEG = 3
+# **The leg is drawn at the end of the tile the leg is at.** `bed_feet_side`
+# carries it in the first three pixels and `bed_head_side` in the last three,
+# because each picture runs foot to head. Both halves read the foot tile's
+# corner, so the head's legs came out blank.
+#
+# **And one long side has to read its picture the other way round.** The two
+# faces of a box opposite each other run their windows in opposite directions,
+# so the pillow ends up at the head on one and at the foot on the other. A
+# window that starts at the far edge and runs back is how Bedrock reads a
+# picture mirrored.
 BED_FACE = (0, 7, 16, BED_TALL)         # the mattress, on the side and the end
-BED_LEG = (0, 16 - LEG, LEG, LEG)       # the leg, under it
+BED_BACK = (16, 7, -16, BED_TALL)       # the same, the other way round
 
 
-def bed(part, head):
+## A bed's colour is in the block entity, not in its states, and there is one
+## set of tiles per colour: `tools/make_bed_textures.py` recolours the red
+## tiles the pack ships. `core.ENTITY_ADDS` joins the colour to the half, so a
+## variant is named `<head_piece_bit>-<colour>`.
+BED_COLOURS = ["white", "orange", "magenta", "light_blue", "yellow", "lime",
+               "pink", "gray", "silver", "cyan", "purple", "blue", "brown",
+               "green", "red", "black"]
+
+
+def bed(part, head, colour):
     """One block of a bed: the mattress, and the two legs at its outer end.
 
     `head` says which end of the block the legs stand at, which is the end away
-    from the other half.
+    from the other half, and which end of the tile their picture is at.
     """
-    top = BLOCKS % ("bed_%s_top" % part)
-    side = BLOCKS % ("bed_%s_side" % part)
-    end = BLOCKS % ("bed_%s_end" % part)
+    named = "bed_%s_%s_%%s" % (colour, part)
+    top = BLOCKS % (named % "top")
+    side = BLOCKS % (named % "side")
+    end = BLOCKS % (named % "end")
     mattress = Cube((16, BED_TALL, 16), (0, BED_UP, 0), texture={
         "up": top, "down": BLOCKS % "planks_oak",
         ## the bed lies along x, so its ends are the x faces and its long sides
@@ -180,14 +210,21 @@ def bed(part, head):
         "east": end, "west": end, "north": side, "south": side},
         window={"up": (0, 0, 16, 16), "down": (0, 0, 16, 16),
                 "east": BED_FACE, "west": BED_FACE,
-                "north": BED_FACE, "south": BED_FACE})
+                "north": BED_BACK, "south": BED_FACE})
+    leg_art = (head, 16 - LEG, LEG, LEG)
     legs = [Cube((LEG, BED_UP, LEG), (head, 0, z), side,
-                 window={face: BED_LEG for face in FACES})
+                 window={face: leg_art for face in FACES})
             for z in (0, 16 - LEG)]
     return [mattress] + legs
 
 
-BEDS = {"0": bed("feet", 0), "1": bed("head", 16 - LEG)}
+BEDS = {"%d-%d" % (half, number): bed(part, head, colour)
+        for half, (part, head) in enumerate((("feet", 0), ("head", 16 - LEG)))
+        for number, colour in enumerate(BED_COLOURS)}
+## a bed with no entity beside it keeps its half and falls back to red, which is
+## the colour the pack's own tiles are drawn in
+BEDS["0"] = bed("feet", 0, "red")
+BEDS["1"] = bed("head", 16 - LEG, "red")
 BEDS["default"] = BEDS["0"]
 
 ## The model lies along x while the tables put a block at rest facing south, so
@@ -208,6 +245,7 @@ def main():
     write("lectern", LECTERN)
     write("enchanting_table", ENCHANTING)
     write("conduit", CONDUIT)
+    turns("conduit", CONDUIT_TURNS)
     write("bed", BEDS)
     ## a lectern and a bed both face somewhere; an enchanting table does not
     turns("lectern", FACING)
