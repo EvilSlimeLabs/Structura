@@ -365,7 +365,9 @@ PIVOT_TALL = 4
 ## the pivot's picture is ten across and six down in the corner of its tile, and
 ## a face left to its own window read past the bottom of that and came out half
 ## drawn
-PIVOT_ART = (0, 0, 10, 6)
+## six by six of the corner, at its own scale: a ten by six window on a two
+## by four face squashes the picture
+PIVOT_ART = (0, 0, 6, 6)
 LEG_ROOM = 16 - WHEEL_TALL              # what the block has left for the legs
 
 
@@ -393,20 +395,23 @@ def grindstone(floor, legs):
     ## between its two pivots turned
     pivots = [Cube((2, PIVOT_TALL, 4), (at, axle - PIVOT_TALL // 2, 6), PIVOT,
                    window={face: PIVOT_ART for face in FACES})
-              for at in (0, 14)]
+              for at in (WHEEL_AT - 2, WHEEL_AT + WHEEL_WIDE)]
     return legs(floor, axle) + pivots + [wheel]
 
 
 LEG_AT = (2, 12)
 
 
-def legs_down(_floor, _axle):
-    return [Cube((2, LEG_ROOM, 2), (at, 0, 7), LEG) for at in LEG_AT]
-
-
-def legs_up(floor, _axle):
-    return [Cube((2, LEG_ROOM, 2), (at, floor + WHEEL_TALL, 7), LEG)
+def legs_down(floor, axle):
+    ## up to the pivot, not up to the wheel: a post that stopped at the stone
+    ## left a gap under the square it is meant to carry
+    return [Cube((2, axle - PIVOT_TALL // 2, 2), (at, 0, 7), LEG)
             for at in LEG_AT]
+
+
+def legs_up(floor, axle):
+    top = axle + PIVOT_TALL // 2
+    return [Cube((2, 16 - top, 2), (at, top, 7), LEG) for at in LEG_AT]
 
 
 def legs_back(_floor, axle, sides=(0,)):
@@ -568,8 +573,8 @@ DOORS = {
     "default": door(16 - DOOR_THICK, 0, False, mirror=True),
     ## open, folded back against the wall on whichever side the hinge is, a
     ## quarter turn anticlockwise from the sides those used to sit on
-    "open": door(0, 0, True),
-    "open_hinged": door(0, 16 - DOOR_THICK, True),
+    "open": door(0, 0, True, mirror=True),
+    "open_hinged": door(0, 16 - DOOR_THICK, True, mirror=True),
     ## the upper block of a door draws nothing at all: a cube of nothing rather
     ## than no cube, because the tables are read by the variant existing
     "top": [Cube((0.016, 0.016, 0.016), (0, 0, 0))],
@@ -592,47 +597,62 @@ SHELF_BACK = "@north#16,0"
 SHELF_FLAT = "@north#0,16"      # the top and the bottom, one above the other
 SHELF_END = "@north#16,16"      # the two ends, side by side
 
-# A shelf is a C on its side: a panel against the wall with a board out of the
-# top of it and another out of the bottom, open at the front and at both ends.
-# It has been a solid box and it has been a box with two uprights cut into it,
-# and it is neither: nothing stands between the compartments, and a box that
-# thick reads as a cupboard.
+# Built from what the sheet draws rather than from a guess at the shape. On the
+# front quarter of it the openings are the dark part: three of them, four across
+# and seven down, at rows 4 to 10, separated by a single lit pixel at x5 and at
+# x10 and bordered by one more at x0 and x15. Above them is a rail four rows
+# deep and below them one of five. The bottom half of the sheet is 32 by 16,
+# which is the up, the down and the two ends of a box sixteen by sixteen by
+# eight, so eight deep is what the sheet says it is.
+#
+# So: a case with a floor, a ceiling, two ends, a back and two uprights, and the
+# three compartments are the gaps between them. This has been a solid box and it
+# has been a C with nothing between the compartments; the sheet says neither.
 SHELF_DEEP = 8
-SHELF_THICK = 2
+SHELF_BACK_DEEP = 2
+OPENING = (4, 11)               # the rows the compartments run between
+UPRIGHT = (5, 10)               # where the two of them stand
 
 
-def shelf_board(at):
-    """The top or the bottom of the C, running out from the panel.
+def shelf_piece(size, at, front):
+    """One piece of the case, reading its own slice of each part of the sheet.
 
-    The flat tile holds the top over the bottom and the end tile holds one end
-    beside the other, so the faces that read them take a slice the size of the
-    face. The board's own front edge is plain, so it reads the planks too.
+    `front` is where the piece sits on the front picture, in texture pixels, and
+    the back takes the same window of the back. The flat tile holds the top over
+    the bottom and the end tile one end beside the other, so the faces that read
+    them take a slice the size of the face.
     """
-    rows = (0, SHELF_THICK) if at else (16 - SHELF_THICK, SHELF_THICK)
-    return Cube((16, SHELF_THICK, SHELF_DEEP), (0, at, 0), texture={
-        "south": SHELF_FLAT, "north": SHELF_FLAT,
-        "up": SHELF_FLAT, "down": SHELF_FLAT,
-        "east": SHELF_END, "west": SHELF_END}, window={
-        "south": (0, rows[0], 16, rows[1]), "north": (0, rows[0], 16, rows[1]),
-        "up": (0, 0, 16, SHELF_DEEP), "down": (0, 8, 16, SHELF_DEEP),
-        "east": (0, rows[0], SHELF_DEEP, rows[1]),
-        "west": (8, rows[0], SHELF_DEEP, rows[1])})
-
-
-SHELVES = {"default": [
-    shelf_board(0),
-    shelf_board(16 - SHELF_THICK),
-    ## the panel between them, against the wall, carrying the painted front
-    Cube((16, 16 - 2 * SHELF_THICK, SHELF_THICK), (0, SHELF_THICK, 0), texture={
+    wide, tall, deep = size
+    return Cube(size, at, texture={
         "south": SHELF_FRONT, "north": SHELF_BACK,
         "up": SHELF_FLAT, "down": SHELF_FLAT,
         "east": SHELF_END, "west": SHELF_END}, window={
-        "south": (0, SHELF_THICK, 16, 16 - 2 * SHELF_THICK),
-        "north": (0, SHELF_THICK, 16, 16 - 2 * SHELF_THICK),
-        "up": (0, 0, 16, SHELF_THICK), "down": (0, 8, 16, SHELF_THICK),
-        "east": (0, SHELF_THICK, SHELF_THICK, 16 - 2 * SHELF_THICK),
-        "west": (8, SHELF_THICK, SHELF_THICK, 16 - 2 * SHELF_THICK)}),
-]}
+        "south": front, "north": front,
+        "up": (at[0], 0, wide, deep), "down": (at[0], 8, wide, deep),
+        "east": (at[2], front[1], deep, tall),
+        "west": (8 + at[2], front[1], deep, tall)})
+
+
+def shelf():
+    """The floor, the ceiling, the two ends, the back and the two uprights."""
+    low, high = OPENING
+    inside = 16 - high              # how far the floor comes up
+    made = [
+        ## the floor and the ceiling, the full depth of the case
+        shelf_piece((16, inside, SHELF_DEEP), (0, 0, 0), (0, high, 16, inside)),
+        shelf_piece((16, low, SHELF_DEEP), (0, 16 - low, 0), (0, 0, 16, low)),
+        ## the back, between them
+        shelf_piece((16, high - low, SHELF_BACK_DEEP), (0, inside, 0),
+                    (0, low, 16, high - low)),
+    ]
+    ## the two ends and the two uprights, all one pixel across
+    for x in (0, 15) + UPRIGHT:
+        made.append(shelf_piece((1, high - low, SHELF_DEEP), (x, inside, 0),
+                                (x, low, 1, high - low)))
+    return made
+
+
+SHELVES = {"default": shelf()}
 
 
 # --- sculk shriekers --------------------------------------------------------
@@ -736,7 +756,7 @@ def leaning(angle, along, up):
             PLATE_DEEP - SHAFT_IN + along * out[0] + up * over[0])
 
 
-def hook(angle, high, ring_angle=None):
+def hook(angle, high, ring_angle=None, ring_out=0):
     """The shaft at an angle, and the ring across the end of it.
 
     `high` puts the ring on the top two pixels of the shaft's end rather than
@@ -757,7 +777,7 @@ def hook(angle, high, ring_angle=None):
     ## the ring hangs from the end of the shaft, off one half of its face, and
     ## reaches back across it: its own middle is that much further down again
     edge = 0.5 if high else -0.5
-    at = leaning(angle, SHAFT_LONG, edge - RING_WIDE / 2.0)
+    at = leaning(angle, SHAFT_LONG + ring_out, edge - RING_WIDE / 2.0)
     ring = Cube((RING_WIDE, RING_WIDE, RING_THICK),
                 (at[0] - RING_WIDE / 2.0, at[1] - RING_WIDE / 2.0,
                  at[2] - RING_THICK / 2.0),
@@ -771,11 +791,64 @@ def hook(angle, high, ring_angle=None):
 TRIPWIRE_HOOKS = {
     ## attached_bit and powered_bit, joined the way core.py joins shape states
     "0-0": hook(LOOSE, high=False),
-    "1-0": hook(TIED, high=False, ring_angle=TIED_RING),
+    ## the wire holds the ring off the high half of the shaft, and a pixel
+    ## further out than the shaft itself sits
+    "1-0": hook(TIED, high=True, ring_angle=TIED_RING, ring_out=SHAFT_IN),
     "0-1": hook(ENGAGED, high=True, ring_angle=0.0),
     "1-1": hook(ENGAGED, high=True, ring_angle=0.0),
 }
 TRIPWIRE_HOOKS["default"] = TRIPWIRE_HOOKS["0-0"]
+
+
+# --- cauldrons --------------------------------------------------------------
+#
+# A pot with a floor and four walls, and whatever it is holding lying flat
+# inside it. Drawn as a near cube, which is what one entry gives it, a cauldron
+# is a block of iron with nothing to say what is in it.
+#
+# `cauldron_liquid` says water, lava or powder snow, and `fill_level` how much,
+# so the two joined name the form: `water-3`, `powder_snow-6`. Dyed water is
+# `water` with a whole RGB in the block entity rather than a liquid of its own,
+# so `core.ENTITY_TINTS` reads that colour, the form becomes `dyed`, and its
+# liquid asks for a tint. Structura builds the pack, so the tile is multiplied
+# by the colour on its way into the atlas and every dye in a structure lands
+# there as a tile of its own.
+POT_WALL = 2
+POT_FLOOR = 3
+LIQUID = {"water": "textures/blocks/cauldron_water",
+          "lava": "textures/blocks/cauldron_lava",
+          "powder_snow": "textures/blocks/powder_snow",
+          ## the same water, asking for the block's own colour. `~tint` is put
+          ## aside for the colour the block entity carries, and a cauldron with
+          ## no colour reads the plain tile.
+          "dyed": "textures/blocks/cauldron_water~tint"}
+## how high each fill level stands, in pixels off the floor of the block
+CAULDRON_FILL = {level: POT_FLOOR + 2 * level for level in range(1, 7)}
+
+INSIDE = 16 - 2 * POT_WALL
+cauldron_pot = [
+    Cube((16, POT_FLOOR, 16), (0, 0, 0)),
+    Cube((POT_WALL, 16 - POT_FLOOR, 16), (0, POT_FLOOR, 0)),
+    Cube((POT_WALL, 16 - POT_FLOOR, 16), (16 - POT_WALL, POT_FLOOR, 0)),
+    Cube((INSIDE, 16 - POT_FLOOR, POT_WALL), (POT_WALL, POT_FLOOR, 0)),
+    Cube((INSIDE, 16 - POT_FLOOR, POT_WALL),
+         (POT_WALL, POT_FLOOR, 16 - POT_WALL)),
+]
+
+
+def cauldron(liquid, level):
+    """The pot, and a surface of whatever it holds at that fill level."""
+    if liquid is None or level not in CAULDRON_FILL:
+        return list(cauldron_pot)
+    return cauldron_pot + [
+        Cube((INSIDE, 0.2, INSIDE),
+             (POT_WALL, CAULDRON_FILL[level], POT_WALL), LIQUID[liquid],
+             window={face: (0, 0, INSIDE, INSIDE) for face in FACES})]
+
+
+CAULDRONS = {"%s-%d" % (liquid, level): cauldron(liquid, level)
+             for liquid in LIQUID for level in range(7)}
+CAULDRONS["default"] = cauldron(None, 0)
 
 
 # --- dried ghasts -----------------------------------------------------------
@@ -889,13 +962,14 @@ BREW_ROD = "@up"            # brewing_stand
 BREW_BASE = "@down"         # brewing_stand_base
 ROD_WIDE, ROD_TALL = 2, 13
 PLATE_WIDE, PLATE_TALL = 6, 2
-BOTTLE = "textures/items/potion_bottle_empty"
+BOTTLE = "textures/items/potion_bottle_heal"
+ARM_TALL, ARM_AT = 5, 3
 
 ## Where the three sockets are drawn on the base tile, which is the only thing
 ## in the pack that says where a plate goes, and where each plate stands once
 ## the stand is turned half round. A plate keeps reading the socket it belongs
 ## to, so the picture turns with the stone.
-BREW_PLATES = [((12, 8), (1, 5)), ((3, 4), (10, 9)), ((3, 12), (10, 1))]
+BREW_PLATES = [((12, 8), (1, 5)), ((3, 4), (9, 9)), ((3, 12), (9, 1))]
 
 
 def brew_plate(socket, at):
@@ -913,19 +987,21 @@ def brew_plate(socket, at):
 
 
 def brew_arm(at):
-    """A flat quad from the rod out to the middle of one plate.
+    """An upright quad from the rod out to the middle of one plate.
 
-    The tile draws the arms either side of the rod, so an arm reads one of
-    those rather than the rod's own column.
+    One edge is pinned to the rod and the other to the plate. It stands on its
+    edge rather than lying flat: flat, it was a couple of stray pixels down at
+    the base and nothing that read as an arm. The tile draws the arms either
+    side of the rod, so an arm reads one of those rather than the rod's column.
     """
     reach = (at[0] + PLATE_WIDE / 2.0 - 8, at[1] + PLATE_WIDE / 2.0 - 8)
     along_x = abs(reach[0]) > abs(reach[1])
     length = max(abs(reach[0]), abs(reach[1]))
-    size = (length, 0.2, 2) if along_x else (2, 0.2, length)
-    corner = (min(8, 8 + reach[0]) if along_x else 7,
-              PLATE_TALL,
-              7 if along_x else min(8, 8 + reach[1]))
-    art = (2, 4, 5, 4) if along_x else (10, 4, 5, 4)
+    size = (length, ARM_TALL, 0.2) if along_x else (0.2, ARM_TALL, length)
+    corner = (min(8, 8 + reach[0]) if along_x else 8,
+              ARM_AT,
+              8 if along_x else min(8, 8 + reach[1]))
+    art = (2, 4, 5, ARM_TALL) if along_x else (10, 4, 5, ARM_TALL)
     return Cube(size, corner, texture=BREW_ROD,
                 window={face: art for face in FACES})
 
@@ -1132,6 +1208,8 @@ def main():
     write("decorated_pot", DECORATED_POTS)
     ## the rod turns about the middle of the block, not the middle of the base
     write("brewing_stand", BREWING_STANDS, center=(8, 6.4, 8))
+    write("cauldron", CAULDRONS)
+    define(["cauldron", "lava_cauldron"], "cauldron")
     write("heavy_core", HEAVY_CORES, center=(8, 4, 8))
     write("dried_ghast", DRIED_GHASTS)
     ## a shrieker was drawn from the plain cube family, so it needs pointing at

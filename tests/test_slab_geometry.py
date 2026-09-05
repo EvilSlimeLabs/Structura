@@ -16,10 +16,11 @@ class SlabGeometryTests(unittest.TestCase):
 
     def build(self, name, states, y=0):
         block = {"name": "minecraft:" + name, "states": states}
-        rot, top, variant, open_bit, data, _hinge = self.processor._process_block(block)
+        properties = self.processor._process_block(block)
+        rot, top, variant, open_bit, data, _hinge, tint = properties
         self.geo.blocks = {}
         self.geo.make_block(0, y, 0, name, rot=rot, top=top, variant=variant,
-                            trap_open=open_bit, data=data)
+                            trap_open=open_bit, data=data, tint=tint)
         cubes = [c for bone in self.geo.blocks.values() for c in bone["cubes"]]
         self.assertEqual(len(cubes), 1)
         return cubes[0]

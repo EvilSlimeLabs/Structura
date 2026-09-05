@@ -395,10 +395,11 @@ different list of cubes rather than the same list moved:
 | `hanging_sign` | `0-1` chains, `1-1` a bar under the block it is fixed to, `0-0` the same bar run out to the edges so it reaches the wall. Named by `attached_bit` and `hanging`, joined the way `core.py` joins shape states |
 | `campfire` | a plate of ash across the floor with two logs standing in it and two more across those, and `0` the fire over them, `1` without |
 | `door` | `default` shut, on the x side with its picture mirrored, `open` and `open_hinged` folded back against the wall on whichever side the hinge is, `top` nothing at all because the lower block draws both halves. Its four thin faces read the frame down the side of the tile, not the whole door squeezed into three pixels |
-| `shelf` | a C on its side: a panel against the wall with a board out of the top and another out of the bottom, open at the front and at both ends. It has been a solid box and a box with two uprights cut into it, and it is neither |
+| `shelf` | a case: a floor, a ceiling, two ends, a back and two uprights, and the three compartments are the gaps between them. Built from what the sheet draws, which parts the openings at x5 and x10 and borders them at x0 and x15 |
 | `tripwire_hook` | a plate four across and eight tall on the wall, a shaft out of it, and the ring square across the shaft's end. `0-0` the shaft up at 45 degrees with the ring on the low half of its end, `1-0` the wire pulling it down near the horizontal, `1-1` engaged, the shaft down at 45 degrees with the ring on the high half and square to the ground. Named by `attached_bit` and `powered_bit` |
 | `sculk_shrieker` | half a block tall, with a second plate under the lid so there is something down the throat |
 | `tripwire` | one flat plate a pixel and a half off the floor, wearing a tile drawn for it |
+| `cauldron` | a pot with a floor and four walls, and a flat surface of whatever it holds inside it. `cauldron_liquid` and `fill_level` joined name the form; dyed water is `water` with a whole RGB in the block entity, which becomes the liquid `dyed`, and the tile is tinted with that colour as the pack is built |
 | `flower_pot` | four terracotta walls a pixel thick with the soil sunk inside them, six across and six tall |
 | `decorated_pot` | a body fourteen across and twelve tall with an eight by four neck on top of it, every face naming its own part of the 32x32 sheet |
 | `brewing_stand` | a two by thirteen rod with three six by six plates round it, an arm out to each, and a bottle on a plate for each of `brewing_stand_slot_a_bit` and its two fellows. Each plate reads the socket drawn for it on the base tile, so the picture turns with the stone |
@@ -483,6 +484,16 @@ it did. The piglin's right ear asked for a tile at `x60` of a 64 wide sheet and
 came out wearing the side of its head. Pull the corner back far enough that the
 tile fits, which is what `make_block_forms.on_sheet` does and what
 `make_head_forms` reads every face through now.
+
+**A colour that is a whole colour gets a tile of its own, built.** A cauldron's
+dye is an RGB in its block entity, not one of a list, so no lookup table could
+name a texture for it and a ghost block cannot tint as it draws. Structura is a
+build step, though: a texture written `<name>~tint` in a table has the block's
+own colour put in its place, `core.ENTITY_TINTS` says which field of which block
+entity carries one, and `extend_uv_image` multiplies the tile by it on the way
+into the atlas. The atlas is keyed by the whole name, so every distinct dye in a
+structure lands there once. A block that asks for a tint and has none reads the
+plain texture.
 
 **A mirrored picture is a window that runs backwards.** Bedrock reads a negative
 `uv_size` from the far edge back, so a face that needs its picture the other way

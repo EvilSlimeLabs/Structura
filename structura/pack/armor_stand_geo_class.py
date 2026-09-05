@@ -29,14 +29,50 @@ LOW_SUFFIX = "__low"
 ## because the atlas is keyed by the whole name.
 WINDOW_MARK = "#"
 
+## "<texture>~<rrggbb>". A block whose colour is a whole colour rather than one
+## of a list -- a cauldron's dyed water, which keeps an RGB in its block entity
+## -- cannot name a texture per colour, and a ghost block cannot tint anything
+## as it draws. Structura builds the pack, though, so the tile is tinted on the
+## way into the atlas and the colour travels in the name. A table writes
+## `~tint` and the colour is put in its place; with no colour to put there the
+## mark is dropped and the plain texture is read.
+TINT_MARK = "~"
+TINT_WANTED = TINT_MARK + "tint"
+
 
 def split_window(texture):
     """A texture's name, and the corner of the 16x16 window to take from it."""
+    texture = split_tint(texture)[0]
     if WINDOW_MARK not in texture:
         return texture, (0, 0)
     name, _, corner = texture.partition(WINDOW_MARK)
     across, _, down = corner.partition(",")
     return name, (int(across), int(down))
+
+
+def split_tint(texture):
+    """A texture's name, and the colour to multiply it by, if it names one."""
+    if TINT_MARK not in texture:
+        return texture, None
+    name, _, colour = texture.partition(TINT_MARK)
+    try:
+        packed = int(colour, 16)
+    except ValueError:
+        return name, None
+    return name, ((packed >> 16) & 255, (packed >> 8) & 255, packed & 255)
+
+
+def tinted(texture, colour):
+    """A texture that asks for a tint, with this block's colour put in.
+
+    A block that wants one and has none reads the plain texture, so a cauldron
+    of undyed water is not left naming a file nobody wrote.
+    """
+    if TINT_WANTED not in texture:
+        return texture
+    if colour is None:
+        return texture.replace(TINT_WANTED, "")
+    return texture.replace(TINT_WANTED, "%s%06x" % (TINT_MARK, colour & 0xFFFFFF))
 
 ## Alpha the ghost blocks are drawn at when nothing sets one. The texture's
 ## alpha channel is multiplied by this, so it is a fraction, not a percentage.
@@ -217,7 +253,7 @@ class ArmorStandGeo:
         self.geometry["bones"].append(
             {"name": layer_name, "parent": "ghost_blocks"})#, "pivot": [-8, 0, 8]})
 
-    def make_block(self, x, y, z, block_name, rot=None, top=False,data=0, trap_open=False, parent=None,variant="default", big = False, hinge=False):
+    def make_block(self, x, y, z, block_name, rot=None, top=False,data=0, trap_open=False, parent=None,variant="default", big = False, hinge=False, tint=None):
         # Resolves one block through the lookup tables and appends its cubes to
         # the slice bone: shape family, then variant, then rotation, then the
         # UV window each face reads from the texture sheet.
@@ -318,7 +354,7 @@ class ArmorStandGeo:
             
             
             for i in range(len(block_shapes["size"])):
-                uv = self.block_name_to_uv(block_name,variant=variant,shape_variant=shape_variant,index=i)
+                uv = self.block_name_to_uv(block_name,variant=variant,shape_variant=shape_variant,index=i,tint=tint)
                 block={}
                 if len(block_uv["uv_sizes"]["up"])>i:
                     uv_idx=i
@@ -473,10 +509,12 @@ class ArmorStandGeo:
                                     {"name": "ghost_blocks",
                                      "pivot": [-8, 0, 8]}]
 
-    def extend_uv_image(self, new_image_filename, window=(0, 0)):
+    def extend_uv_image(self, new_image_filename, window=(0, 0), tint=None):
         # Appends one 16x16 tile to the atlas. `window` is the corner of the
         # region to take, in pixels; a texture larger than a tile is cropped
-        # rather than scaled, so its pixels keep their size.
+        # rather than scaled, so its pixels keep their size. `tint` multiplies
+        # it on the way in, which is how a block whose colour is a whole colour
+        # rather than one of a list gets a tile of its own.
 
         # Fallback to a tga
         if not os.path.isfile(new_image_filename):
@@ -484,6 +522,12 @@ class ArmorStandGeo:
 
         image = Image.open(new_image_filename).convert("RGBA")
         impt = array(image)
+        if tint is not None:
+            ## the same multiply the game does with a colormap, done once here
+            ## because a ghost block has no colormap to run
+            impt = impt.astype(int)
+            for band, level in enumerate(tint):
+                impt[:, :, band] = impt[:, :, band] * level // 255
         ## A window past the edge of the texture is ignored rather than filled
         ## with the blank the tile is built on. The blocks that name one are
         ## drawn from a sheet, and a legacy id resolving to a plain terrain tile
@@ -516,7 +560,7 @@ class ArmorStandGeo:
             temp_new[startshape[0]:, :, :] = image_array
             self.uv_array = temp_new
 
-    def block_name_to_uv(self, block_name, variant = "",shape_variant="default",index=0,data=0):
+    def block_name_to_uv(self, block_name, variant = "",shape_variant="default",index=0,data=0,tint=None):
         
         # helper function maps the section of the uv file to the side of the block
         temp_uv = {}
@@ -560,12 +604,16 @@ class ArmorStandGeo:
                     if debug:
                         print("{}: {}".format(side,texture_files[side]))
             for key in texture_files.keys():
+                ## a texture that asks for a tint takes this block's own colour,
+                ## so every colour lands in the atlas as a tile of its own
+                texture_files[key] = tinted(texture_files[key], tint)
                 if texture_files[key] not in self.uv_map.keys():
                     try:
                         source, window = split_window(texture_files[key])
+                        _named, colour = split_tint(texture_files[key])
                         self.extend_uv_image(
                             "{}/{}.png".format(self.ref_resource_pack, source),
-                            window)
+                            window, colour)
                         self.uv_map[texture_files[key]] = len(self.uv_map.keys())
                     except Exception as e:
                         raise RuntimeError("Failed to load texture {}".format(texture_files[key]))

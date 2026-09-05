@@ -629,6 +629,13 @@ tempting to pivot on that edge instead, and that takes the block out of its own
 block: a door pivoted on the plane of its own panel ended up half in the block
 beside it a quarter turn round.
 
+**A colour that is a whole colour is tinted into the atlas as the pack is
+built.** A cauldron's dye is an RGB in its block entity rather than one of a
+list, so nothing in the tables could name a texture for it. A texture written
+`<name>~tint` takes the block's own colour, `core.ENTITY_TINTS` says which field
+carries one, and `armor_stand_geo_class.extend_uv_image` multiplies the tile as
+it loads it. The atlas is keyed by the whole name, so each dye lands there once.
+
 **One texture per cube, not per block.** A block built from several cubes cannot
 use Bedrock's six face textures directly; every cube would get the same six. The
 `overwrite` entry in `block_uv.json` gives a texture per cube per face, and a

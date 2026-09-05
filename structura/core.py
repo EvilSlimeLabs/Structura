@@ -31,6 +31,12 @@ ENTITY_SHAPES = {"CopperGolemStatue": "Pose", "Banner": "Base"}
 ## two are joined the way two shape states are.
 ENTITY_ADDS = {"Bed": "color"}
 
+## Which field of a block entity holds a colour of its own rather than one of a
+## list. A dyed cauldron keeps a whole RGB, which no lookup table could carry a
+## texture for, so the colour is handed to the geometry builder and the tile is
+## tinted as the pack is built.
+ENTITY_TINTS = {"Cauldron": "CustomColor"}
+
 ## Which field of a block entity holds another whole block. A flower pot keeps
 ## whatever is planted in it beside the block rather than in its states, as a
 ## block with a name and states of its own, so the plant is drawn as a second
@@ -394,11 +400,12 @@ class Structura:
                     open_bit = blockProp[3]
                     data = blockProp[4]
                     hinge = blockProp[5]
+                    tint = blockProp[6]
                     if debug:
-                        armorstand.make_block(x, y, z, blk_name, rot = rot, top = top,variant = variant, trap_open=open_bit, data=data, hinge=hinge, big = export_big)
+                        armorstand.make_block(x, y, z, blk_name, rot = rot, top = top,variant = variant, trap_open=open_bit, data=data, hinge=hinge, big = export_big, tint=tint)
                     else:
                         try:
-                            armorstand.make_block(x, y, z, blk_name, rot = rot, top = top,variant = variant, trap_open=open_bit, data=data, hinge=hinge, big = export_big)
+                            armorstand.make_block(x, y, z, blk_name, rot = rot, top = top,variant = variant, trap_open=open_bit, data=data, hinge=hinge, big = export_big, tint=tint)
                         except Exception as e:
                             unsupported = UnsupportedBlock((x,y,z), drawn, variant)
                             self.unsupported_blocks.append(unsupported)
@@ -502,6 +509,7 @@ class Structura:
         return finished
     def _process_block(self,block,entity=None):
         shape_states = []
+        tint = None
         rot = None
         top = False
         open_bit = False
@@ -568,6 +576,17 @@ class Structura:
             joined = ENTITY_ADDS.get(str(entity.get("id","")))
             if joined is not None and joined in entity:
                 data = "{}-{}".format(data, _plain(entity[joined]))
+            ## A cauldron's water may be dyed, and the dye is a whole colour in
+            ## the block entity rather than a state of its own, so the block
+            ## says only "water". The form becomes `dyed`, whose liquid asks for
+            ## a tint, and the colour itself is handed on: Structura builds the
+            ## pack, so the tile is tinted on the way into the atlas and every
+            ## colour in a structure lands there as a tile of its own.
+            marker = ENTITY_TINTS.get(str(entity.get("id","")))
+            if marker is not None and marker in entity:
+                tint = int(entity[marker])
+                if str(data).startswith("water-"):
+                    data = "dyed" + str(data)[len("water"):]
             spin = ENTITY_ROTATIONS.get(str(entity.get("id","")))
             if spin is not None and spin[0] in entity and rot == spin[1]:
                 try:
@@ -586,7 +605,7 @@ class Structura:
                 if bool(block["states"]["stripped_bit"]):
                     keys+="_stripped"
                 variant = ["wood",keys]
-        return [rot, top, variant, open_bit, data, hinge]
+        return [rot, top, variant, open_bit, data, hinge, tint]
     def get_nametags(self):
         """The name tags in this pack, in the order they were added."""
         return list(self.structure_files.keys())

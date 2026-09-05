@@ -540,6 +540,43 @@ class MountingTests(unittest.TestCase):
         self.assertEqual(len(self.cubes("iron_door", rot=1, top=True)), 1)
         self.assertEqual(len(self.cubes("iron_door", rot=1, trap_open=True)), 2)
 
+    def test_a_dyed_cauldron_is_drawn_in_its_own_colour(self):
+        # a cauldron's dye is a whole RGB in the block entity, not one of a
+        # list, so no lookup table could carry a texture for it and a ghost
+        # block cannot tint as it draws. Structura builds the pack, so the tile
+        # is multiplied by the colour on its way into the atlas and every dye in
+        # a structure lands there as a tile of its own.
+        from structura import core
+
+        pack = core.Structura.__new__(core.Structura)
+        states = {"cauldron_liquid": "water", "fill_level": 4}
+        plain = core.Structura._process_block(
+            pack, {"name": "minecraft:cauldron", "states": states},
+            {"id": "Cauldron"})
+        self.assertEqual(plain[4], "water-4")
+        self.assertIsNone(plain[6], "an undyed cauldron carries a colour")
+
+        seen = {}
+        for colour in (0xFF3030, 0x3030FF):
+            props = core.Structura._process_block(
+                pack, {"name": "minecraft:cauldron", "states": states},
+                {"id": "Cauldron", "CustomColor": colour})
+            self.assertEqual(props[4], "dyed-4",
+                             "a dyed cauldron does not change liquid")
+            self.geo.blocks = {}
+            self.geo.uv_map = {}
+            self.geo.uv_array = None
+            self.geo.make_block(0, 0, 0, "cauldron", data=props[4],
+                                tint=props[6])
+            named = [n for n in self.geo.uv_map if "~" in n]
+            self.assertEqual(len(named), 1, "the water does not carry a colour")
+            row = self.geo.uv_map[named[0]]
+            seen[colour] = list(self.geo.uv_array[row * 16 + 4][4][:3])
+        self.assertNotEqual(seen[0xFF3030], seen[0x3030FF],
+                            "two dyes came out the same colour")
+        self.assertGreater(seen[0xFF3030][0], seen[0xFF3030][2])
+        self.assertGreater(seen[0x3030FF][2], seen[0x3030FF][0])
+
     def test_a_bed_is_drawn_in_the_colour_its_block_entity_names(self):
         # a bed's colour is in the block entity and which half it is in its
         # states, and the shape wants both, so the two are joined the way two
@@ -798,25 +835,45 @@ class MountingTests(unittest.TestCase):
         self.assertEqual(tiles["up"], tiles["down"], "both planks, one tile")
         self.assertEqual(tiles["east"], tiles["west"], "both ends, one tile")
 
-    def test_a_shelf_is_a_c_on_its_side(self):
-        # a panel against the wall with a board out of the top of it and another
-        # out of the bottom, open at the front and at both ends. It has been a
-        # solid box and it has been a box with two uprights cut into it, and it
-        # is neither: nothing stands between the compartments.
+    def test_a_shelf_is_the_case_its_sheet_draws(self):
+        # the sheet's front quarter draws three openings four across and seven
+        # down, at rows 4 to 10, parted by a lit pixel at x5 and x10 and
+        # bordered by one at x0 and x15, with a rail four rows deep over them
+        # and five under. So: a floor, a ceiling, two ends, a back and two
+        # uprights, and the compartments are the gaps between them.
+        shapes = load("block_shapes")["shelf"]["default"]
+        self.assertEqual(len(shapes["size"]), 7,
+                         "a floor, a ceiling, two ends, a back, two uprights")
+        deep = max(off[2] + size[2] for off, size
+                   in zip(shapes["offsets"], shapes["size"]))
+        self.assertEqual(deep, 0.5,
+                         "the sheet unwraps a box eight deep")
+        thin = [off for off, size in zip(shapes["offsets"], shapes["size"])
+                if size[0] == 0.0625]
+        self.assertEqual(sorted(round(off[0] * 16) for off in thin),
+                         [0, 5, 10, 15],
+                         "the ends and the uprights are not where the sheet "
+                         "parts the compartments")
+
+    def test_a_shelf_shows_a_different_face_on_each_side(self):
+        # its texture is a sheet: the front with three compartments painted in,
+        # the solid back beside it, and planks for the ends. Taking the whole
+        # tile puts the compartments on all six faces.
         self.geo.blocks = {}
         self.geo.make_block(0, 0, 0, "oak_shelf", rot="south")
         cubes = list(self.geo.blocks.values())[0]["cubes"]
-        self.assertEqual(len(cubes), 3, "two boards and the panel between them")
-        deep = max(cube["origin"][2] + cube["size"][2] for cube in cubes)
-        near = min(cube["origin"][2] for cube in cubes)
-        self.assertEqual(deep - near, 0.5,
-                         "a shelf is a full block wide and tall, half deep")
-        boards = [cube for cube in cubes if cube["size"][2] > 0.25]
-        self.assertEqual(len(boards), 2, "the boards are the deep ones")
-        panel = [cube for cube in cubes if cube not in boards][0]
-        for board in boards:
-            self.assertEqual(board["size"][1], 0.125, "a board is two thick")
-        self.assertGreater(panel["size"][1], 0.5, "the panel spans between them")
+        # the panel is the piece with the front and the back on it
+        cube = min(cubes, key=lambda one: one["size"][2])
+        # a face's v runs from the top of the tile it reads, so the whole part
+        # of it names the tile and the fraction is the window within it
+        tiles = {face: int(cube["uv"][face]["uv"][1])
+                 for face in ("north", "south", "east", "west", "up", "down")}
+        self.assertNotEqual(tiles["north"], tiles["south"],
+                            "the back of a shelf is not its front")
+        self.assertEqual(len(set(tiles.values())), 4,
+                         "front, back, planks along the top and bottom, ends")
+        self.assertEqual(tiles["up"], tiles["down"], "both planks, one tile")
+        self.assertEqual(tiles["east"], tiles["west"], "both ends, one tile")
 
     def test_a_window_larger_than_its_texture_is_ignored(self):
         # every wood has its own sheet, and a block whose texture is a plain

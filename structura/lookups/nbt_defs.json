@@ -48,6 +48,8 @@
 	"attachment":"shape",
 	"attached_bit":"shape",
 	"powered_bit":"shape",
+	"cauldron_liquid":"shape",
+	"fill_level":"shape",
 	"brewing_stand_slot_a_bit":"shape",
 	"brewing_stand_slot_b_bit":"shape",
 	"brewing_stand_slot_c_bit":"shape",
