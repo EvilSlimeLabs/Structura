@@ -680,8 +680,8 @@ tables, and gives each mounting its own list
 of cubes. It also
 gives a lit campfire its fire, which is the only thing telling it from a dead one
 and a soul campfire from an ordinary one, gives a shelf a different picture
-on each face, since its sheet holds four, and gives a tripwire hook the two
-arrangements `attached_bit` names.
+on each face, since its sheet holds the front, the planks and the shaded
+interior, and gives a tripwire hook the two arrangements `attached_bit` names.
 
 **A ghost block is not a solid one, so vanilla's own trick is not always the
 answer.** Vanilla paints a shelf's three compartments into its front texture and
@@ -919,6 +919,12 @@ these must run from the repository root.
 ## Reference
 
 - Bedrock samples: https://github.com/Mojang/bedrock-samples
+  - `behavior_pack/shapes/<block>.json` carries Mojang's own voxel shape for a
+    block, one file per facing, as boxes in pixels. **Read that before
+    measuring a shape off a texture** — it is where the shelf's five deep case
+    and four thick boards came from, after four shapes guessed from the sheet.
+    It is a collision shape, so it gives sizes and positions and says nothing
+    about how a piece is painted.
 - Community documentation: https://wiki.bedrock.dev/
 - Vanilla listings:
   https://learn.microsoft.com/en-us/minecraft/creator/reference/content/vanillalistingsreference/?view=minecraft-bedrock-stable

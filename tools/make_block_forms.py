@@ -546,7 +546,7 @@ def door_half(at, texture, along_x, mirror=False):
     panel = (16, 0, -16, 16) if mirror else DOOR_WHOLE
     if along_x:
         size = (16, 16, DOOR_THICK)
-        window = {"north": DOOR_WHOLE, "south": panel,
+        window = {"north": panel, "south": DOOR_WHOLE,
                   "east": DOOR_EDGE, "west": DOOR_EDGE,
                   ## a top face sixteen across and three deep cannot read a
                   ## frame three across and sixteen down without turning it, so
@@ -583,72 +583,90 @@ DOORS = {
 
 # --- shelves ----------------------------------------------------------------
 #
-# A shelf's texture is a 32x32 sheet holding the four different things its faces
-# show: the front, with three compartments painted into it, top left; the solid
-# back beside it; and plain planks across the bottom half for the top, the
-# bottom and the two ends. The regions are exactly the unwrap of a box 16 wide,
-# 16 tall and 8 deep, which is what a shelf is. Vanilla paints the compartments
-# rather than cutting them, which is why the front carries their shading.
+# A shelf's texture is a 32x32 sheet. The top left quarter is the front, with
+# the three compartments and their shading painted into it; the top right is
+# plain planks, which is every face that looks out of the block; the bottom half
+# is the shaded interior, which is what the faces looking into the compartments
+# read.
 #
-# It hangs on the wall behind it, so it fills the back half of its block: at no
-# rotation that is z 0 to 8, the same way a wall sign sits at z 0 to 2.
-SHELF_FRONT = "@north#0,0"
-SHELF_BACK = "@north#16,0"
-SHELF_FLAT = "@north#0,16"      # the top and the bottom, one above the other
-SHELF_END = "@north#16,16"      # the two ends, side by side
-
-# Built from what the sheet draws rather than from a guess at the shape. On the
-# front quarter of it the openings are the dark part: three of them, four across
-# and seven down, at rows 4 to 10, separated by a single lit pixel at x5 and at
-# x10 and bordered by one more at x0 and x15. Above them is a rail four rows
-# deep and below them one of five. The bottom half of the sheet is 32 by 16,
-# which is the up, the down and the two ends of a box sixteen by sixteen by
-# eight, so eight deep is what the sheet says it is.
+# **The measurements are Mojang's own.** `shapes/shelf_facing_east.json` in
+# bedrock-samples gives the block three boxes, and with the wall at x0 they are a
+# bottom board 0 to 4 tall and 5 deep, a back 4 to 16 tall and 3 deep, and a top
+# board 12 to 16 tall reaching from the back out to 5. So the case is five deep,
+# the two boards are four thick, and the opening between them is eight tall and
+# two deep. That is a voxel shape rather than a model, so it says how big the
+# pieces are and not how they are painted.
 #
-# So: a case with a floor, a ceiling, two ends, a back and two uprights, and the
-# three compartments are the gaps between them. This has been a solid box and it
-# has been a C with nothing between the compartments; the sheet says neither.
-SHELF_DEEP = 8
-SHELF_BACK_DEEP = 2
-OPENING = (4, 11)               # the rows the compartments run between
-UPRIGHT = (5, 10)               # where the two of them stand
+# It matches the front picture row for row: a rail across rows 0 to 3, the
+# compartments through rows 4 to 11, a rail across rows 12 to 15, and a lit pixel
+# parting the compartments at x5 and at x10. Those dividers are painted on: the
+# voxel shape has nothing standing in the opening and neither does this.
+#
+# It hangs on the wall behind it, so at no rotation it runs z 0 to 5, the same
+# way a wall sign sits at z 0 to 2.
+SHELF_FRONT = "@north#0,0"      # the compartments, painted
+SHELF_OUTER = "@north#16,0"     # planks, for every face that looks outward
+SHELF_INNER = "@north#0,16"     # the shaded interior, rows 8 to 15 of the tile
+
+SHELF_DEEP = 5
+SHELF_BACK_DEEP = 3
+BOARD = 4                       # how thick the two boards are
+OPENING = (BOARD, 16 - BOARD)   # the rows the compartments run between
+INSIDE = 8                      # the interior's first row within its own tile
 
 
-def shelf_piece(size, at, front):
+def shelf_piece(size, at, front, inner=()):
     """One piece of the case, reading its own slice of each part of the sheet.
 
-    `front` is where the piece sits on the front picture, in texture pixels, and
-    the back takes the same window of the back. The flat tile holds the top over
-    the bottom and the end tile one end beside the other, so the faces that read
-    them take a slice the size of the face.
+    `front` is where the piece sits on the front picture, in texture pixels.
+    Faces named in `inner` look into a compartment and read the shaded half of
+    the sheet instead of the planks; everything else looks out of the block.
     """
     wide, tall, deep = size
-    return Cube(size, at, texture={
-        "south": SHELF_FRONT, "north": SHELF_BACK,
-        "up": SHELF_FLAT, "down": SHELF_FLAT,
-        "east": SHELF_END, "west": SHELF_END}, window={
-        "south": front, "north": front,
-        "up": (at[0], 0, wide, deep), "down": (at[0], 8, wide, deep),
-        "east": (at[2], front[1], deep, tall),
-        "west": (8 + at[2], front[1], deep, tall)})
+    across, _, over = at
+    paint = {}
+    window = {}
+    for face in FACES:
+        if face in inner:
+            paint[face] = SHELF_INNER
+        elif face == "south":
+            paint[face] = SHELF_FRONT
+        else:
+            paint[face] = SHELF_OUTER
+        if face in ("up", "down"):
+            window[face] = (across, over, wide, deep)
+        elif face in ("north", "south"):
+            window[face] = front
+        else:
+            window[face] = (over, front[1], deep, tall)
+    ## an inner face reads the same shape of window out of the shaded half,
+    ## which is the bottom eight rows of that tile
+    for face in inner:
+        wide_, tall_ = window[face][2], window[face][3]
+        window[face] = (0, INSIDE + (0 if face != "up" else 8 - tall_),
+                        wide_, tall_)
+    return Cube(size, at, texture=paint, window=window)
 
 
 def shelf():
-    """The floor, the ceiling, the two ends, the back and the two uprights."""
+    """The floor, the ceiling, the back and the two uprights."""
     low, high = OPENING
-    inside = 16 - high              # how far the floor comes up
+    open_tall = high - low
     made = [
-        ## the floor and the ceiling, the full depth of the case
-        shelf_piece((16, inside, SHELF_DEEP), (0, 0, 0), (0, high, 16, inside)),
-        shelf_piece((16, low, SHELF_DEEP), (0, 16 - low, 0), (0, 0, 16, low)),
-        ## the back, between them
-        shelf_piece((16, high - low, SHELF_BACK_DEEP), (0, inside, 0),
-                    (0, low, 16, high - low)),
+        ## the two boards, the full depth of the case. The compartment side of
+        ## each is shaded: the floor lit along its front lip, the ceiling not
+        shelf_piece((16, BOARD, SHELF_DEEP), (0, 0, 0),
+                    (0, high, 16, BOARD), inner=("up",)),
+        shelf_piece((16, BOARD, SHELF_DEEP), (0, high, 0),
+                    (0, 0, 16, BOARD), inner=("down",)),
+        ## the back, between them and three deep, so the opening it closes is
+        ## two deep
+        shelf_piece((16, open_tall, SHELF_BACK_DEEP), (0, low, 0),
+                    (0, low, 16, open_tall)),
     ]
-    ## the two ends and the two uprights, all one pixel across
-    for x in (0, 15) + UPRIGHT:
-        made.append(shelf_piece((1, high - low, SHELF_DEEP), (x, inside, 0),
-                                (x, low, 1, high - low)))
+    ## Nothing stands in the opening. Seen from the end a shelf is a C -- a
+    ## ceiling and a floor out of a back, open at the front -- and the lit pixels
+    ## the front picture draws at x0, x5, x10 and x15 are painted on, not pieces.
     return made
 
 
@@ -736,6 +754,10 @@ LOOSE, TIED, ENGAGED = 45.0, -10.0, -45.0
 TIED_RING = TIED + 100.0
 ## and the shaft starts a pixel inside the plate rather than off its face
 SHAFT_IN = 1
+## the wire carries the ring higher than the shaft alone would, and further out
+## along the shaft than the shaft's own end
+RING_LIFT = 2
+RING_OUT = SHAFT_IN + 1
 
 plate = Cube((PLATE_WIDE, PLATE_TALL, PLATE_DEEP),
              ((16 - PLATE_WIDE) // 2, (16 - PLATE_TALL) // 2, 0),
@@ -756,7 +778,7 @@ def leaning(angle, along, up):
             PLATE_DEEP - SHAFT_IN + along * out[0] + up * over[0])
 
 
-def hook(angle, high, ring_angle=None, ring_out=0):
+def hook(angle, high, ring_angle=None, ring_out=0, ring_lift=0):
     """The shaft at an angle, and the ring across the end of it.
 
     `high` puts the ring on the top two pixels of the shaft's end rather than
@@ -778,6 +800,7 @@ def hook(angle, high, ring_angle=None, ring_out=0):
     ## reaches back across it: its own middle is that much further down again
     edge = 0.5 if high else -0.5
     at = leaning(angle, SHAFT_LONG + ring_out, edge - RING_WIDE / 2.0)
+    at = (at[0], at[1] + ring_lift, at[2])
     ring = Cube((RING_WIDE, RING_WIDE, RING_THICK),
                 (at[0] - RING_WIDE / 2.0, at[1] - RING_WIDE / 2.0,
                  at[2] - RING_THICK / 2.0),
@@ -791,9 +814,10 @@ def hook(angle, high, ring_angle=None, ring_out=0):
 TRIPWIRE_HOOKS = {
     ## attached_bit and powered_bit, joined the way core.py joins shape states
     "0-0": hook(LOOSE, high=False),
-    ## the wire holds the ring off the high half of the shaft, and a pixel
-    ## further out than the shaft itself sits
-    "1-0": hook(TIED, high=True, ring_angle=TIED_RING, ring_out=SHAFT_IN),
+    ## the wire holds the ring off the high half of the shaft, and further out
+    ## along it than the shaft itself reaches
+    "1-0": hook(TIED, high=True, ring_angle=TIED_RING, ring_out=RING_OUT,
+                ring_lift=RING_LIFT),
     "0-1": hook(ENGAGED, high=True, ring_angle=0.0),
     "1-1": hook(ENGAGED, high=True, ring_angle=0.0),
 }
@@ -815,7 +839,10 @@ TRIPWIRE_HOOKS["default"] = TRIPWIRE_HOOKS["0-0"]
 # there as a tile of its own.
 POT_WALL = 2
 POT_FLOOR = 3
-LIQUID = {"water": "textures/blocks/cauldron_water",
+## `cauldron_water` is grey, because the game tints it with the water
+## colour of wherever the cauldron is. Untinted it is white.
+WATER_BLUE = "~3f76e4"
+LIQUID = {"water": "textures/blocks/cauldron_water" + WATER_BLUE,
           "lava": "textures/blocks/cauldron_lava",
           "powder_snow": "textures/blocks/powder_snow",
           ## the same water, asking for the block's own colour. `~tint` is put
@@ -962,8 +989,11 @@ BREW_ROD = "@up"            # brewing_stand
 BREW_BASE = "@down"         # brewing_stand_base
 ROD_WIDE, ROD_TALL = 2, 13
 PLATE_WIDE, PLATE_TALL = 6, 2
-BOTTLE = "textures/items/potion_bottle_heal"
-ARM_TALL, ARM_AT = 5, 3
+## from the top of a plate up to two pixels above the rod, and out from the
+## middle of the block as far as the solitary plate's own middle
+ARM_TALL = ROD_TALL + 2 - PLATE_TALL
+ARM_LONG = 4
+BOTTLE_WIDE, BOTTLE_TALL = 5, 7
 
 ## Where the three sockets are drawn on the base tile, which is the only thing
 ## in the pack that says where a plate goes, and where each plate stands once
@@ -986,34 +1016,76 @@ def brew_plate(socket, at):
                     "west": (corner[1], 16 - PLATE_TALL, PLATE_WIDE, PLATE_TALL)})
 
 
-def brew_arm(at):
+## The three plates stand at 180, 45 and minus 45 degrees round the rod, so an
+## arm drawn once towards the solitary plate reaches the other two turned a
+## hundred and thirty five degrees each way. The bottles are drawn the same way,
+## as single upright planes rather than crossed pairs.
+BREW_TURNS = (0.0, -135.0, 135.0)
+## The whole arm is four columns of the tile: the dark pixel against the rod,
+## the grey pipe beside it, a clear column, then the brown outer leg over the
+## plate, with the bar that joins them across the top. It is drawn twice, once
+## either side of the rod, and only the right hand copy is clean -- the bottle
+## is painted over the left one from row 7 down -- so the arm reads columns 9 to
+## 12 and the face that wants it the other way round reads them backwards.
+##
+## The two faces of a plane run their windows in opposite directions, so one of
+## them reads the picture back to front. A window that starts at the far edge
+## and runs back is how Bedrock reads a picture mirrored.
+ARM_ART = (13, 2, -ARM_LONG, 12)
+ARM_BACK = (9, 2, ARM_LONG, 12)
+## the bottle vanilla draws into the same tile, five across by seven down
+BOTTLE_ART = (0, 7, BOTTLE_WIDE, BOTTLE_TALL)
+BOTTLE_BACK = (BOTTLE_WIDE, 7, -BOTTLE_WIDE, BOTTLE_TALL)
+
+
+def two_sided(front, back):
+    """A window for a plane, read the same way round from either side."""
+    faces = {face: front for face in FACES}
+    faces["south"] = back
+    return faces
+
+
+def brew_turned(size, at, angle, texture, window):
+    """A piece turned about the rod, which stands at the middle of the block.
+
+    The piece is drawn with an edge at the middle and then spun about that
+    middle, so the edge stays pinned to the rod and the piece swings out to its
+    own plate.
+
+    The model's x runs opposite the world's, which reverses a turn about y. So
+    the cube's own angle is the negative of the one its position is spun by:
+    give it the same and the piece lands beside the right plate pointing across
+    the block instead of out along its own radius.
+    """
+    middle = [start + span / 2.0 for start, span in zip(at, size)]
+    moved = spun(middle, (8, middle[1], 8), (0, angle, 0))
+    return Cube(size, [put - span / 2.0 for put, span in zip(moved, size)],
+                texture, window=window, rotation=(0, -angle, 0))
+
+
+def brew_arm(angle):
     """An upright quad from the rod out to the middle of one plate.
 
-    One edge is pinned to the rod and the other to the plate. It stands on its
-    edge rather than lying flat: flat, it was a couple of stray pixels down at
-    the base and nothing that read as an arm. The tile draws the arms either
-    side of the rod, so an arm reads one of those rather than the rod's column.
+    One edge is pinned at the rod and the other at the plate, and it stands from
+    the top of the plate to two pixels above the rod.
     """
-    reach = (at[0] + PLATE_WIDE / 2.0 - 8, at[1] + PLATE_WIDE / 2.0 - 8)
-    along_x = abs(reach[0]) > abs(reach[1])
-    length = max(abs(reach[0]), abs(reach[1]))
-    size = (length, ARM_TALL, 0.2) if along_x else (0.2, ARM_TALL, length)
-    corner = (min(8, 8 + reach[0]) if along_x else 8,
-              ARM_AT,
-              8 if along_x else min(8, 8 + reach[1]))
-    art = (2, 4, 5, ARM_TALL) if along_x else (10, 4, 5, ARM_TALL)
-    return Cube(size, corner, texture=BREW_ROD,
-                window={face: art for face in FACES})
+    return brew_turned((ARM_LONG, ARM_TALL, 0.2),
+                       (8 - ARM_LONG, PLATE_TALL, 8 - 0.1),
+                       angle, BREW_ROD, two_sided(ARM_ART, ARM_BACK))
 
 
-def brew_bottle(at):
-    """A bottle standing on one plate, drawn as two crossed quads."""
+def brew_bottle(angle, at):
+    """A bottle standing in the middle of one plate, turned with its arm.
+
+    The three plates are not the same distance from the rod, so a bottle drawn
+    at one of them and spun round misses the other two. It takes its plate's own
+    middle and the turn its arm carries.
+    """
     middle = (at[0] + PLATE_WIDE / 2.0, at[1] + PLATE_WIDE / 2.0)
-    art = {face: (0, 0, 16, 16) for face in FACES}
-    return [Cube((5, 6, 0.2), (middle[0] - 2.5, PLATE_TALL, middle[1] - 0.1),
-                 BOTTLE, window=art),
-            Cube((0.2, 6, 5), (middle[0] - 0.1, PLATE_TALL, middle[1] - 2.5),
-                 BOTTLE, window=art)]
+    return Cube((BOTTLE_WIDE, BOTTLE_TALL, 0.2),
+                (middle[0] - BOTTLE_WIDE / 2.0, PLATE_TALL, middle[1] - 0.1),
+                BREW_ROD, window=two_sided(BOTTLE_ART, BOTTLE_BACK),
+                rotation=(0, -angle, 0))
 
 
 brew_rod = Cube((ROD_WIDE, ROD_TALL, ROD_WIDE), (7, 0, 7), texture=BREW_ROD,
@@ -1031,11 +1103,11 @@ brew_rod = Cube((ROD_WIDE, ROD_TALL, ROD_WIDE), (7, 0, 7), texture=BREW_ROD,
 def brewing(bottles):
     """The rod, three plates with an arm each, and a bottle where there is one."""
     made = [brew_rod]
-    for (socket, at), full in zip(BREW_PLATES, bottles):
+    for ((socket, at), angle, full) in zip(BREW_PLATES, BREW_TURNS, bottles):
         made.append(brew_plate(socket, at))
-        made.append(brew_arm(at))
+        made.append(brew_arm(angle))
         if full:
-            made.extend(brew_bottle(at))
+            made.append(brew_bottle(angle, at))
     return made
 
 

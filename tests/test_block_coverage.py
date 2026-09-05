@@ -429,10 +429,17 @@ class MountingTests(unittest.TestCase):
         for plate in plates:
             self.assertEqual([plate[0], plate[2]], [0.375, 0.375],
                              "a plate is not six by six")
-        # a bottle is two crossed quads, and each slot bit puts one on
+        # a bottle is one upright plane, and each slot bit puts one on
         self.assertEqual(len(shapes["1-1-1"]["size"]),
-                         len(empty["size"]) + 6,
+                         len(empty["size"]) + 3,
                          "the slot bits do not each add a bottle")
+
+        # the three arms are the same plane turned about the rod: one towards
+        # the solitary plate and one to each of the pair, a hundred and thirty
+        # five degrees either way
+        turns = sorted(turn[1] for turn, size in
+                       zip(empty["rotation"], empty["size"]) if size[2] < 0.05)
+        self.assertEqual(turns, [-135.0, 0.0, 135.0])
 
         # the rod reads the column of its tile it is drawn in, not the whole of
         # it, which carries the arms that hold the bottles either side
@@ -815,65 +822,53 @@ class MountingTests(unittest.TestCase):
         self.assertEqual(len(set(self.geo.uv_map[name] for name in windows)), 3,
                          "each window should be a tile of its own")
 
-    def test_a_shelf_shows_a_different_face_on_each_side(self):
-        # its texture is a sheet: the front with three compartments painted in,
-        # the solid back beside it, and planks for the ends. Taking the whole
-        # tile puts the compartments on all six faces.
-        self.geo.blocks = {}
-        self.geo.make_block(0, 0, 0, "oak_shelf", rot="south")
-        cubes = list(self.geo.blocks.values())[0]["cubes"]
-        # the panel is the piece with the front and the back on it
-        cube = min(cubes, key=lambda one: one["size"][2])
-        # a face's v runs from the top of the tile it reads, so the whole part
-        # of it names the tile and the fraction is the window within it
-        tiles = {face: int(cube["uv"][face]["uv"][1])
-                 for face in ("north", "south", "east", "west", "up", "down")}
-        self.assertNotEqual(tiles["north"], tiles["south"],
-                            "the back of a shelf is not its front")
-        self.assertEqual(len(set(tiles.values())), 4,
-                         "front, back, planks along the top and bottom, ends")
-        self.assertEqual(tiles["up"], tiles["down"], "both planks, one tile")
-        self.assertEqual(tiles["east"], tiles["west"], "both ends, one tile")
-
     def test_a_shelf_is_the_case_its_sheet_draws(self):
-        # the sheet's front quarter draws three openings four across and seven
-        # down, at rows 4 to 10, parted by a lit pixel at x5 and x10 and
-        # bordered by one at x0 and x15, with a rail four rows deep over them
-        # and five under. So: a floor, a ceiling, two ends, a back and two
-        # uprights, and the compartments are the gaps between them.
+        # `shapes/shelf_facing_east.json` in bedrock-samples gives the block a
+        # bottom board four thick and five deep, a back three deep, and a top
+        # board four thick reaching out to the same five. The sheet's front
+        # quarter agrees row for row: a rail over rows 0 to 3, the compartments
+        # through rows 4 to 11, a rail over rows 12 to 15, parted by a lit pixel
+        # at x5 and x10, which are painted on. So: two boards and a back, which
+        # seen from the end is a C with nothing standing in it.
         shapes = load("block_shapes")["shelf"]["default"]
-        self.assertEqual(len(shapes["size"]), 7,
-                         "a floor, a ceiling, two ends, a back, two uprights")
+        self.assertEqual(len(shapes["size"]), 3,
+                         "a floor, a ceiling and a back")
         deep = max(off[2] + size[2] for off, size
                    in zip(shapes["offsets"], shapes["size"]))
-        self.assertEqual(deep, 0.5,
-                         "the sheet unwraps a box eight deep")
-        thin = [off for off, size in zip(shapes["offsets"], shapes["size"])
-                if size[0] == 0.0625]
-        self.assertEqual(sorted(round(off[0] * 16) for off in thin),
-                         [0, 5, 10, 15],
-                         "the ends and the uprights are not where the sheet "
-                         "parts the compartments")
+        self.assertAlmostEqual(deep, 5 / 16,
+                               msg="the voxel shape is five deep")
+        boards = [size for size in shapes["size"] if size[2] == 5 / 16]
+        self.assertEqual([size[1] for size in boards], [0.25, 0.25],
+                         "the two boards are four thick")
+        back = [size for size in shapes["size"] if size[2] != 5 / 16]
+        self.assertEqual(back, [[1, 0.5, 3 / 16]],
+                         "the back is three deep and half the block tall")
 
     def test_a_shelf_shows_a_different_face_on_each_side(self):
-        # its texture is a sheet: the front with three compartments painted in,
-        # the solid back beside it, and planks for the ends. Taking the whole
-        # tile puts the compartments on all six faces.
+        # its texture is a sheet: the front with the compartments painted in,
+        # planks beside it for everything that looks out of the block, and the
+        # shaded interior across the bottom half for the faces that look into a
+        # compartment. Taking the whole tile puts the compartments on all six.
         self.geo.blocks = {}
         self.geo.make_block(0, 0, 0, "oak_shelf", rot="south")
         cubes = list(self.geo.blocks.values())[0]["cubes"]
-        # the panel is the piece with the front and the back on it
-        cube = min(cubes, key=lambda one: one["size"][2])
+        # a board shows all three regions: the front picture forward, planks
+        # backward and to the sides, the shaded interior on the one face that
+        # looks into a compartment
+        cube = max(cubes, key=lambda one: one["origin"][1])
         # a face's v runs from the top of the tile it reads, so the whole part
         # of it names the tile and the fraction is the window within it
         tiles = {face: int(cube["uv"][face]["uv"][1])
                  for face in ("north", "south", "east", "west", "up", "down")}
         self.assertNotEqual(tiles["north"], tiles["south"],
                             "the back of a shelf is not its front")
-        self.assertEqual(len(set(tiles.values())), 4,
-                         "front, back, planks along the top and bottom, ends")
-        self.assertEqual(tiles["up"], tiles["down"], "both planks, one tile")
-        self.assertEqual(tiles["east"], tiles["west"], "both ends, one tile")
+        self.assertEqual(len(set(tiles.values())), 3,
+                         "the front, the planks and the interior")
+        self.assertEqual(tiles["north"], tiles["up"],
+                         "the outward faces are all planks")
+        self.assertEqual(tiles["up"], tiles["east"], "both planks, one tile")
+        self.assertNotIn(tiles["down"], (tiles["north"], tiles["south"]),
+                         "the ceiling's underside reads the shaded half")
 
     def test_a_window_larger_than_its_texture_is_ignored(self):
         # every wood has its own sheet, and a block whose texture is a plain

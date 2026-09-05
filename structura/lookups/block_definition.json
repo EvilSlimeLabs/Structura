@@ -1264,7 +1264,7 @@
 	"waxed_exposed_chiseled_copper":"cube",
 	"waxed_weathered_chiseled_copper":"cube",
 	"waxed_oxidized_chiseled_copper":"cube",
-	"vault":"cube",
+	"vault":"vault",
 	"heavy_core":"heavy_core",
 	"piglin_head":"skull_piglin",
 	"light_block_0":"ignore",

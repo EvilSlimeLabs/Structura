@@ -27,13 +27,34 @@ sys.path.insert(0, os.path.join(ROOT, "tools"))
 
 import lookup_writer
 
-SHAPES = os.path.join(ROOT, "structura", "lookups", "block_shapes.json")
-UV = os.path.join(ROOT, "structura", "lookups", "block_uv.json")
+LOOKUPS = os.path.join(ROOT, "structura", "lookups")
+SHAPES = os.path.join(LOOKUPS, "block_shapes.json")
+UV = os.path.join(LOOKUPS, "block_uv.json")
+DEFINITION = os.path.join(LOOKUPS, "block_definition.json")
+ROTATION = os.path.join(LOOKUPS, "block_rotation.json")
 FACES = ("up", "down", "north", "south", "east", "west")
+
+## the four ways a block with a front can stand, as `minecraft:cardinal_direction`
+## names them and as Bedrock's older numbering does. The turn runs the other
+## way round from the compass: a vault built facing west needed the model spun
+## the way "east" is written here.
+FACING = {"0": [0, 0, 0], "1": [0, 270, 0], "2": [0, 180, 0], "3": [0, 90, 0],
+          "south": [0, 0, 0], "west": [0, 270, 0], "north": [0, 180, 0],
+          "east": [0, 90, 0]}
 
 
 def load(path):
     return json.load(io.open(path, encoding="utf-8"))
+
+
+def define(blocks, family):
+    """Point block ids at a shape family."""
+    table = json.load(io.open(DEFINITION, encoding="utf-8"))
+    for block in blocks:
+        table[block] = family
+    body = json.dumps(table, indent="\t", ensure_ascii=False,
+                      separators=(",", ":"))
+    io.open(DEFINITION, "w", encoding="utf-8", newline="").write(body + "\n")
 
 
 def all_faces(per_cube):
@@ -71,6 +92,20 @@ def main():
     revise("double_plant", "top", all_faces(["@up", "@up"]),
            from_variant="top")
     changed.append("double_plant")
+
+    ## --- vault: a cube, but one with a front ---------------------------------
+    ## A rotation table is keyed by shape family, and a vault shared `cube` with
+    ## everything else that is a plain box. `cube`'s table describes the axis
+    ## states a pillar carries and has no entry for half the cardinal
+    ## directions, so a vault faced whichever way it was placed and drew its
+    ## front southward regardless. It gets a family of its own, the same box
+    ## with the four facings spelt out.
+    shapes["vault"] = json.loads(json.dumps(shapes["cube"]))
+    uv["vault"] = json.loads(json.dumps(uv["cube"]))
+    lookup_writer.put(SHAPES, "vault", shapes["vault"], tight=True)
+    lookup_writer.put(ROTATION, "vault", FACING, tight=True)
+    define(["vault"], "vault")
+    changed.append("vault")
 
     for family in sorted(set(changed)):
         lookup_writer.put(UV, family, uv[family], tight=True)
