@@ -990,9 +990,14 @@ BREW_BASE = "@down"         # brewing_stand_base
 ROD_WIDE, ROD_TALL = 2, 13
 PLATE_WIDE, PLATE_TALL = 6, 2
 ## from the top of a plate up to two pixels above the rod, and out from the
-## middle of the block as far as the solitary plate's own middle
+## middle of the block as far as the bottle it holds
 ARM_TALL = ROD_TALL + 2 - PLATE_TALL
-ARM_LONG = 4
+## The arm reads four columns of the tile and the outermost of them is the brown
+## leg, so a column is a quarter of however long the arm runs. An arm reaches
+## half a column further than the bottle it holds, which puts the middle of that
+## brown column on the middle of the bottle.
+ARM_COLUMNS = 4
+ARM_OVER = ARM_COLUMNS / (ARM_COLUMNS - 0.5)
 BOTTLE_WIDE, BOTTLE_TALL = 5, 7
 ## Both planes are centred on the same line out from the rod, so the arm's face
 ## and the bottle's face used to sit at the exact same depth and z-fought over
@@ -1006,7 +1011,10 @@ BOTTLE_DEEP = 0.2
 ## in the pack that says where a plate goes, and where each plate stands once
 ## the stand is turned half round. A plate keeps reading the socket it belongs
 ## to, so the picture turns with the stone.
-BREW_PLATES = [((12, 8), (1, 5)), ((3, 4), (9, 9)), ((3, 12), (9, 1))]
+## The order is the order the slot bits come in: a, then b, then c. The stone is
+## the same three plates whichever way round the pair is read, so swapping the
+## last two moves the bottles between them and nothing else.
+BREW_PLATES = [((12, 8), (1, 5)), ((3, 12), (9, 1)), ((3, 4), (9, 9))]
 
 
 def brew_plate(socket, at):
@@ -1027,7 +1035,7 @@ def brew_plate(socket, at):
 ## arm drawn once towards the solitary plate reaches the other two turned a
 ## hundred and thirty five degrees each way. The bottles are drawn the same way,
 ## as single upright planes rather than crossed pairs.
-BREW_TURNS = (0.0, -135.0, 135.0)
+BREW_TURNS = (0.0, 135.0, -135.0)
 ## The whole arm is four columns of the tile: the dark pixel against the rod,
 ## the grey pipe beside it, a clear column, then the brown outer leg over the
 ## plate, with the bar that joins them across the top. It is drawn twice, once
@@ -1035,11 +1043,16 @@ BREW_TURNS = (0.0, -135.0, 135.0)
 ## is painted over the left one from row 7 down -- so the arm reads columns 9 to
 ## 12 and the face that wants it the other way round reads them backwards.
 ##
+## It runs from row 0, not from row 2: the outer column carries two more pixels
+## above the bar, which is the point the arm finishes in, and a window starting
+## at the bar crops them off.
+##
 ## The two faces of a plane run their windows in opposite directions, so one of
 ## them reads the picture back to front. A window that starts at the far edge
 ## and runs back is how Bedrock reads a picture mirrored.
-ARM_ART = (13, 2, -ARM_LONG, 12)
-ARM_BACK = (9, 2, ARM_LONG, 12)
+ARM_ROWS = 14
+ARM_ART = (13, 0, -ARM_COLUMNS, ARM_ROWS)
+ARM_BACK = (13 - ARM_COLUMNS, 0, ARM_COLUMNS, ARM_ROWS)
 ## the bottle vanilla draws into the same tile, five across by seven down
 BOTTLE_ART = (0, 7, BOTTLE_WIDE, BOTTLE_TALL)
 BOTTLE_BACK = (BOTTLE_WIDE, 7, -BOTTLE_WIDE, BOTTLE_TALL)
@@ -1070,14 +1083,32 @@ def brew_turned(size, at, angle, texture, window):
                 texture, window=window, rotation=(0, -angle, 0))
 
 
-def brew_arm(angle):
+def brew_middle(at):
+    """The middle of one plate, which is where its bottle stands."""
+    return at[0] + PLATE_WIDE / 2.0, at[1] + PLATE_WIDE / 2.0
+
+
+def brew_reach(at):
+    """How far out from the rod the arm to one plate has to run.
+
+    The three plates are not the same distance from the rod -- the solitary one
+    is four out and the pair are nearer six -- so one arm drawn and turned three
+    times reaches its own plate and stops short of the other two. Each arm is as
+    long as its own plate is far, plus the half column that carries the brown
+    leg past the middle of the bottle.
+    """
+    middle = brew_middle(at)
+    return math.hypot(middle[0] - 8, middle[1] - 8) * ARM_OVER
+
+
+def brew_arm(angle, reach):
     """An upright quad from the rod out to the middle of one plate.
 
     One edge is pinned at the rod and the other at the plate, and it stands from
     the top of the plate to two pixels above the rod.
     """
-    return brew_turned((ARM_LONG, ARM_TALL, ARM_DEEP),
-                       (8 - ARM_LONG, PLATE_TALL, 8 - ARM_DEEP / 2.0),
+    return brew_turned((reach, ARM_TALL, ARM_DEEP),
+                       (8 - reach, PLATE_TALL, 8 - ARM_DEEP / 2.0),
                        angle, BREW_ROD, two_sided(ARM_ART, ARM_BACK))
 
 
@@ -1088,7 +1119,7 @@ def brew_bottle(angle, at):
     at one of them and spun round misses the other two. It takes its plate's own
     middle and the turn its arm carries.
     """
-    middle = (at[0] + PLATE_WIDE / 2.0, at[1] + PLATE_WIDE / 2.0)
+    middle = brew_middle(at)
     return Cube((BOTTLE_WIDE, BOTTLE_TALL, BOTTLE_DEEP),
                 (middle[0] - BOTTLE_WIDE / 2.0, PLATE_TALL,
                  middle[1] - BOTTLE_DEEP / 2.0),
@@ -1113,7 +1144,7 @@ def brewing(bottles):
     made = [brew_rod]
     for ((socket, at), angle, full) in zip(BREW_PLATES, BREW_TURNS, bottles):
         made.append(brew_plate(socket, at))
-        made.append(brew_arm(angle))
+        made.append(brew_arm(angle, brew_reach(at)))
         if full:
             made.append(brew_bottle(angle, at))
     return made
