@@ -120,6 +120,7 @@ tools/                   one-off and maintenance scripts, not shipped
                           make_low_geometry.py, make_bookshelf.py,
                           make_statue_poses.py, fix_problem_blocks.py,
                           make_block_forms.py, make_growth_forms.py,
+                          make_cross_forms.py,
                           make_furniture_forms.py, make_head_forms.py,
                           make_container_forms.py, make_banner_textures.py,
                           make_bed_textures.py,
@@ -610,6 +611,29 @@ a name and states of its own; `core.ENTITY_HOLDS` names that field and
 drawn by its own family with its own textures, which is why every pottable plant
 works without a variant apiece.
 
+**A second field of a block entity may say the first one does not apply.** A
+banner's colour is `Base`, but an ominous banner is not a colour at all and a
+banner carrying `Patterns` cannot be drawn from a dye either, because a ghost
+block cannot composite six patterns as a pack is built. `core.ENTITY_INSTEAD`
+names the fields that replace the form outright, and both of those banners get a
+sheet of their own from `tools/make_banner_textures.py`: Mojang's own illager
+banner, and Structura's S as the stand-in for a design.
+
+**`Base` counts the dyes, not the wool.** The two orders are opposite — `Base` 0
+is black and 15 is white — so a banner read as wool comes out the colour across
+the wheel from its own, white as black and lime as purple.
+
+**A picture bigger than a tile is drawn on a grid of quads.** Only sixteen by
+sixteen of a texture becomes a tile and a quad reads one tile, so anything
+needing more resolution than that is cut into quads that each read a tile of
+their own. A marked banner's cloth is two quads across by four down, and
+`tools/make_banner_textures.py` writes the design at the size that grid reads,
+under vanilla's own sheet so the post and the bar are still read by the windows
+every other banner uses. The columns are laid out in the order they are written
+and the *tile* is turned round on the face the banner is looked at, not the
+column order: turning the columns round instead flips each tile where it stands,
+which is a jumbled design rather than a mirrored one.
+
 **A rotation table needs every form of the value.** Bedrock gives some blocks a
 numeric `direction` and others a `minecraft:cardinal_direction` string, and a
 table with no entry for the value a block carries draws it unrotated, silently.
@@ -902,11 +926,12 @@ python tools/make_bookshelf.py                         the bookshelf's 64 states
 python tools/make_statue_poses.py                      the copper golem's four models
 python tools/make_special_languages.py                    the five generated languages
 python tools/make_block_forms.py                       the mounted forms, the fire and the shelf
+python tools/make_cross_forms.py                       fire, dripstone and sulfur spikes
 python tools/make_growth_forms.py                      crops, eggs, compost, coral
 python tools/make_furniture_forms.py                   beds, lecterns, conduits
 python tools/make_head_forms.py                        the mob heads
 python tools/make_container_forms.py                   shulker boxes and banners
-python tools/make_banner_textures.py                   the sixteen dyed banners
+python tools/make_banner_textures.py                   the dyed banners, and the two that are not a dye
 python tools/make_bed_textures.py                      the sixteen recoloured beds
 python tools/make_string_texture.py                    the string tile a ghost can be seen with
 ```

@@ -844,6 +844,12 @@ class HelpMarkTests(unittest.TestCase):
             app.destroy()
 
     def test_every_way_out_puts_the_tip_away(self):
+        # a tip is a borderless window of its own, so nothing closes it unless
+        # something is watching for it: a click, a keystroke, the mark going out
+        # from under the pointer, the window being dragged
+        from structura.ui import structura_gui
+
+        tooltip = structura_gui.Tooltip
         app = open_window()
         try:
             settle(app)
@@ -852,10 +858,12 @@ class HelpMarkTests(unittest.TestCase):
             class Elsewhere(object):
                 widget = app.make_button
 
-            for name, dismiss in (("a click elsewhere",
-                                   lambda: tip.elsewhere(Elsewhere())),
-                                  ("leaving the mark", tip.leave),
-                                  ("the window moving", tip.moved)):
+            for name, dismiss in (
+                    ("a click elsewhere",
+                     lambda: tooltip._interacted(Elsewhere())),
+                    ("a keystroke", lambda: tooltip._interacted(Elsewhere())),
+                    ("leaving the mark", tip.leave),
+                    ("the window moving", tooltip._moved)):
                 tip.show()
                 settle(app, 2)
                 self.assertIsNotNone(tip.window)
@@ -863,12 +871,17 @@ class HelpMarkTests(unittest.TestCase):
                     tip._anchor = (-1, -1, -1, -1)
                 dismiss()
                 self.assertIsNone(tip.window, "%s left it up" % name)
-                self.assertEqual(tip._watching, [],
-                                 "%s left handlers bound" % name)
+                self.assertIsNone(tooltip.showing,
+                                  "%s left a tip on record" % name)
         finally:
             app.destroy()
 
     def test_a_click_on_the_mark_itself_keeps_it(self):
+        # the mark's own binding opens the tip and the window-wide one runs
+        # after it, so a click there must not close what it just opened
+        from structura.ui import structura_gui
+
+        tooltip = structura_gui.Tooltip
         app = open_window()
         try:
             settle(app)
@@ -879,23 +892,48 @@ class HelpMarkTests(unittest.TestCase):
             class OnTheMark(object):
                 widget = app.tech_mark
 
-            tip.elsewhere(OnTheMark())
+            tooltip._interacted(OnTheMark())
             self.assertIsNotNone(tip.window)
             tip.hide()
         finally:
             app.destroy()
 
-    def test_showing_twice_does_not_stack_handlers(self):
+    def test_only_one_tip_is_up_at_a_time(self):
+        # whatever is open is what everything else has to close, so a second
+        # one opening has to put the first away rather than leaving it behind
+        from structura.ui import structura_gui
+
+        tooltip = structura_gui.Tooltip
+        app = open_window()
+        try:
+            settle(app)
+            marks = [mark for _key, _label, mark in self.marks(app)]
+            self.assertGreater(len(marks), 1, "only one mark to test with")
+            first, second = marks[0].tip, marks[1].tip
+            first.show()
+            settle(app, 2)
+            self.assertIs(tooltip.showing, first)
+            second.show()
+            settle(app, 2)
+            self.assertIsNone(first.window, "the first tip was left up")
+            self.assertIs(tooltip.showing, second)
+            second.hide()
+            self.assertIsNone(tooltip.showing)
+        finally:
+            app.destroy()
+
+    def test_showing_twice_leaves_one_window(self):
         app = open_window()
         try:
             settle(app)
             tip = app.tech_mark.tip
             tip.show()
+            window = tip.window
             tip.show()
             settle(app, 2)
-            self.assertEqual(len(tip._watching), 3)
+            self.assertIs(tip.window, window, "the second show built another")
             tip.hide()
-            self.assertEqual(tip._watching, [])
+            self.assertIsNone(tip.window)
         finally:
             app.destroy()
 

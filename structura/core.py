@@ -25,6 +25,18 @@ debug=False
 ## chest's contents or a sign's text, so only the fields named here are read.
 ENTITY_SHAPES = {"CopperGolemStatue": "Pose", "Banner": "Base"}
 
+## Which field of a block entity names a form outright, in place of the one its
+## `ENTITY_SHAPES` field chose. An ominous banner is not a colour: it is a
+## banner the game draws from a sheet of its own, and `Type` is what says so. A
+## banner carrying `Patterns` is the same case from the other end, because a
+## ghost block cannot composite six patterns and their colours as a pack is
+## built, so it is drawn with a mark of Structura's own instead.
+##
+## A field mapped to a dict is read for its value; one mapped to a string only
+## has to be there and say something. The first that answers wins.
+ENTITY_INSTEAD = {"Banner": (("Type", {"1": "illager"}),
+                             ("Patterns", "designed"))}
+
 ## Which field of a block entity names something that goes *with* the block's
 ## own shape state rather than instead of it. A bed keeps its colour beside the
 ## block and which half it is in its states, and the shape wants both, so the
@@ -576,6 +588,23 @@ class Structura:
             joined = ENTITY_ADDS.get(str(entity.get("id","")))
             if joined is not None and joined in entity:
                 data = "{}-{}".format(data, _plain(entity[joined]))
+            ## and a field that names a form outright replaces whatever the
+            ## one above chose. A banner that is ominous or carries patterns is
+            ## not any of the sixteen dyes.
+            for marker, named in ENTITY_INSTEAD.get(
+                    str(entity.get("id", "")), ()):
+                if marker not in entity:
+                    continue
+                held = entity[marker]
+                if isinstance(named, dict):
+                    form = named.get(_plain(held))
+                elif len(held) if hasattr(held, "__len__") else held:
+                    form = named
+                else:
+                    form = None
+                if form is not None:
+                    data = form
+                    break
             ## A cauldron's water may be dyed, and the dye is a whole colour in
             ## the block entity rather than a state of its own, so the block
             ## says only "water". The form becomes `dyed`, whose liquid asks for

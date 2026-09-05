@@ -40,13 +40,17 @@ COLOURS = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink",
            "black"]
 
 
+def average(block):
+    """The one colour a block's texture comes to, as the average of it."""
+    tile = Image.open(
+        os.path.join(BLOCKS, "%s.png" % block)).convert("RGB")
+    return tuple(int(round(band.resize((1, 1), Image.BOX).getpixel((0, 0))))
+                 for band in tile.split())
+
+
 def dye(colour):
     """The colour this pack paints that wool, as the average of its texture."""
-    wool = Image.open(
-        os.path.join(BLOCKS, "wool_colored_%s.png" % colour)).convert("RGB")
-    bands = wool.split()
-    return tuple(int(round(band.resize((1, 1), Image.BOX).getpixel((0, 0))))
-                 for band in bands)
+    return average("wool_colored_%s" % colour)
 
 
 ## Where the cloth is on the sheet, and nothing else. The post is up the right
@@ -69,6 +73,61 @@ def tint(sheet, colour):
     return out
 
 
+# --- the two banners that are not a colour -----------------------------------
+#
+# An ominous banner is not a dye. It is a banner the game draws from a sheet of
+# its own, and the pack the submodule carries has that sheet already: it is
+# copied in rather than drawn. A banner carrying patterns is the other case,
+# and there is nothing to copy, so it gets a mark of this project's own: the
+# Evil Slime Labs logo the About window opens, over a black cloth.
+#
+# **A design is bigger than a tile, so it is written where a grid of tiles can
+# read it.** Only sixteen by sixteen of a texture becomes a tile and a quad
+# reads one tile, so a cloth showing a design is drawn as a grid of quads
+# instead of as one, and the design is written at the size that grid reads:
+# thirty two across by sixty four down, which is the cloth's own proportions and
+# more than the twenty by forty vanilla draws it at.
+#
+# It goes below the sheet rather than in it. Both marked sheets keep vanilla's
+# 64 by 64 layout in their top half, so the post and the bar are read by the
+# same windows as every other banner's, and carry the design under it.
+COMMUNITY = os.path.join(ROOT, "CommunityVanillaResourcePack", "textures",
+                         "entity", "banner", "banner_illager.tga")
+LOGO = os.path.join(ROOT, "structura", "images", "evilslimelabs-logo3.png")
+FRONT = (1, 1, 21, 41)      # the face of the cloth, which is what a design is on
+SHEET = 64                  # vanilla's own sheet, which stays where it is
+## the design, and where it sits under the sheet. Keep these in step with
+## `make_container_forms.DESIGN_ACROSS`, `DESIGN_DOWN` and `DESIGN_AT`.
+DESIGN = (32, 64)
+DESIGN_AT = (0, SHEET)
+MARK_GROUND = "black"       # the cloth the logo is on
+
+
+def written(sheet, design):
+    """The sheet with a design written under it, at the size a grid reads."""
+    out = Image.new("RGBA", (max(sheet.size[0], DESIGN_AT[0] + DESIGN[0]),
+                             DESIGN_AT[1] + DESIGN[1]), (0, 0, 0, 0))
+    out.paste(sheet, (0, 0))
+    out.paste(design.resize(DESIGN, Image.NEAREST), DESIGN_AT)
+    return out
+
+
+def logo_on(cloth):
+    """The Evil Slime Labs logo over a cloth, as wide as the cloth and centred.
+
+    The logo is a wide picture and a banner is a tall one, so it is fitted
+    across and left where a crest sits rather than stretched to the cloth: the
+    rest is cloth, with the folds vanilla drew still on it.
+    """
+    ground = cloth.resize(DESIGN, Image.NEAREST)
+    logo = Image.open(LOGO).convert("RGBA")
+    wide = DESIGN[0]
+    tall = max(1, int(round(logo.size[1] * wide / float(logo.size[0]))))
+    ground.alpha_composite(logo.resize((wide, tall), Image.LANCZOS),
+                           (0, (DESIGN[1] - tall) // 2))
+    return ground
+
+
 def main():
     if not os.path.isfile(BASE):
         raise SystemExit(
@@ -80,6 +139,24 @@ def main():
         path = os.path.join(BANNERS, "banner_%s.png" % colour)
         made.save(path)
         print("   %2d %-12s %s" % (index, colour, os.path.basename(path)))
+
+    black = tint(sheet, MARK_GROUND)
+    path = os.path.join(BANNERS, "banner_designed.png")
+    made = written(black, logo_on(black.crop(FRONT)))
+    made.save(path)
+    print("      %-12s %s, %dx%d" % ("designed", os.path.basename(path),
+                                     *made.size))
+
+    if not os.path.isfile(COMMUNITY):
+        print("      no %s; the ominous banner keeps whatever is there"
+              % os.path.basename(COMMUNITY))
+        return
+    ominous = Image.open(COMMUNITY).convert("RGBA")
+    path = os.path.join(BANNERS, "banner_illager.png")
+    made = written(ominous, ominous.crop(FRONT))
+    made.save(path)
+    print("      %-12s %s, %dx%d" % ("illager", os.path.basename(path),
+                                     *made.size))
 
 
 if __name__ == "__main__":

@@ -76,9 +76,18 @@ def drop(path, family):
     if not found:
         return False
     start, end = found
-    while end < len(text) and text[end] in ",":
-        end += 1
-    text = text[:start].rstrip().rstrip(",") + "\n" + text[end:].lstrip("\n")
+    ## An entry is one item of an object, so exactly one of the two commas
+    ## either side of it goes with it: the one after, unless this was the last
+    ## item and there is none, in which case the one before. Taking both runs
+    ## the two entries that were its neighbours together.
+    after = end
+    while after < len(text) and text[after] in " \t":
+        after += 1
+    if after < len(text) and text[after] == ",":
+        text = text[:start] + text[after + 1:].lstrip("\n")
+    else:
+        text = (text[:start].rstrip().rstrip(",") + "\n"
+                + text[end:].lstrip("\n"))
     io.open(path, "w", encoding="utf-8", newline="").write(text)
     json.loads(io.open(path, encoding="utf-8").read())
     return True

@@ -420,17 +420,75 @@ class Tooltip(object):
     multiplies a size by the window scaling on the way through.
     """
 
+    ## The one tip that is up, if any. Two cannot be open at once: showing one
+    ## puts away whatever was there, so this is what everything else has to
+    ## close and there is never a second one to lose track of.
+    showing = None
+
     def __init__(self, widget, app, text):
         self.widget = widget
         self.app = app
         self.text = text
         self.window = None
-        self._watching = []
         widget.bind("<Enter>", self.show)
         widget.bind("<Leave>", self.leave)
-        widget.bind("<Button-1>", self.show)
+        widget.bind("<Button-1>", self.toggle)
         ## a tip outliving the thing it explains would sit there forever
         widget.bind("<Destroy>", self.hide)
+        self.watch(app)
+
+    @classmethod
+    def close_open(cls, _event=None):
+        """Put away whichever tip is up, whatever asked."""
+        if cls.showing is not None:
+            cls.showing.hide()
+
+    @classmethod
+    def watch(cls, app):
+        """Bind, once per window, everything that puts an open tip away.
+
+        A tip is a borderless window of its own, so nothing closes it on its
+        own: not a click, not a keystroke, not the program being left. Leaving
+        the mark is the usual way and it is not enough on its own, because a
+        mark can go out from under the pointer -- the window is relaid out, the
+        language changes, a dialog opens over it -- and no Leave ever arrives.
+
+        `bind_all` rather than a binding on the window, because the events that
+        matter land on whichever widget was clicked or typed in, including the
+        widgets of a dialog that has taken the grab. Bound once and left alone:
+        tkinter's `unbind` takes a funcid and removes the whole binding for the
+        sequence anyway, so binding and unbinding per tip would take the
+        window's own handlers with it.
+        """
+        if getattr(app, "_tips_watched", False):
+            return
+        app._tips_watched = True
+        for sequence in ("<Button>", "<Key>", "<MouseWheel>"):
+            try:
+                app.bind_all(sequence, cls._interacted, add="+")
+            except Exception:
+                pass
+        for sequence in ("<FocusOut>", "<Unmap>"):
+            try:
+                app.bind(sequence, cls._left_the_program, add="+")
+            except Exception:
+                pass
+        try:
+            app.bind("<Configure>", cls._moved, add="+")
+        except Exception:
+            pass
+
+    @classmethod
+    def _interacted(cls, event=None):
+        """Anything done to the program closes the tip that is up.
+
+        Except the click on the mark itself, which is the one that opened it:
+        the mark's own binding runs first and `bind_all` last, so a click there
+        would open a tip and close it again in the same event.
+        """
+        tip = cls.showing
+        if tip is not None and getattr(event, "widget", None) is not tip.widget:
+            tip.hide()
 
     def over_mark(self):
         """Whether the pointer is really on the mark.
@@ -451,10 +509,12 @@ class Tooltip(object):
         if not self.over_mark():
             self.hide()
 
-    def elsewhere(self, event=None):
-        """A click anywhere but the mark puts the tip away."""
-        if getattr(event, "widget", None) is not self.widget:
+    def toggle(self, _event=None):
+        """A click on the mark shows the tip, or puts it away if it is up."""
+        if self.window is not None:
             self.hide()
+        else:
+            self.show()
 
     def where(self):
         """The window's position and size, which the tip is placed against."""
@@ -464,38 +524,47 @@ class Tooltip(object):
         except Exception:
             return None
 
-    def moved(self, _event=None):
+    @classmethod
+    def _moved(cls, _event=None):
         """Hide if the window really moved, not merely settled.
 
         Configure fires throughout a window's layout as well as when it is
         dragged, so the event on its own is not the question. The window's
         geometry against the anchor recorded at open time is.
         """
-        if self.where() != self._anchor:
-            self.hide()
+        tip = cls.showing
+        if tip is not None and tip.where() != tip._anchor:
+            tip.hide()
 
-    def left_the_program(self, _event=None):
-        """Hide if the focus left the program, not merely this widget.
+    @classmethod
+    def _left_the_program(cls, _event=None):
+        """Hide if the focus left the program, not merely one widget.
 
         FocusOut also fires moving between widgets of the same window, which is
         most of what a window does, so what matters is whether anything in the
         program still holds focus. That is only settled once the move has
         finished, hence the hop through after().
         """
+        tip = cls.showing
+        if tip is None:
+            return
+
         def settled():
             try:
-                if self.app.focus_displayof() is None:
-                    self.hide()
+                if tip.app.focus_displayof() is None:
+                    tip.hide()
             except Exception:
-                self.hide()
+                tip.hide()
         try:
-            self.app.after(1, settled)
+            tip.app.after(1, settled)
         except Exception:
-            pass
+            tip.hide()
 
     def show(self, _event=None):
         if self.window is not None or not self.text:
             return
+        ## one at a time, so there is only ever one to put away
+        Tooltip.close_open()
         self.window = ctk.CTkToplevel(self.app)
         self.window.overrideredirect(True)
         self.window.configure(fg_color=BORDER)
@@ -519,27 +588,14 @@ class Tooltip(object):
         tkinter.Toplevel.wm_geometry(self.window,
                                      "%dx%d+%d+%d" % (wide, tall, x, y))
 
-        ## Everything else that puts it away. Leaving the mark is the usual one.
-        ## The tip is a borderless window of its own, so nothing else closes it
-        ## on a click, on a move to another window, or on the program being left
-        ## altogether.
+        ## what `_moved` compares the window against, so that the Configure
+        ## events a layout fires do not read as the window being dragged
         self._anchor = self.where()
-        for sequence, handler in (("<Button-1>", self.elsewhere),
-                                  ("<FocusOut>", self.left_the_program),
-                                  ("<Configure>", self.moved)):
-            try:
-                self._watching.append(
-                    (sequence, self.app.bind(sequence, handler, add="+")))
-            except Exception:
-                pass
+        Tooltip.showing = self
 
     def hide(self, _event=None):
-        for sequence, handle in self._watching:
-            try:
-                self.app.unbind(sequence, handle)
-            except Exception:
-                pass
-        self._watching = []
+        if Tooltip.showing is self:
+            Tooltip.showing = None
         if self.window is not None:
             try:
                 self.window.destroy()

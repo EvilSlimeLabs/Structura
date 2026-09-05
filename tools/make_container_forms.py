@@ -114,46 +114,109 @@ BAR = {face: (0, 0, 16, 4) for face in
 POLE_TALL = 30              # nearly two blocks, which is where vanilla stops
 CLOTH_TALL = 27
 CLOTH_WIDE = 14
+## thin enough that a cloth hung against the post finishes inside it rather
+## than on the same plane as its face
+CLOTH_DEEP = 0.3
 
-## The colour is in the block entity, as `Base`, counted in the same order as
-## wool, and `core.ENTITY_SHAPES` hands it over as the form to draw. Each form
-## names the sheet `tools/make_banner_textures.py` dyed for that colour, because
-## the game tints one white sheet at run time and a ghost block cannot tint.
+## The colour is in the block entity, as `Base`, and `core.ENTITY_SHAPES` hands
+## it over as the form to draw. Each form names the sheet
+## `tools/make_banner_textures.py` dyed for that colour, because the game tints
+## one white sheet at run time and a ghost block cannot tint.
+##
+## **`Base` counts backwards.** It is the dye's own number rather than the
+## wool's, and the two run in opposite directions: 0 is black and 15 is white,
+## not the other way about. Read as wool, every banner came out as the colour
+## opposite its own -- white black, lime purple, light blue brown.
 BANNER_COLOURS = ["white", "orange", "magenta", "light_blue", "yellow", "lime",
                   "pink", "gray", "silver", "cyan", "purple", "blue", "brown",
                   "green", "red", "black"]
 
+## The two banners that are not a dye at all. An ominous banner has a sheet of
+## its own in the vanilla pack and a banner carrying patterns gets a stand-in,
+## since a ghost block cannot composite six patterns and their colours as a pack
+## is built. `core.ENTITY_INSTEAD` is what names these forms.
+BANNER_MARKED = ("illager", "designed")
 
-def standing(sheet):
+## **A design is bigger than a tile, so a cloth carrying one is a grid.** Only
+## sixteen by sixteen of a texture becomes a tile and a quad reads one tile, so
+## a design on a single quad is a design at sixteen by sixteen -- less than the
+## twenty by forty vanilla draws a cloth at, and squashed to a square besides.
+## The two marked forms hang their cloth as two quads across by four down
+## instead, each reading a tile of its own out of the design
+## `tools/make_banner_textures.py` writes under the sheet. Keep these in step
+## with that script's `DESIGN`, `DESIGN_AT` and `TILE`.
+DESIGN_ACROSS, DESIGN_DOWN = 2, 4
+DESIGN_AT = (0, 64)
+TILE = 16
+## The face a banner is looked at is south, and a plane's two faces run their
+## windows in opposite directions: the same tile that reads the right way round
+## on the north face reads backwards on the south one. So the side that has to
+## be right takes its tile the other way round, the way a bed's long sides do.
+## A cloth of flat colour has nothing to gain from any of this, so the sixteen
+## dyed banners stay one quad apiece and read their tile as it comes.
+CLOTH_FRONT = dict(CLOTH, south=(TILE, 0, -TILE, TILE))
+
+
+def cloth(sheet, at, design=False):
+    """The cloth, as one quad or as the grid a design needs.
+
+    The design is laid out the way it is written: its leftmost column on the
+    quad at the least x, its top row on the quad at the greatest y. What has to
+    be turned round instead is the picture within each tile, because the two
+    faces of a plane run their windows in opposite directions and the face a
+    banner is looked at is the one that reads its tile backwards. Turning the
+    columns round rather than the tiles draws each tile flipped where it stands,
+    which is not a mirrored design but a jumbled one.
+    """
+    if not design:
+        return [Cube((CLOTH_WIDE, CLOTH_TALL, CLOTH_DEEP), at, sheet,
+                     window=CLOTH)]
+    wide = CLOTH_WIDE / float(DESIGN_ACROSS)
+    tall = CLOTH_TALL / float(DESIGN_DOWN)
+    return [Cube((wide, tall, CLOTH_DEEP),
+                 (at[0] + across * wide,
+                  at[1] + (DESIGN_DOWN - 1 - down) * tall,
+                  at[2]),
+                 "%s#%d,%d" % (sheet, DESIGN_AT[0] + across * TILE,
+                               DESIGN_AT[1] + down * TILE),
+                 window=CLOTH_FRONT)
+            for down in range(DESIGN_DOWN)
+            for across in range(DESIGN_ACROSS)]
+
+
+def standing(sheet, design=False):
     """On the floor: a post up the middle with the cloth hanging in front.
 
     It stands out of its own block, the way the game draws one. A ghost block is
     read as a mark on the place a block goes, and a banner that stopped at the
     top of its own block read as half a banner.
     """
-    return [Cube((2, POLE_TALL, 2), (7, 0, 7), sheet + POLE_ART, window=POLE),
-            ## a pixel clear of the post's own face, which the cloth used to
-            ## end exactly on, so the two fought over the same plane
-            Cube((CLOTH_WIDE, CLOTH_TALL, 0.4), (1, 2, 9.6), sheet,
-                 window=CLOTH)]
+    ## Hung against the post rather than a pixel clear of it. Its front face
+    ## would then land exactly on the post's, over the two pixels they share, so
+    ## the cloth is drawn a shade thinner and finishes just inside the post
+    ## instead of on its plane.
+    return ([Cube((2, POLE_TALL, 2), (7, 0, 7), sheet + POLE_ART, window=POLE)]
+            + cloth(sheet, (1, 3, 8.6), design))
 
 
-def wall(sheet):
+def wall(sheet, design=False):
     """On a wall: the bar lies across the top and the cloth hangs below it.
 
     Against the block behind it, at z 0, the way a wall sign sits, and the cloth
     hangs down past the block's own floor.
     """
-    return [Cube((16, 2, 2), (0, 14, 0), sheet + BAR_ART, window=BAR),
-            ## and a pixel clear of the bar, for the same reason
-            Cube((CLOTH_WIDE, CLOTH_TALL, 0.4), (1, 14 - CLOTH_TALL, 3), sheet,
-                 window=CLOTH)]
+    return ([Cube((16, 2, 2), (0, 14, 0), sheet + BAR_ART, window=BAR)]
+            ## and out of the wall far enough to clear the bar
+            + cloth(sheet, (1, 15 - CLOTH_TALL, 4), design))
 
 
 def dyed(shape):
     """One form per colour, and white for a banner with no entity beside it."""
-    forms = {str(n): shape(BANNER % colour)
-             for n, colour in enumerate(BANNER_COLOURS)}
+    last = len(BANNER_COLOURS) - 1
+    forms = {str(n): shape(BANNER % BANNER_COLOURS[last - n])
+             for n in range(len(BANNER_COLOURS))}
+    for marked in BANNER_MARKED:
+        forms[marked] = shape(BANNER % marked, design=True)
     forms["default"] = shape(BANNER % "white")
     return forms
 

@@ -655,16 +655,31 @@ class MountingTests(unittest.TestCase):
                                 % stage)
 
     def test_a_turtle_egg_reads_an_egg_on_every_face(self):
-        # the tile holds an egg drawn several times over, so a face working its
-        # own window out reads whichever eggs line up with where it stands
+        # the tile holds an egg drawn several times over, and the two sizes are
+        # drawn in different corners of it, so a face working its own window out
+        # reads whichever eggs line up with where it stands and one window for
+        # both sizes reads empty tile down the side of the bigger one
+        from PIL import Image
+
         entry = load("block_uv")["turtle_egg"]["four_egg"]
         shapes = load("block_shapes")["turtle_egg"]["four_egg"]
+        tile = Image.open(os.path.join(
+            paths.vanilla_pack(), "textures", "blocks",
+            "turtle_egg_not_cracked.png")).convert("RGBA")
         for index, size in enumerate(shapes["size"]):
             self.assertEqual(entry["uv_sizes"]["north"][index],
                              [size[0], size[1]],
                              "egg %d reads a window the wrong shape" % index)
-            self.assertEqual(entry["offset"]["north"][index], [0.0, 0.0],
-                             "egg %d reads its side off another egg" % index)
+            for face in ("north", "south", "east", "west", "up", "down"):
+                across, down = entry["offset"][face][index]
+                wide, tall = entry["uv_sizes"][face][index]
+                clear = [(x, y)
+                         for y in range(round(down * 16), round((down + tall) * 16))
+                         for x in range(round(across * 16), round((across + wide) * 16))
+                         if tile.getpixel((x, y))[3] == 0]
+                self.assertEqual(clear, [],
+                                 "egg %d reads empty tile on its %s"
+                                 % (index, face))
 
     def test_a_crop_wears_the_texture_of_the_stage_it_is_at(self):
         # eight stages of wheat, and a lookup naming only the last of them
@@ -776,7 +791,10 @@ class MountingTests(unittest.TestCase):
         from structura import core
 
         pack = core.Structura.__new__(core.Structura)
-        for base, colour in ((0, "white"), (9, "cyan"), (15, "black")):
+        # `Base` is the dye's own number, which runs the opposite way round
+        # from wool's: 0 is black and 15 is white. An ominous banner and one
+        # carrying patterns are not a dye at all and have sheets of their own.
+        for base, colour in ((0, "black"), (6, "cyan"), (15, "white")):
             entity = {"id": "Banner", "Base": base}
             data = core.Structura._process_block(
                 pack, {"name": "minecraft:standing_banner",
@@ -790,6 +808,64 @@ class MountingTests(unittest.TestCase):
             self.assertEqual(
                 {n.split("/")[-1].split("#")[0] for n in self.geo.uv_map},
                 {"banner_%s" % colour})
+
+        for entity, colour in (({"id": "Banner", "Base": 0, "Type": 1},
+                                "illager"),
+                               ({"id": "Banner", "Base": 0,
+                                 "Patterns": [{"Color": 1}]}, "designed")):
+            data = core.Structura._process_block(
+                pack, {"name": "minecraft:standing_banner",
+                       "states": {"ground_sign_direction": 0}}, entity)[4]
+            self.geo.blocks = {}
+            self.geo.uv_map = {}
+            self.geo.uv_array = None
+            self.geo.make_block(0, 0, 0, "standing_banner", rot=0, data=data)
+            self.assertEqual(
+                {n.split("/")[-1].split("#")[0] for n in self.geo.uv_map},
+                {"banner_%s" % colour})
+
+    def test_a_banner_with_a_design_hangs_it_across_a_grid_of_tiles(self):
+        # only sixteen by sixteen of a texture becomes a tile and a quad reads
+        # one tile, so a design on a single quad is a design at sixteen by
+        # sixteen: less than vanilla draws a cloth at, and squashed square
+        shapes = load("block_shapes")["standing_banner"]
+        entry = load("block_uv")["standing_banner"]
+        plain = shapes["0"]["size"]
+        for form in ("illager", "designed"):
+            tiles = [name for name in entry[form]["overwrite"]["south"]
+                     if "banner_%s#" % form in name]
+            corners = [name.split("#")[1] for name in tiles]
+            self.assertEqual(len(set(corners)), len(corners),
+                             "%s reads one tile twice" % form)
+            self.assertGreater(len(corners), len(plain) - 1,
+                               "%s is still one quad" % form)
+
+            # the design is laid out the way it is written: leftmost column at
+            # the least x, top row at the greatest y
+            placed = {}
+            for index, name in enumerate(entry[form]["overwrite"]["south"]):
+                if "#" not in name or name.endswith("#44,2"):
+                    continue
+                across, down = (int(n) for n in name.split("#")[1].split(","))
+                placed[(across, down)] = shapes[form]["offsets"][index]
+            for (across, down), at in placed.items():
+                for (other_across, other_down), other in placed.items():
+                    if other_across > across:
+                        self.assertLess(at[0], other[0],
+                                        "%s runs its columns backwards" % form)
+                    if other_down > down:
+                        self.assertGreater(at[1], other[1],
+                                           "%s runs its rows backwards" % form)
+
+            # and the side a banner is looked at reads its tile the other way
+            # round, because the two faces of a plane run opposite each other
+            for index, name in enumerate(entry[form]["overwrite"]["south"]):
+                if "banner_%s#" % form not in name or name.endswith("#44,2"):
+                    continue
+                self.assertLess(entry[form]["uv_sizes"]["south"][index][0], 0,
+                                "%s is not mirrored on its front" % form)
+                self.assertGreater(entry[form]["uv_sizes"]["north"][index][0], 0,
+                                   "%s is mirrored on its back as well" % form)
 
     def test_a_head_on_the_floor_turns_with_its_block_entity(self):
         # the states say only which of the six faces a head is fixed to; a head

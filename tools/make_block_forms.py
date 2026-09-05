@@ -1072,10 +1072,10 @@ def brew_turned(size, at, angle, texture, window):
     middle, so the edge stays pinned to the rod and the piece swings out to its
     own plate.
 
-    The model's x runs opposite the world's, which reverses a turn about y. So
-    the cube's own angle is the negative of the one its position is spun by:
-    give it the same and the piece lands beside the right plate pointing across
-    the block instead of out along its own radius.
+    `spun` turns a point the opposite way round from the angle a cube's own
+    rotation turns the cube, so the two take opposite signs. Given the same, a
+    piece lands beside the right plate but lies across the block rather than out
+    along its own radius.
     """
     middle = [start + span / 2.0 for start, span in zip(at, size)]
     moved = spun(middle, (8, middle[1], 8), (0, angle, 0))

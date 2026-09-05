@@ -93,6 +93,33 @@ def main():
            from_variant="top")
     changed.append("double_plant")
 
+    ## --- azalea: a bush whose slots are not its faces ------------------------
+    ## `blocks.json` gives an azalea six textures and only two of them are what
+    ## the block looks like. `north` and `up` are the leaves; `south`, `east`
+    ## and `west` are the potted bush's side, the plant inside a pot, and the
+    ## pot's own plant, which the engine picks from for a model of its own. A
+    ## block taking them literally is leaves on one side and crockery on three.
+    ## All four sides read the leaves, and so does the underside, which is
+    ## `potted_azalea_bush_top` otherwise.
+    shapes["azalea"] = json.loads(json.dumps(shapes["cube"]))
+    uv["azalea"] = json.loads(json.dumps(uv["cube"]))
+    uv["azalea"]["default"]["overwrite"] = {
+        "up": ["@up"], "down": ["@up"],
+        "north": ["@north"], "south": ["@north"],
+        "east": ["@north"], "west": ["@north"]}
+    lookup_writer.put(SHAPES, "azalea", shapes["azalea"], tight=True)
+    define(["azalea", "flowering_azalea"], "azalea")
+    changed.append("azalea")
+
+    ## --- carved pumpkins: the face was round the back ------------------------
+    ## Its table was written a half turn out from every other block with a
+    ## front: south read 180 where the convention is 0, so a pumpkin carved
+    ## facing south looked north. Every entry turns half round.
+    turned = {}
+    for state, angles in load(ROTATION)["carved_pumpkin"].items():
+        turned[state] = [angles[0], (angles[1] + 180) % 360, angles[2]]
+    lookup_writer.put(ROTATION, "carved_pumpkin", turned, tight=True)
+
     ## --- vault: a cube, but one with a front ---------------------------------
     ## A rotation table is keyed by shape family, and a vault shared `cube` with
     ## everything else that is a plain box. `cube`'s table describes the axis

@@ -153,20 +153,30 @@ COCOA["default"] = COCOA["2"]
 # stands reads whichever eggs happen to line up with it, which is why a clutch
 # came out as pale boxes with corners of other eggs on them. Every face takes an
 # egg the size of that face instead.
+#
+# **And the two sizes are drawn in different corners of the tile.** The big
+# egg's side is four across and seven down at (1, 4) and the small one's is four
+# by five at (10, 10); the caps are four by four, the tops at (0, 0) and (6, 7)
+# and the two undersides side by side along the bottom at (0, 11) and (4, 11).
+# One window for both sizes takes the big egg's from a column that is empty for
+# its first pixel and the small egg's from wherever seven rows down happens to
+# land, which is what left eggs with a clear stripe up them.
 BIG = (4, 7, 4)
 SMALL = (4, 5, 4)
-## the side of an egg down the left of the tile, and the end of one under it
-EGG_SIDE = (0, 0)
-EGG_CAP = (0, 7, 4, 4)
+## side, top and underside, per size, all read straight out of the tile
+EGG_ART = {
+    BIG: {"side": (1, 4, 4, 7), "up": (0, 0, 4, 4), "down": (0, 11, 4, 4)},
+    SMALL: {"side": (10, 10, 4, 5), "up": (6, 7, 4, 4), "down": (4, 11, 4, 4)},
+}
 
 
 def egg(size, at):
     """One egg, every face reading an egg rather than a slice of the block."""
-    wide, tall, deep = size
-    side = (EGG_SIDE[0], EGG_SIDE[1], wide, tall)
+    art = EGG_ART[size]
+    side = art["side"]
     return Cube(size, at, window={
         "north": side, "south": side, "east": side, "west": side,
-        "up": EGG_CAP, "down": EGG_CAP})
+        "up": art["up"], "down": art["down"]})
 
 
 TURTLE_EGGS = {
