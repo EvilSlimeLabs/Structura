@@ -340,10 +340,12 @@ Geometry numbers and UV values can be checked here. How they look cannot.
   halved, with the two pixel channel between them that the rod stands in. The
   arrangement is right; whether vanilla leaves more of a gap between them is not
   knowable from here.
-- **The bottles a brewing stand is holding are not drawn.**
+- **A brewing stand's bottles are two crossed quads of an item texture.**
   `brewing_stand_slot_a_bit` and its two fellows say which of the three slots
-  are full, and the arms that hold them are drawn either side of the rod on the
-  same tile, but the bottles themselves come from the block entity.
+  are full, and they are shape states, so the family has eight forms.
+  `potion_bottle_empty` is an item texture rather than a terrain tile and had to
+  be copied out of the community submodule; a bottle's own colour is not in the
+  block, so every one of them is drawn empty.
 - **The compost heights, the egg positions and the cocoa sizes** are plausible
   rather than measured from the game. The counts and the stages are right; where
   exactly each egg sits in its clutch is not knowable from here.
@@ -399,7 +401,7 @@ different list of cubes rather than the same list moved:
 | `tripwire` | one flat plate a pixel and a half off the floor, wearing a tile drawn for it |
 | `flower_pot` | four terracotta walls a pixel thick with the soil sunk inside them, six across and six tall |
 | `decorated_pot` | a body fourteen across and twelve tall with an eight by four neck on top of it, every face naming its own part of the 32x32 sheet |
-| `brewing_stand` | a two by fourteen rod standing in the channel between three stone plates, each reading its own part of the base tile |
+| `brewing_stand` | a two by thirteen rod with three six by six plates round it, an arm out to each, and a bottle on a plate for each of `brewing_stand_slot_a_bit` and its two fellows. Each plate reads the socket drawn for it on the base tile, so the picture turns with the stone |
 | `heavy_core` | one eight by eight by eight cube, its top, its bottom and its four walls reading the three pictures its file holds |
 | `dried_ghast` | a ten by ten by ten body on the floor with six tentacles lying flat around it, all of it keeping the block's own faces so it follows `rehydration_level` |
 

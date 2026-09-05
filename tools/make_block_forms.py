@@ -389,25 +389,29 @@ def grindstone(floor, legs):
                          "south": (0, 0, WHEEL_WIDE, WHEEL_TALL),
                          "up": (0, 0, WHEEL_WIDE, WHEEL_DEEP),
                          "down": (0, 0, WHEEL_WIDE, WHEEL_DEEP)})
-    pivots = [Cube((4, PIVOT_TALL, 2), (6, axle - PIVOT_TALL // 2, at), PIVOT,
+    ## the stand runs across the block the way it always did; only the wheel
+    ## between its two pivots turned
+    pivots = [Cube((2, PIVOT_TALL, 4), (at, axle - PIVOT_TALL // 2, 6), PIVOT,
                    window={face: PIVOT_ART for face in FACES})
-              for at in (WHEEL_Z - 2, WHEEL_Z + WHEEL_DEEP)]
+              for at in (0, 14)]
     return legs(floor, axle) + pivots + [wheel]
 
 
+LEG_AT = (2, 12)
+
+
 def legs_down(_floor, _axle):
-    return [Cube((2, LEG_ROOM, 2), (7, 0, at), LEG)
-            for at in (WHEEL_Z, 16 - WHEEL_Z - 2)]
+    return [Cube((2, LEG_ROOM, 2), (at, 0, 7), LEG) for at in LEG_AT]
 
 
 def legs_up(floor, _axle):
-    return [Cube((2, LEG_ROOM, 2), (7, floor + WHEEL_TALL, at), LEG)
-            for at in (WHEEL_Z, 16 - WHEEL_Z - 2)]
+    return [Cube((2, LEG_ROOM, 2), (at, floor + WHEEL_TALL, 7), LEG)
+            for at in LEG_AT]
 
 
 def legs_back(_floor, axle, sides=(0,)):
-    return [Cube((6, 2, 2), (x, axle - 1, at), LEG)
-            for x in sides for at in (WHEEL_Z, 16 - WHEEL_Z - 2)]
+    return [Cube((2, 2, 6), (at, axle - 1, z), LEG)
+            for z in sides for at in LEG_AT]
 
 
 GRINDSTONES = {
@@ -531,10 +535,13 @@ def door_half(at, texture, along_x, mirror=False):
     """One block of a door, its edges reading the frame and not the panel."""
     ## a window that starts at the far edge and runs back is how Bedrock reads
     ## a picture the other way round
+    ## only the face on the outside of the panel: the two faces of a box read
+    ## their windows in opposite directions, so mirroring both puts the picture
+    ## right on the inside and wrong on the outside again
     panel = (16, 0, -16, 16) if mirror else DOOR_WHOLE
     if along_x:
         size = (16, 16, DOOR_THICK)
-        window = {"north": panel, "south": panel,
+        window = {"north": DOOR_WHOLE, "south": panel,
                   "east": DOOR_EDGE, "west": DOOR_EDGE,
                   ## a top face sixteen across and three deep cannot read a
                   ## frame three across and sixteen down without turning it, so
@@ -542,7 +549,7 @@ def door_half(at, texture, along_x, mirror=False):
                   "up": DOOR_TOP, "down": DOOR_FOOT}
     else:
         size = (DOOR_THICK, 16, 16)
-        window = {"east": panel, "west": panel,
+        window = {"east": panel, "west": DOOR_WHOLE,
                   "north": DOOR_EDGE, "south": DOOR_EDGE,
                   "up": DOOR_EDGE, "down": DOOR_EDGE}
     return Cube(size, at, texture, window=window)
@@ -705,6 +712,10 @@ RING_WIDE, RING_THICK = 4, 0.5
 ## how far up the plate the shaft leaves it, and the three angles a world showed
 SHAFT_AT = 8
 LOOSE, TIED, ENGAGED = 45.0, -10.0, -45.0
+## the wire pulls the hook up off the shaft it hangs on
+TIED_RING = TIED + 100.0
+## and the shaft starts a pixel inside the plate rather than off its face
+SHAFT_IN = 1
 
 plate = Cube((PLATE_WIDE, PLATE_TALL, PLATE_DEEP),
              ((16 - PLATE_WIDE) // 2, (16 - PLATE_TALL) // 2, 0),
@@ -722,7 +733,7 @@ def leaning(angle, along, up):
     over = (-math.sin(lean), math.cos(lean))        # square across it
     return (8,
             SHAFT_AT + along * out[1] + up * over[1],
-            PLATE_DEEP + along * out[0] + up * over[0])
+            PLATE_DEEP - SHAFT_IN + along * out[0] + up * over[0])
 
 
 def hook(angle, high, ring_angle=None):
@@ -760,7 +771,7 @@ def hook(angle, high, ring_angle=None):
 TRIPWIRE_HOOKS = {
     ## attached_bit and powered_bit, joined the way core.py joins shape states
     "0-0": hook(LOOSE, high=False),
-    "1-0": hook(TIED, high=False),
+    "1-0": hook(TIED, high=False, ring_angle=TIED_RING),
     "0-1": hook(ENGAGED, high=True, ring_angle=0.0),
     "1-1": hook(ENGAGED, high=True, ring_angle=0.0),
 }
@@ -876,39 +887,89 @@ HEAVY_CORES = {"default": [heavy_core]}
 # (12, 7.5). Each plate is the part of the tile its socket sits in the middle of.
 BREW_ROD = "@up"            # brewing_stand
 BREW_BASE = "@down"         # brewing_stand_base
-ROD_WIDE, ROD_TALL = 2, 14
-PLATE_TALL = 2
+ROD_WIDE, ROD_TALL = 2, 13
+PLATE_WIDE, PLATE_TALL = 6, 2
+BOTTLE = "textures/items/potion_bottle_empty"
+
+## Where the three sockets are drawn on the base tile, which is the only thing
+## in the pack that says where a plate goes, and where each plate stands once
+## the stand is turned half round. A plate keeps reading the socket it belongs
+## to, so the picture turns with the stone.
+BREW_PLATES = [((12, 8), (1, 5)), ((3, 4), (10, 9)), ((3, 12), (10, 1))]
 
 
-def brew_plate(size, at):
-    """One of the three stone plates, reading its own part of the base tile."""
-    wide, tall, deep = size
-    x, _up, z = at
-    return Cube(size, at, texture=BREW_BASE, window={
-        "up": (x, z, wide, deep), "down": (x, z, wide, deep),
-        "north": (x, 16 - tall, wide, tall),
-        "south": (x, 16 - tall, wide, tall),
-        "east": (z, 16 - tall, deep, tall),
-        "west": (z, 16 - tall, deep, tall)})
+def brew_plate(socket, at):
+    """One of the three stone plates, reading its own socket on the base tile."""
+    across, down = socket
+    corner = (across - PLATE_WIDE // 2, down - PLATE_WIDE // 2)
+    return Cube((PLATE_WIDE, PLATE_TALL, PLATE_WIDE), (at[0], 0, at[1]),
+                texture=BREW_BASE, window={
+                    "up": corner + (PLATE_WIDE, PLATE_WIDE),
+                    "down": corner + (PLATE_WIDE, PLATE_WIDE),
+                    "north": (corner[0], 16 - PLATE_TALL, PLATE_WIDE, PLATE_TALL),
+                    "south": (corner[0], 16 - PLATE_TALL, PLATE_WIDE, PLATE_TALL),
+                    "east": (corner[1], 16 - PLATE_TALL, PLATE_WIDE, PLATE_TALL),
+                    "west": (corner[1], 16 - PLATE_TALL, PLATE_WIDE, PLATE_TALL)})
+
+
+def brew_arm(at):
+    """A flat quad from the rod out to the middle of one plate.
+
+    The tile draws the arms either side of the rod, so an arm reads one of
+    those rather than the rod's own column.
+    """
+    reach = (at[0] + PLATE_WIDE / 2.0 - 8, at[1] + PLATE_WIDE / 2.0 - 8)
+    along_x = abs(reach[0]) > abs(reach[1])
+    length = max(abs(reach[0]), abs(reach[1]))
+    size = (length, 0.2, 2) if along_x else (2, 0.2, length)
+    corner = (min(8, 8 + reach[0]) if along_x else 7,
+              PLATE_TALL,
+              7 if along_x else min(8, 8 + reach[1]))
+    art = (2, 4, 5, 4) if along_x else (10, 4, 5, 4)
+    return Cube(size, corner, texture=BREW_ROD,
+                window={face: art for face in FACES})
+
+
+def brew_bottle(at):
+    """A bottle standing on one plate, drawn as two crossed quads."""
+    middle = (at[0] + PLATE_WIDE / 2.0, at[1] + PLATE_WIDE / 2.0)
+    art = {face: (0, 0, 16, 16) for face in FACES}
+    return [Cube((5, 6, 0.2), (middle[0] - 2.5, PLATE_TALL, middle[1] - 0.1),
+                 BOTTLE, window=art),
+            Cube((0.2, 6, 5), (middle[0] - 0.1, PLATE_TALL, middle[1] - 2.5),
+                 BOTTLE, window=art)]
 
 
 brew_rod = Cube((ROD_WIDE, ROD_TALL, ROD_WIDE), (7, 0, 7), texture=BREW_ROD,
                 window={
-                    "north": (7, 1, ROD_WIDE, ROD_TALL),
-                    "south": (7, 1, ROD_WIDE, ROD_TALL),
-                    "east": (7, 1, ROD_WIDE, ROD_TALL),
-                    "west": (7, 1, ROD_WIDE, ROD_TALL),
+                    ## the rod's own column of the tile. It was read a row high,
+                    ## which left a blank line across the top of the rod
+                    "north": (7, 2, ROD_WIDE, ROD_TALL),
+                    "south": (7, 2, ROD_WIDE, ROD_TALL),
+                    "east": (7, 2, ROD_WIDE, ROD_TALL),
+                    "west": (7, 2, ROD_WIDE, ROD_TALL),
                     "up": (7, 7, ROD_WIDE, ROD_WIDE),
                     "down": (7, 7, ROD_WIDE, ROD_WIDE)})
 
-BREWING_STANDS = {"default": [
-    brew_rod,
-    ## the whole of one side, and the other side halved. The channel between
-    ## them is the two pixels the rod stands in.
-    brew_plate((7, PLATE_TALL, 16), (9, 0, 0)),
-    brew_plate((7, PLATE_TALL, 8), (0, 0, 0)),
-    brew_plate((7, PLATE_TALL, 8), (0, 0, 8)),
-]}
+
+def brewing(bottles):
+    """The rod, three plates with an arm each, and a bottle where there is one."""
+    made = [brew_rod]
+    for (socket, at), full in zip(BREW_PLATES, bottles):
+        made.append(brew_plate(socket, at))
+        made.append(brew_arm(at))
+        if full:
+            made.extend(brew_bottle(at))
+    return made
+
+
+## brewing_stand_slot_a_bit and its two fellows, joined the way core.py joins
+## shape states, which sorts them a then b then c
+BREWING_STANDS = {
+    "-".join(str(n) for n in slots): brewing(slots)
+    for slots in [(a, b, c) for a in (0, 1) for b in (0, 1) for c in (0, 1)]
+}
+BREWING_STANDS["default"] = BREWING_STANDS["0-0-0"]
 
 
 # --- flower pots ------------------------------------------------------------

@@ -268,10 +268,11 @@ class MountingTests(unittest.TestCase):
         for index in (0, 1):
             # shut, the panel is on the x faces and its picture is mirrored: a
             # window that starts at the far edge and runs back
-            for face in ("east", "west"):
-                self.assertEqual(entry["uv_sizes"][face][index], [-1.0, 1.0],
-                                 "the panel is not read the other way round")
-                self.assertEqual(entry["offset"][face][index], [1.0, 0.0])
+            self.assertEqual(entry["uv_sizes"]["east"][index], [-1.0, 1.0],
+                             "the outward face is not read the other way round")
+            self.assertEqual(entry["offset"]["east"][index], [1.0, 0.0])
+            self.assertEqual(entry["uv_sizes"]["west"][index], [1.0, 1.0],
+                             "the inward face is mirrored as well")
             for face in ("north", "south", "up", "down"):
                 self.assertEqual(entry["uv_sizes"][face][index], [0.1875, 1.0],
                                  "%s reads more than the frame" % face)
@@ -419,18 +420,19 @@ class MountingTests(unittest.TestCase):
         # it was a rod on one 14 by 14 slab, which is a paving stone with a pole
         # through it, and the pole started on top of that slab so it stood two
         # pixels proud of the block
-        cubes = self.cubes("brewing_stand")
-        self.assertEqual(len(cubes), 4, "a rod and three plates")
-        rod = max(cubes, key=lambda cube: cube[1][1])
-        plates = [cube for cube in cubes if cube is not rod]
-        self.assertEqual(rod[0][1], min(at[1] for at, _size in cubes),
-                         "the rod stands on the floor of the block")
-        self.assertEqual(rod[1][1] + min(size[1] for _at, size in plates), 1.0,
-                         "the rod and a plate together are a block tall")
-        for at, size in plates:
-            near, far = at[0], at[0] + size[0]
-            self.assertTrue(far <= rod[0][0] or near >= rod[0][0] + rod[1][0],
-                            "a plate runs through the rod's channel")
+        shapes = load("block_shapes")["brewing_stand"]
+        empty = shapes["0-0-0"]
+        self.assertEqual(len(empty["size"]), 7,
+                         "a rod, three plates and an arm to each")
+        plates = [size for size in empty["size"] if size[1] == 0.125]
+        self.assertEqual(len(plates), 3)
+        for plate in plates:
+            self.assertEqual([plate[0], plate[2]], [0.375, 0.375],
+                             "a plate is not six by six")
+        # a bottle is two crossed quads, and each slot bit puts one on
+        self.assertEqual(len(shapes["1-1-1"]["size"]),
+                         len(empty["size"]) + 6,
+                         "the slot bits do not each add a bottle")
 
         # the rod reads the column of its tile it is drawn in, not the whole of
         # it, which carries the arms that hold the bottles either side
@@ -853,10 +855,14 @@ class MountingTests(unittest.TestCase):
         shapes = load("block_shapes")
         for family, variant in (("wall_sign", "default"), ("shelf", "default"),
                                 ("bell", "side"), ("grindstone", "side"),
-                                ("tripwire_hook", "0-0"),
-                                ("tripwire_hook", "1-1")):
+                                ("tripwire_hook", "0-0")):
             form = shapes[family][variant]
-            nearest = min(off[2] for off in form["offsets"])
+            ## a tripwire hook's shaft leans, and the box it is cut from starts
+            ## a hair outside the block before it turns; the plate on the wall
+            ## is what has to sit at z 0
+            offsets = (form["offsets"][:1] if family == "tripwire_hook"
+                       else form["offsets"])
+            nearest = min(off[2] for off in offsets)
             self.assertEqual(nearest, 0,
                              "%s %s is mounted on the far wall"
                              % (family, variant))

@@ -121,22 +121,30 @@ ENCHANTING = {"default": [
 
 # --- conduit ----------------------------------------------------------------
 #
-# A small cage in the middle of the block. Its textures are entity sheets rather
-# than tiles: conduit_base is 24x12 and the shell 8x8, so each face names the
-# window it reads. Powered it opens, unpowered it is a closed shell.
+# A small cage in the middle of the block.
+#
+# **The cage is `conduit_base` and neither of the two shells.** That file is
+# 24x12, which is the unwrap of a box six by six by six laid out the way Bedrock
+# lays one out: the top and the bottom across the first six rows, then the four
+# walls in a strip under them. Six by six by six is the cage. The two 8x8 shells
+# beside it are the eye that opens once the conduit is running, and a conduit in
+# a structure is not running, so both of them were the wrong picture.
 CONDUIT_BASE = BLOCKS % "conduit_base"
 CLOSED = BLOCKS % "conduit_closed"
 OPEN = BLOCKS % "conduit_open"
+CAGE = 6
+CAGE_ART = {"up": (CAGE, 0, CAGE, CAGE), "down": (CAGE * 2, 0, CAGE, CAGE),
+            "west": (0, CAGE, CAGE, CAGE), "south": (CAGE, CAGE, CAGE, CAGE),
+            "east": (CAGE * 2, CAGE, CAGE, CAGE),
+            "north": (CAGE * 3, CAGE, CAGE, CAGE)}
 SHELL = {face: (0, 0, 8, 8) for face in FACES}
 
-## The two shells are the other way round from the way their names read: what
-## `conduit_closed` draws is the opened one, which is the shell a conduit only
-## wears once it is running, and a conduit in a structure is not.
 CONDUIT = {
-    "0": [Cube((6, 6, 6), (5, 5, 5), OPEN, window=SHELL)],
-    "1": [Cube((4, 4, 4), (6, 6, 6), CONDUIT_BASE,
-               window={face: (0, 0, 8, 8) for face in FACES}),
-          Cube((8, 8, 8), (4, 4, 4), CLOSED, window=SHELL)],
+    "0": [Cube((CAGE, CAGE, CAGE), ((16 - CAGE) // 2,) * 3, CONDUIT_BASE,
+               window=CAGE_ART)],
+    "1": [Cube((CAGE, CAGE, CAGE), ((16 - CAGE) // 2,) * 3, CONDUIT_BASE,
+               window=CAGE_ART),
+          Cube((8, 8, 8), (4, 4, 4), OPEN, window=SHELL)],
 }
 CONDUIT["default"] = CONDUIT["0"]
 
@@ -210,7 +218,7 @@ def bed(part, head, colour):
         "east": end, "west": end, "north": side, "south": side},
         window={"up": (0, 0, 16, 16), "down": (0, 0, 16, 16),
                 "east": BED_FACE, "west": BED_FACE,
-                "north": BED_BACK, "south": BED_FACE})
+                "north": BED_FACE, "south": BED_BACK})
     leg_art = (head, 16 - LEG, LEG, LEG)
     legs = [Cube((LEG, BED_UP, LEG), (head, 0, z), side,
                  window={face: leg_art for face in FACES})
